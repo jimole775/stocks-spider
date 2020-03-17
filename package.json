@@ -1,0 +1,75 @@
+{
+  "name": "stocks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./dev/app/bundle.js",
+    "dev": "gulp",
+    "dev:multi": "concurrently \"gulp watching\" \"node ./dev/app/bundle.js\"",
+    "build": "gulp build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rongxis",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.8.6",
+    "@babel/runtime": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "babelify": "^10.0.0",
+    "browserify": "^16.3.0",
+    "cheerio": "^1.0.0-rc.3",
+    "concurrently": "^4.1.1",
+    "express": "^4.17.1",
+    "globby": "^10.0.1",
+    "gulp": "^4.0.2",
+    "gulp-alias-combo": "^0.4.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-copy": "^4.0.1",
+    "gulp-env": "^0.4.0",
+    "gulp-filter": "^6.0.0",
+    "gulp-inject": "^5.0.5",
+    "gulp-minify": "^3.1.0",
+    "gulp-preprocess": "^3.0.3",
+    "gulp-shell": "^0.7.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-ts-alias": "^0.2.0",
+    "gulp-uglify": "^3.0.2",
+    "gulp-util": "^3.0.8",
+    "gulp-watch": "^5.0.1",
+    "gulp-webpack": "^1.5.0",
+    "gulplog": "^1.0.0",
+    "insert-module-globals": "^7.2.0",
+    "js-yaml": "^3.13.1",
+    "mongodb": "^3.3.4",
+    "reactify": "^1.1.1",
+    "superagent": "^5.1.0",
+    "telnet-client": "^1.0.4",
+    "through2": "^3.0.1",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "vinyl-transform": "^1.0.0",
+    "webpack": "^4.42.0"
+  },
+  "dependencies": {
+    "browserify-shim": "^3.8.14",
+    "puppeteer": "^2.1.1"
+  },
+  "browserify": {
+    "transform": "browserify-shim"
+  },
+  "browserify-shim": {
+    "test": "test"
+  },
+  "pkg": {
+    "scripts": "build/**/*.js",
+    "assets": "views/**/*"
+  }
+}
