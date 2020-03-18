@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer'
 import {isCSSUrl, isImgUrl} from './assert'
-export default function (requestCallback, responseCallback) {
+export function initPage(requestCallback, responseCallback) {
   return new Promise(async (s, j) => {
     try {
       const browser = await puppeteer.launch().catch()

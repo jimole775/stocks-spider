@@ -11,6 +11,7 @@ export async function recordKlines(response) {
   if (alreadyData && alreadyData.date - new Date().getTime() < 24 * 60 * 60 * 1000) {
     return alreadyData.data
   }
+  
   // 修改数据的请求数量
   const url = response.url().replace(/^(http.*?)\&lmt\=\d*?\&(.*?)$/, '$1&lmt=99999&$2')
   const dirtyData = await quest(url)

@@ -9,7 +9,7 @@ const urlPool = [
  * 
  * @return [{ code: [String], name: [String], marketName: [String], marketCode: [String | Number]}]  
  */
-export function getAllStocks(page) {
+export function buildModel(page) {
   return new Promise((s, j) => {
     let allStocks = [
     ]

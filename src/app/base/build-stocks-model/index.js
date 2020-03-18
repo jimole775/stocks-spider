@@ -7,11 +7,11 @@
 import fs from 'fs'
 import path from 'path'
 import puppeteer from 'puppeteer'
-import { getAllStocks } from './get-all-stocks'
+import { getAllStocks } from './build-model'
 const { readFile, writeFile } = require(`${global.srcRoot}/utils`)
 const baseDataPath = `${global.srcRoot}/db/warehouse`
 const fileName = 'base.json'
-export function spillStockModel() {
+export function buildStocksModel() {
   return new Promise(async (s, j) => {
     const alreadyData = await tryToloadAlreadyData(path.join(baseDataPath, fileName))
     if (alreadyData) return s('success')

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { isArray, isObject } from './assert'
-export default function (file, data) {
+export function writeFile(file, data) {
   let fd = null
   try {
     const isExist = fs.existsSync(file)
@@ -18,7 +18,6 @@ export default function (file, data) {
 }
 
 function createPath(file) {
-  debugger
   const splitMark = getSplitMark(file)
   const delimArr = file.split(splitMark)
   delimArr.pop()

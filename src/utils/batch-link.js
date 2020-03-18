@@ -1,5 +1,5 @@
-import initPage from './init-page'
-export default async function (urls, callback) {
+import { initPage } from './init-page'
+export async function batchLink(urls, callback) {
   const page = await initPage(callback.onRequest, callback.onResponse)
   return loopLink(0)
   async function loopLink(i) {
@@ -13,9 +13,10 @@ export default async function (urls, callback) {
     // 增加一个随机的延迟，防止被请求被屏蔽
     return setTimeout(() => {
       if (i === urls.length - 1) {
-        return page.close()
+        page.close()
+        return callback.onEnd && callback.onEnd()
       }
-      console.log('loop...')
+      console.log('loading >> ', i)
       return loopLink(++i)
     }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100 + 1000)
   }

@@ -6,7 +6,7 @@ const superagent = require('superagent')
  * @param {*} params 
  * @return String
  */
-export default function (url, params) {
+export function quest(url, params) {
   return new Promise(async (s, j) => {
     const ip = Math.random(1 , 254)  
         + "." + Math.random(1 , 254)  
