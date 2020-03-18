@@ -7,7 +7,7 @@
 import fs from 'fs'
 import path from 'path'
 import puppeteer from 'puppeteer'
-import { getAllStocks } from './build-model'
+import { buildModel } from './build-model'
 const { readFile, writeFile } = require(`${global.srcRoot}/utils`)
 const baseDataPath = `${global.srcRoot}/db/warehouse`
 const fileName = 'base.json'
@@ -18,7 +18,7 @@ export function buildStocksModel() {
     try {
       const browser = await puppeteer.launch().catch()
       const page = await browser.newPage().catch()
-      const allStocks = await getAllStocks(page)
+      const allStocks = await buildModel(page)
       writeFile(path.join(baseDataPath, fileName), {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)

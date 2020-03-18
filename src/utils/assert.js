@@ -23,7 +23,7 @@ export function isEmpty(likeEmpty) {
 }
 
 export function isImgUrl(src) {
-  return /^(\.png|jpe?g|gif|icon|svg)(\?.+)?$/i.test(src)
+  return /(\.png|jpe?g|gif|icon|svg)\??.*/i.test(src)
 }
 
 export function isHTMLUrl(src) {

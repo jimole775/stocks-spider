@@ -21,9 +21,9 @@ export function quest(url, params) {
   
     if (response.status === 200) {
       // response.body 是 Buffer
-      s(response.body ? response.body.toString() : '')
+      return s(response.body ? response.body.toString() : '')
     } else {
-      j(response.info)
+      return j(response.info)
     }
   })
 }

@@ -18,7 +18,7 @@ export function sniffStockHome() {
       .replace('[stockCode]', item.code)
   })
   const unlinkItems = hasUnlinkItems(urls, recordDir)
-  console.log('daily-klines:', unlinkItems)
+  console.log('klines unlink:', unlinkItems.length)
   batchLink(unlinkItems.length ? unlinkItems : urls, {
     onResponse: function(response) {
       if (response.status() === 200 && dailyKlineReg.test(response.url())) {

@@ -5,6 +5,7 @@ import fs from 'fs'
  * @param {*} recordDir 
  */
 export function hasUnlinkItems(urls, recordDir) {
+  if (!fs.existsSync(recordDir)) return urls
   const unlinkItems = []
   const files = fs.readdirSync(recordDir)
   if (files.length !== urls.length) {

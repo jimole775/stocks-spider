@@ -39,7 +39,7 @@ export function buildModel(page) {
           return s(allStocks)
         }
         return loopLoadPage(++i, s, j)
-      }, Math.random() * 1000 + Math.random() * 800 + Math.random() * 500 + Math.random() * 300)
+      }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300)
     }
   }).catch(function(error) {
     console.error(error)
@@ -82,8 +82,8 @@ function spillStockList(stocksTxt, tabType) {
       let item = stocksTxt[loop]
       let stockCode = item.split(',')[0]
       let stockName = item.split(',')[1]
-      // 9开头的股票属于B股，死股，缺乏很多数据，没必要记录
-      if (/^9/.test(stockCode)) continue
+      // 9或者2开头的股票属于B股，死股，缺乏很多数据，没必要记录
+      if (/^[29]/.test(stockCode)) continue
       if (stockCode && stockName) {
         let model = {
           code: stockCode,

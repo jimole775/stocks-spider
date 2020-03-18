@@ -8,5 +8,6 @@ export async function recordPeerDeal(response) {
   const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
   const stockCode = pureData.data.c
   const stockName = pureData.data.n
-  writeFile(path.join(recordPath, global.finalDate, `${stockCode}.json`), pureData.data.data)
+  console.log('deal:', stockCode)
+  return writeFile(path.join(recordPath, global.finalDate, `${stockCode}.json`), pureData.data.data)
 }

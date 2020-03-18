@@ -21,7 +21,7 @@ export async function sniffDailyDeals() {
   })
 
   const unlinkItems = hasUnlinkItems(urls, recordDir)
-  console.log('peer-deals', unlinkItems.length)
+  console.log('daily deals unlink: ', unlinkItems.length)
   
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
@@ -29,12 +29,12 @@ export async function sniffDailyDeals() {
     // onLinked: analyzeContent,
     onResponse: function(response) {
       if (response.status() === 200 && peerDealReg.test(response.url())) {
-        recordPeerDeal(response)
+        return recordPeerDeal(response)
       }
     },
     onEnd: function() {
       const unlinkItems = hasUnlinkItems(urls, recordDir)
-      if (unlinkItems.length) batchLink(unlinkItems, this)
+      if (unlinkItems.length) return batchLink(unlinkItems, this)
     }
   })
 }

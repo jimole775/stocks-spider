@@ -10,14 +10,15 @@ export async function batchLink(urls, callback) {
     } catch (error) {
       console.log(error)
     }
+    // console.log('loading >> ', i)
     // 增加一个随机的延迟，防止被请求被屏蔽
     return setTimeout(() => {
       if (i === urls.length - 1) {
         page.close()
+        console.log('loading end')
         return callback.onEnd && callback.onEnd()
       }
-      console.log('loading >> ', i)
       return loopLink(++i)
-    }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100 + 1000)
+    }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100)
   }
 }
