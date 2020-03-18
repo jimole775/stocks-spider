@@ -20,12 +20,12 @@ export function sniffStockHome() {
   const unlinkItems = hasUnlinkItems(urls, recordDir)
   console.log('daily-klines:', unlinkItems)
   batchLink(unlinkItems.length ? unlinkItems : urls, {
-    onResponse: response => {
+    onResponse: function(response) {
       if (response.status() === 200 && dailyKlineReg.test(response.url())) {
         recordKlines(response)
       }
     },
-    onEnd: () => {
+    onEnd: function() {
       const unlinkItems = hasUnlinkItems(urls, recordDir)
       if (unlinkItems.length) batchLink(unlinkItems, this)
     }
