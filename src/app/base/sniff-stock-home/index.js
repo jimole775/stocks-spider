@@ -6,10 +6,10 @@
  */
 const { recordKlines } = require(`./record-klines`)
 const { readFile, batchLink, hasUnlinkItems } = require(`${global.srcRoot}/utils`)
-const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
-const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
-const recordDir = `${global.srcRoot}/db/warehouse/daily-klines/`
 export function sniffStockHome() {
+  const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
+  const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
+  const recordDir = `${global.srcRoot}/db/warehouse/daily-klines/`
   const baseData = readFile(`${global.srcRoot}/db/warehouse/base.json`)
   const allStocks = JSON.parse(baseData ? baseData.data : {})
   const urls = allStocks.map(item => {
