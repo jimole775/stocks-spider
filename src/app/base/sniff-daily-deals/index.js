@@ -18,9 +18,12 @@ export async function sniffDailyDeals() {
       .replace('[stockCode]', item.code)
       .replace('[marketCode]', item.marketCode)
   })
+
   const unlinkItems = hasUnlinkItems(urls, recordDir)
-  console.log('peer-deals', unlinkItems)
-  batchLink(unlinkItems.length ? unlinkItems : urls, {
+  console.log('peer-deals', unlinkItems.length)
+  // 每日交易详情会以日期为目录区分，
+  // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
+  unlinkItems.length && batchLink(unlinkItems, {
     // onLinked: analyzeContent,
     onResponse: response => {
       if (response.status() === 200 && peerDealReg.test(response.url())) {
