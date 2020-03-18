@@ -27,12 +27,12 @@ export async function sniffDailyDeals() {
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   unlinkItems.length && batchLink(unlinkItems, {
     // onLinked: analyzeContent,
-    onResponse: response => {
+    onResponse: function(response) {
       if (response.status() === 200 && peerDealReg.test(response.url())) {
         recordPeerDeal(response)
       }
     },
-    onEnd: () => {
+    onEnd: function() {
       const unlinkItems = hasUnlinkItems(urls, recordDir)
       if (unlinkItems.length) batchLink(unlinkItems, this)
     }
