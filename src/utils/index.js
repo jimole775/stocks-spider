@@ -3,7 +3,8 @@ import {
   isEmptyObject, isString, isEmpty, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl 
 } from './assert'
-import { hasUnlinkItems } from './has-unlink-items'
+import { hasRefreshLinks } from './has-refresh-links'
+import { hasUninks } from './has-unlinks'
 import { dateFormat } from './date-format'
 import { writeFile } from './write-file'
 import { batchLink } from './batch-link'
@@ -17,5 +18,5 @@ export {
   isArray, isEmptyArray, isObject, 
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
-  batchLink, getDate, hasUnlinkItems, dateFormat
+  batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat
 }

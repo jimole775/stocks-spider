@@ -6,7 +6,7 @@
  */
 import fs from 'fs'
 const { recordPeerDeal } = require('./record-peer-deal')
-const { readFile, batchLink, hasUnlinkItems, dateFormat } = require(`${global.srcRoot}/utils`)
+const { readFile, batchLink, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
 export async function sniffDailyDeals() {
   const baseData = readFile(`${global.srcRoot}/db/warehouse/base.json`)
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
@@ -20,21 +20,21 @@ export async function sniffDailyDeals() {
       .replace('[marketCode]', item.marketCode)
   })
 
-  const unlinkItems = hasUnlinkItems(urls, recordDir)
-  console.log('daily deals unlink: ', unlinkItems.length)
+  const unlinks = await hasUninks(urls, recordDir)
+  console.log('daily deals unlink: ', unlinks.length)
   
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
-  unlinkItems.length && batchLink(unlinkItems, {
+  unlinks.length && batchLink(unlinks, {
     // onLinked: analyzeContent,
     onResponse: function(response) {
       if (response.status() === 200 && peerDealReg.test(response.url())) {
         return recordPeerDeal(response)
       }
     },
-    onEnd: function() {
-      const unlinkItems = hasUnlinkItems(urls, recordDir)
-      if (unlinkItems.length) return batchLink(unlinkItems, this)
+    onEnd: async function() {
+      const unlinks = await hasUninks(urls, recordDir)
+      if (unlinks.length) return batchLink(unlinks, this)
     }
   })
 }
