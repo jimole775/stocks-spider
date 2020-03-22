@@ -9,5 +9,5 @@ export async function recordPeerDeal(response) {
   const stockCode = pureData.data.c
   const stockName = pureData.data.n
   console.log('deal:', stockCode)
-  return writeFile(path.join(recordPath, global.finalDate, `${stockCode}.json`), pureData.data.data)
+  return writeFile(path.join(recordPath, global.finalDate, `${stockCode}.json`), {date: new Date().getTime(), data: pureData.data.data})
 }
