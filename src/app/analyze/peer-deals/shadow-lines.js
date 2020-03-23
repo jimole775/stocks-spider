@@ -1,23 +1,26 @@
-const fs = require('fs')
-const path = require('path')
-function run() {
-  const dir = './test/db'
+/**
+ * 1. 上/下影线的形态描述
+ * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
+ */
+import fs from 'fs'
+import path from 'path'
+const { rangeEqual, readFile, writeFile } = require(`${global.srcRoot}/utils`)
+export async function shadowLines() {
+  const dir = `${global.srcRoot}/db/warehouse/peer-deals/2020-03-23`
   const files = fs.readdirSync(dir)
-  // p: 价格
-  // v: 成交数
-  const store = {}
   for (const file of files) {
     const filePath = path.join(dir, file)
-    const data = fs.readFileSync(filePath, 'utf8')
-    cacal(store, JSON.parse(data))
+    const data = await readFile(filePath)
+    const analyzeData = cacal(data)
+    const res = writeFile(`${global.srcRoot}/db/analyze/peer-deals/2020-03-23/${file}`, analyzeData)
+    console.log(file, res)
   }
-  console.log(store)
 }
 
-function cacal(store, fileData) {
+function cacal(fileData) {
   const dayItem = {}
   const simpItem = {}
-  let analyze = {}
+  let analyzeModel = {}
   let min_p = 99999
   let max_p = 0
   let sum_v = 0
@@ -40,23 +43,23 @@ function cacal(store, fileData) {
   // 振幅差价
   diff_p = max_p - min_p
 
-  analyze = analyzing(min_p, max_p, start_p, end_p, sum_v)
+  analyzeModel = analyzing(min_p, max_p, start_p, end_p, sum_v)
 
   // 以百分比计算
-  for (const { p, v } of fileData.data) {
-    if (!dayItem[p]) {
-      dayItem[p] = (v / sum_v) * 100
-    } else {
-      dayItem[p] += (v / sum_v) * 100
-    }
-  }
+  // for (const { p, v } of fileData.data) {
+  //   if (!dayItem[p]) {
+  //     dayItem[p] = (v / sum_v) * 100
+  //   } else {
+  //     dayItem[p] += (v / sum_v) * 100
+  //   }
+  // }
   
-  for (const [key, val] of Object.entries(dayItem)) {
+  // for (const [key, val] of Object.entries(dayItem)) {
     // if (val > 1) simpItem[key] = val.toFixed(2) + '%'
     // console.log(aaa)
-  }
+  // }
 
-  store[fileData.date] = { simpItem, analyze }
+  return analyzeModel
 }
 
 function analyzing(min_p, max_p, start_p, end_p, sum_v) {
@@ -77,9 +80,3 @@ function analyzing(min_p, max_p, start_p, end_p, sum_v) {
   }
   return res
 }
-
-function rangeEqual(a = 0, b = 0, range = 0) {
-  return a >= b && a <= b * (1 + range) || a <= b && a * (1 + range) >= b
-}
-
-run()

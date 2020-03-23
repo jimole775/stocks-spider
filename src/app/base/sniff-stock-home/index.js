@@ -19,10 +19,10 @@ export async function sniffStockHome() {
   })
 
   const unlinks = await hasUninks(urls, recordDir)
-  const freshLinks = await hasRefreshLinks(urls, recordDir)
-  console.log('klines unlink:', unlinks.length)
-  console.log('klines freshLinks:', freshLinks.length)
-  batchLink(unlinks.concat(freshLinks), {
+  const refreshLinks = await hasRefreshLinks(urls, recordDir)
+  console.log('klines unlinks:', unlinks.length)
+  console.log('klines refreshLinks:', refreshLinks.length)
+  batchLink(unlinks.concat(refreshLinks), {
     onResponse: function(response) {
       if (response.status() === 200 && dailyKlineReg.test(response.url())) {
         recordKlines(response)
@@ -30,8 +30,8 @@ export async function sniffStockHome() {
     },
     onEnd: async function() {
       const unlinks = await hasUninks(urls, recordDir)
-      const freshLinks = await hasRefreshLinks(urls, recordDir)
-      const newLinks = unlinks.concat(freshLinks)
+      const refreshLinks = await hasRefreshLinks(urls, recordDir)
+      const newLinks = unlinks.concat(refreshLinks)
       if (newLinks.length) batchLink(newLinks, this)
     }
   })

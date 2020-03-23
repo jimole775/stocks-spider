@@ -4,11 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dev/app/bundle.js",
-    "dev": "gulp",
-    "dev:multi": "concurrently \"gulp watching\" \"node ./dev/app/bundle.js\"",
-    "build": "gulp build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node src/main.js"
   },
   "author": "Rongxis",
   "license": "ISC",

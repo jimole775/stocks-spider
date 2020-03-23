@@ -1,15 +1,17 @@
 import fs from 'fs'
 import path from 'path'
 import { isArray, isObject } from './assert'
-export function writeFile(file, data) {
+export function writeFile(asbFilePath, data) {
   let fd = null
   try {
-    const isExist = fs.existsSync(file)
-    if (!isExist) createPath(file)
+    const splitMark = getSplitMark(asbFilePath)
+    const pathArr = asbFilePath.split(splitMark)
+    const isExist = fs.existsSync(asbFilePath)
+    if (!isExist) createPath(pathArr)
     if (isArray(data) || isObject(data)) {
       data = JSON.stringify(data)
     } 
-    fd = fs.writeFileSync(file, data, 'utf8')
+    fd = fs.writeFileSync(asbFilePath, data, 'utf8')
   } catch (error) {
     console.log('writeFile:', error)
     fd = null
@@ -17,15 +19,14 @@ export function writeFile(file, data) {
   return fd
 }
 
-function createPath(file) {
-  const splitMark = getSplitMark(file)
-  const delimArr = file.split(splitMark)
-  delimArr.pop()
-  const filePath = delimArr.join(splitMark)
-  const isDirExist = fs.existsSync(filePath)
-  if (!isDirExist) fs.mkdirSync(filePath)
+function createPath(pathArr) {
+  // delimArr.pop()
+  for (const path of pathArr) {
+    const isDirExist = fs.existsSync(path)
+    if (!isDirExist) fs.mkdirSync(prevPath)
+  }
 }
 
-function getSplitMark(file) {
-  return file.includes('\/') ? '\/' : file.includes('\\\\') ? '\\\\' : '\\'
+function getSplitMark(asbFilePath) {
+  return asbFilePath.includes('\/') ? '\/' : asbFilePath.includes('\\\\') ? '\\\\' : '\\'
 }
