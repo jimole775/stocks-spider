@@ -21,7 +21,7 @@ async function excution(s, j, urls, callback) {
 
     // 增加一个随机的延迟，防止被请求被屏蔽
     return setTimeout(() => {
-      return loopLink(++i)
+      return loopLink(++i, page)
     }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100)
   }
 } 
