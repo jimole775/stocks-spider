@@ -4,6 +4,8 @@ import {
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl 
 } from './assert'
 import { hasRefreshLinks } from './has-refresh-links'  // 从已采集的库里筛选出过期数据
+import { getPathSeparator } from './get-path-separator'  // 获取路径分隔符
+import { buildPath } from './build-path' // 创建多级路径
 import { hasUninks } from './has-unlinks' // 从已采集的库筛选出未访问的URL
 import { rangeEqual } from './range-equal' // 约等于运算
 import { dateFormat } from './date-format'
@@ -20,5 +22,5 @@ export {
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat,
-  rangeEqual
+  rangeEqual, getPathSeparator, buildPath
 }

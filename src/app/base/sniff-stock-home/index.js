@@ -7,6 +7,10 @@
 const { recordKlines } = require(`./record-klines`)
 const { readFile, batchLink, hasUninks, hasRefreshLinks } = require(`${global.srcRoot}/utils`)
 export async function sniffStockHome() {
+  return new Promise(excution).catch(err => err)
+}
+
+async function excution(s, j) {
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
   const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
   const recordDir = `${global.srcRoot}/db/warehouse/daily-klines/`
@@ -33,6 +37,7 @@ export async function sniffStockHome() {
       const refreshLinks = await hasRefreshLinks(urls, recordDir)
       const newLinks = unlinks.concat(refreshLinks)
       if (newLinks.length) batchLink(newLinks, this)
+      s(true)
     }
   })
 }

@@ -8,12 +8,16 @@ import fs from 'fs'
 const { recordPeerDeal } = require('./record-peer-deal')
 const { readFile, batchLink, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
 export async function sniffDailyDeals() {
+  return new Promise(excution).catch(err => err)
+}
+
+async function excution(s, j) {
   const baseData = readFile(`${global.srcRoot}/db/warehouse/base.json`)
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
   const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
   const allStocks = JSON.parse(baseData ? baseData.data : {})
   const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDate}`
-  if (!canContinue()) return false
+  if (!canContinue()) return s(false)
   const urls = allStocks.map(item => {
     return urlModel.model.PeerDeal
       .replace('[stockCode]', item.code)
@@ -26,7 +30,6 @@ export async function sniffDailyDeals() {
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   unlinks.length && batchLink(unlinks, {
-    // onLinked: analyzeContent,
     onResponse: function(response) {
       if (response.status() === 200 && peerDealReg.test(response.url())) {
         return recordPeerDeal(response)
@@ -35,6 +38,7 @@ export async function sniffDailyDeals() {
     onEnd: async function() {
       const unlinks = await hasUninks(urls, recordDir)
       if (unlinks.length) return batchLink(unlinks, this)
+      return s(false)
     }
   })
 }
