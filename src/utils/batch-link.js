@@ -1,24 +1,27 @@
 import { initPage } from './init-page'
 export async function batchLink(urls, callback) {
+  return new Promise((s, j) => excution(s, j, urls, callback)).catch(err => err)
+}
+
+async function excution(s, j, urls, callback) {
   const page = await initPage(callback.onRequest, callback.onResponse)
-  return loopLink(0)
-  async function loopLink(i) {
+  return loopLink(0, page)
+  async function loopLink(i, page) {
     const url = urls[i]
-    try {
-      await page.goto(url, { timeout: 0 }).catch()
-      callback.onLinked && callback.onLinked(page)
-    } catch (error) {
-      console.log(error)
+    await page.goto(url, { timeout: 0 }).catch(err => {
+      i--
+      console.log(err)
+    })
+    
+    if (i === urls.length - 1) {
+      console.log('loading end')
+      await page.close()
+      return s(true)
     }
-    // console.log('loading >> ', i)
+
     // 增加一个随机的延迟，防止被请求被屏蔽
     return setTimeout(() => {
-      if (i === urls.length - 1) {
-        page.close()
-        console.log('loading end')
-        return callback.onEnd && callback.onEnd()
-      }
       return loopLink(++i)
     }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100)
   }
-}
+} 

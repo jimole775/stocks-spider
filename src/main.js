@@ -9,7 +9,7 @@ const { sniffDailyDeals } = require ('./app/base/sniff-daily-deals')
 ;(async function (){
   global.finalDate = await getDate() // 先截取最后一个交易日的时间
   await buildStocksModel()
-  // await sniffStockHome()
-  await sniffDailyDeals()
+  await sniffStockHome()
+  // await sniffDailyDeals()
   process.exit()
 })()

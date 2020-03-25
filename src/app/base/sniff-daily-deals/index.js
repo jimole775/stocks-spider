@@ -17,7 +17,7 @@ async function excution(s, j) {
   const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
   const allStocks = JSON.parse(baseData ? baseData.data : {})
   const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDate}`
-  if (!canContinue()) return s(false)
+  if (!canContinue()) return s(true)
   const urls = allStocks.map(item => {
     return urlModel.model.PeerDeal
       .replace('[stockCode]', item.code)
@@ -29,18 +29,16 @@ async function excution(s, j) {
   
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
-  unlinks.length && batchLink(unlinks, {
-    onResponse: function(response) {
-      if (response.status() === 200 && peerDealReg.test(response.url())) {
-        return recordPeerDeal(response)
+  if (unlinks.length) {
+    await batchLink(unlinks, {
+      onResponse: function(response) {
+        if (response.status() === 200 && peerDealReg.test(response.url())) {
+          return recordPeerDeal(response)
+        }
       }
-    },
-    onEnd: async function() {
-      const unlinks = await hasUninks(urls, recordDir)
-      if (unlinks.length) return batchLink(unlinks, this)
-      return s(false)
-    }
-  })
+    })
+  }
+  return s(true)
 }
 
 function canContinue() {
