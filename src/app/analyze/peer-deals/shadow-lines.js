@@ -5,19 +5,24 @@
 import fs from 'fs'
 import path from 'path'
 const { rangeEqual, readFile, writeFile } = require(`${global.srcRoot}/utils`)
-export async function shadowLines() {
-  const dir = `${global.srcRoot}/db/warehouse/peer-deals/2020-03-23`
-  const files = fs.readdirSync(dir)
-  for (const file of files) {
-    const filePath = path.join(dir, file)
-    const data = await readFile(filePath)
-    const analyzeData = cacal(data)
-    const res = writeFile(`${global.srcRoot}/db/analyze/peer-deals/2020-03-23/${file}`, analyzeData)
-    console.log(file, res)
-  }
+export function shadowLines() {
+  return new Promise(async(s, j) => {
+    const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
+    const dateDirs = fs.readdirSync(dirRoot)
+    for (const dateDir of dateDirs) {
+      const files = fs.readdirSync(path.join(dirRoot, dateDir))
+      for (const file of files) {
+        const filePath = path.join(dirRoot, dateDir, file)
+        const data = await readFile(filePath)
+        const analyzeData = cacal(data)
+        writeFile(`${global.srcRoot}/db/analyze/peer-deals/${dateDir}/${file}`, analyzeData)
+      }
+      s(true)
+    }
+  })
 }
 
-function cacal(store, fileData) {
+function cacal(fileData) {
   let sale_p = {} // 存储每个价格的成交额
   let overview = {} // 存储概览
   let min_p = 99999
@@ -37,27 +42,28 @@ function cacal(store, fileData) {
         start_p = p
       }
 
+      if(/^1500\d{2}$/.test(t)) {
+        end_p = p
+      }
+
       min_p = min_p > p ? p : min_p
       max_p = max_p < p ? p : max_p
 
       sum_v += v // 总交易量计算
       sum_p += v * p * 100 // 总价计算
 
-      saveSaleP(sale_p, p)
+      saveSaleP(sale_p, v, p)
     }
   }
 
   sum_p_v = (sum_p / sum_v / 100).toFixed(2)
-
-  // 直接获取最后一个价位
-  end_p = (fileData.data[fileData.data.length - 1].p) / 1000
 
   // 振幅差价
   diff_p = ((max_p - min_p) / start_p * 100).toFixed(2) + '%'
 
   overview = analyzing(min_p, max_p, start_p, end_p, sum_v, sum_p, sum_p_v, diff_p)
 
-  store[fileData.date] = { sale_p, overview }
+  return { sale_p, overview }
 }
 
 function analyzing(min_p, max_p, start_p, end_p, sum_v, sum_p, sum_p_v, diff_p) {
@@ -104,13 +110,13 @@ function cacalUpShadow(base) {
 }
 
 function cacalCrossShadow(base) {
-  if (mostEqual(base.upShadowSize, base.downShadowSize, 0.01)){
+  if (rangeEqual(base.upShadowSize, base.downShadowSize, 0.01)){
     base.isCrossShadow = true
   }
   return base
 }
 
-function saveSaleP(sale_p, p) {
+function saveSaleP(sale_p, v, p) {
   // 计算每个价位的成交额
   if (!sale_p[p * 100]) {
     // Math.round 主要处理js的运算误差

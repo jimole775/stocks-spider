@@ -1,2 +1,4 @@
 const { shadowLines } = require('./shadow-lines')
-shadowLines()
+export {
+  shadowLines
+}
