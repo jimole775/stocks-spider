@@ -12,6 +12,7 @@ export async function sniffDailyDeals() {
 }
 
 async function excution(s, j) {
+  debugger
   const baseData = readFile(`${global.srcRoot}/db/warehouse/base.json`)
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
   const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
@@ -23,10 +24,9 @@ async function excution(s, j) {
       .replace('[stockCode]', item.code)
       .replace('[marketCode]', item.marketCode)
   })
-
+  debugger
   const unlinks = await hasUninks(urls, recordDir)
   console.log('daily deals unlink: ', unlinks.length)
-  
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   if (unlinks.length) {

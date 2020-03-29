@@ -1,27 +1,90 @@
 import { initPage } from './init-page'
-export async function batchLink(urls, callback) {
-  return new Promise((s, j) => excution(s, j, urls, callback)).catch(err => err)
+let taskLiving = 0
+const taskQueue = [] // 存储队列
+const pageStore = []
+const limitBunch = 5
+export async function batchLink (urls, callback) {
+  return new Promise((s, j) => {
+    try {
+      let loopTimes = urls.length
+      while (loopTimes--) {
+        threadManager(() => {
+          return new Promise(async (s, j) => {
+            try {
+              await taskEntity(urls[loopTimes], callback)
+              return s(true)
+            } catch (error) {
+              return j(false)
+            }
+          })
+        })
+      }
+      return s(true)
+    } catch (error) {
+      return j(false)
+    }
+  })
 }
 
-async function excution(s, j, urls, callback) {
-  const page = await initPage(callback.onRequest, callback.onResponse)
-  return loopLink(0, page)
-  async function loopLink(i, page) {
-    const url = urls[i]
-    await page.goto(url, { timeout: 0 }).catch(err => {
-      i--
+function threadManager (task) {
+  if (taskLiving >= limitBunch) {
+    taskQueue.push(task)
+  } else {
+    thread(task)
+  }
+  taskLiving ++
+}
+
+async function thread (task) {
+  await task()
+  if (taskQueue.length > 0) {
+    taskLiving --
+    return taskQueue.shift()()
+  }
+}
+
+function taskEntity (url, callback) {
+  console.log('taskEntity:', url)
+  return new Promise(async (s, j) => {
+    const idlPage = await createPages(callback)
+    idlPage.idl = false
+    await idlPage.goto(url, { timeout: 0 })
+    .catch((err) => {
       console.log(err)
     })
-    
-    if (i === urls.length - 1) {
-      console.log('loading end')
-      await page.close()
-      return s(true)
-    }
+    idlPage.idl = true
+    return s(true)
+  })
+}
 
-    // 增加一个随机的延迟，防止被请求被屏蔽
-    return setTimeout(() => {
-      return loopLink(++i, page)
-    }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300 + Math.random() * 100)
+function createPages (callback) {
+  return new Promise(async (s, j) => {
+    let idlPage = {}
+    if (pageStore.length < limitBunch) {
+      idlPage = await initPage(callback.onRequest, callback.onResponse)
+      pageStore.push(idlPage)
+    } else {
+      for (const page of pageStore) {
+        if (page.idl) {
+          idlPage = page
+          break
+        }
+      }
+    }
+    return s(idlPage)
+  })
+}
+
+async function shutdownPages (alivePages) {
+  const bussingPages = []
+  for (const page of alivePages) {
+    if (page.idl) {
+      await page.close()
+    } else {
+      bussingPages.push(page)
+    }
   }
-} 
+  if (bussingPages.length) {
+    return shutdownPages(bussingPages)
+  }
+}
