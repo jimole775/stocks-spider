@@ -1,5 +1,5 @@
 ## 环境依赖
-需要保证系统可以安装 `nodejs`, `chromium`
+需要保证系统可以安装 `nodejs`, `chromium`(由于 `chromium` 需要翻墙, 所以可能需要手动去下载)
 #### 1. 翻墙的情况下
 
 可以直接运行，`npm install puppeteer` 或者 `yarn add puppeteer` 就可以了
