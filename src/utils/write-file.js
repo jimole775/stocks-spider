@@ -5,7 +5,6 @@ export function writeFile(asbFilePath, data) {
   let fd = null
   try {
     buildPath(asbFilePath)
-    debugger
     if (isArray(data) || isObject(data)) {
       data = JSON.stringify(data)
     }

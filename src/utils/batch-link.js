@@ -4,14 +4,15 @@ const taskQueue = [] // 存储队列
 const pageStore = []
 const limitBunch = 5
 export async function batchLink (urls, callback) {
-  return new Promise((s, j) => {
-    try {
+  // return new Promise((s, j) => {
+    // try {
       let loopTimes = urls.length
       while (loopTimes--) {
+        const url = urls[loopTimes]
         threadManager(() => {
           return new Promise(async (s, j) => {
             try {
-              await taskEntity(urls[loopTimes], callback)
+              await taskEntity(url, callback)
               return s(true)
             } catch (error) {
               return j(false)
@@ -19,11 +20,11 @@ export async function batchLink (urls, callback) {
           })
         })
       }
-      return s(true)
-    } catch (error) {
-      return j(false)
-    }
-  })
+    //   return s(true)
+    // } catch (error) {
+    //   return j(false)
+    // }
+  // })
 }
 
 function threadManager (task) {
@@ -39,12 +40,11 @@ async function thread (task) {
   await task()
   if (taskQueue.length > 0) {
     taskLiving --
-    return taskQueue.shift()()
+    return thread(taskQueue.shift())
   }
 }
 
 function taskEntity (url, callback) {
-  console.log('taskEntity:', url)
   return new Promise(async (s, j) => {
     const idlPage = await createPages(callback)
     idlPage.idl = false

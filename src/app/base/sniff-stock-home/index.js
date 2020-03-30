@@ -11,7 +11,6 @@ export async function sniffStockHome() {
 }
 
 async function excution(s, j) {
-  debugger
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
   const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
   const recordDir = `${global.srcRoot}/db/warehouse/daily-klines/`
@@ -22,12 +21,10 @@ async function excution(s, j) {
       .replace('[marketName]', item.marketName)
       .replace('[stockCode]', item.code)
   })
-  debugger
   const unlinks = await hasUninks(urls, recordDir)
   const refreshLinks = await hasRefreshLinks(urls, recordDir)
-  console.log('klines unlinks:', unlinks.length)
-  console.log('klines refreshLinks:', refreshLinks.length)
-  debugger
+  // console.log('klines unlinks:', unlinks.length)
+  // console.log('klines refreshLinks:', refreshLinks.length)
   await batchLink(unlinks.concat(refreshLinks), {
     onResponse: function(response) {
       if (response.status() === 200 && dailyKlineReg.test(response.url())) {

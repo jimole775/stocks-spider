@@ -8,13 +8,9 @@ const { sniffDailyDeals } = require ('./app/base/sniff-daily-deals')
 const { shadowLines } = require ('./app/analyze/peer-deals')
 ;(async function (){
   global.finalDate = await getDate() // 先截取最后一个交易日的时间
-  debugger
   await buildStocksModel()
-  debugger
-  await sniffStockHome()
-  debugger
-  await sniffDailyDeals()
-  debugger
-  await shadowLines()
-  process.exit()
+  // await sniffStockHome()
+  sniffDailyDeals()
+  // shadowLines()
+  // process.exit()
 })()
