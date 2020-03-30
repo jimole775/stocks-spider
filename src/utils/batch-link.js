@@ -2,7 +2,7 @@ import { initPage } from './init-page'
 let taskLiving = 0
 const taskQueue = [] // 存储队列
 const pageStore = []
-const limitBunch = 5
+const limitBunch = global.concurrentLimit
 export async function batchLink (urls, callback) {
   // return new Promise((s, j) => {
     // try {
