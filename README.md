@@ -1,6 +1,11 @@
 #### 环境依赖
-nodejs,chromium,puppeteer,
+需要保证系统可以安装 `nodejs`, `chromium`
+1. 可翻墙的情况下
+可以直接运行，
+
+2. 非可翻墙
+
 #### 项目依赖
-npm i 或者 yarn
-#### 运行
-npm run dev
+接下来就自动安装项目依赖，运行 `npm i` 或者 `yarn`
+#### 运行项目
+`npm run dev`
