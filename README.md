@@ -1,14 +1,16 @@
 ## 环境依赖
-需要保证系统可以安装 `nodejs`, `chromium`(由于 `chromium` 需要翻墙, 所以可能需要手动去下载)
+需要保证系统可以安装 `nodejs` 和 `chromium`(由于 `chromium` 是墙外资源, 如果你没有梯子，那么只有自己配置了)
 #### 1. 翻墙的情况下
 
-可以直接运行，`npm install puppeteer` 或者 `yarn add puppeteer` 就可以了
+可以直接运行，`npm install puppeteer` 或者 `yarn add puppeteer` ，chromium 会自动安装，不用操心
 
 #### 2. 非翻墙情况下
 
-首先运行 `npm install puppeteer --ignore-scripts` 安装puppeteer
+不能翻墙的话，需要自己去下载
 
-然后到 [这里](https://chromium.en.lo4d.com/download) 下载chromium
+首先运行 `npm install puppeteer --ignore-scripts` 安装 puppeteer
+
+然后到 [这里](https://chromium.en.lo4d.com/download) 下载一个 chromium 资源包
 
 下载完成后，解压出资源目录chrome-win把它整个复制粘贴到 
 
