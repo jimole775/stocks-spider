@@ -9,7 +9,10 @@ chromium 是 puppeteer 库的底层依赖，必须安装，否则 puppeteer 的�
 
 不能翻墙的话，需要自己去下载 chromium。
 
-1. 首先运行 `npm install puppeteer --ignore-scripts` 安装 puppeteer
+1. 首先运行安装 puppeteer 
+```
+npm install puppeteer --ignore-scripts
+```
 
 2. 然后到 [这里](https://chromium.en.lo4d.com/download) 下载一个 chromium 资源包
 
