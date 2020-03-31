@@ -1,5 +1,6 @@
 
 import superagent from 'superagent'
+import { getPathSeparator } from './get-path-separator'
 /**
  * 
  * @param url 
@@ -8,11 +9,10 @@ import superagent from 'superagent'
  */
 export function quest(url, { method = 'POST', header = {} }) {
   return new Promise(async (s, j) => {
-    const ip = Math.random(1 , 254)  
-        + "." + Math.random(1 , 254)  
-        + "." + Math.random(1 , 254)  
-        + "." + Math.random(1 , 254)  
-    let response = null
+    const ip = 124 + "." + 23
+        + "." + Math.round(Math.random() * 254)
+        + "." + Math.round(Math.random() * 254)
+    let response = {}
     if (method.toUpperCase === 'POST') {
       response = await superagent.post(url).send(params.data).set({
         'X-Forwarded-For': ip,
@@ -27,7 +27,13 @@ export function quest(url, { method = 'POST', header = {} }) {
   
     if (response.status === 200) {
       // response.body 是 Buffer
-      return s(response.body ? response.body.toString() : '')
+      if (questType (url) === 'json') {
+        return s(response.body ? response.body.toString() : '')
+      } else if (questType (url) === 'file') {
+        return s(response.text ? response.text.toString() : '')
+      } else {
+        return s(response.body ? response.body.toString() : '')
+      }
     } else {
       return j(response.info)
     }
@@ -35,13 +41,14 @@ export function quest(url, { method = 'POST', header = {} }) {
 }
 
 function questType (url) {
-  url = url.split('?')
+  if (/\?/.test(url)) {
+    url = url.split('?').shift()
+  }
+  const pathSeparator = getPathSeparator(url)
+  if (url.split(pathSeparator).pop().includes('.')) {
+    return 'file'
+  } else {
+    return 'json'
+  }
 }
 
-function questFile () {
-
-}
-
-function questJson () {
-
-}
