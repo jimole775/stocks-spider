@@ -19,7 +19,7 @@
 
 `:/[你的项目]/node_modules/puppeteer/.local-chromium/win64-722234/chrome-win/`
 
-[测试]: <dddd> (`win64-722234` 是 puppeteer 依赖 chromium 的最低版本，当前APP使用的是puppeteer@2.1.1，所以，只要chromium的版本高于 `722234`  就可以正常使用)
+[commet]: <dddd> (`win64-722234` 是 puppeteer 依赖 chromium 的最低版本，当前APP使用的是puppeteer@2.1.1，所以，只要chromium的版本高于 `722234`  就可以正常使用)
 
 如果 `:/[你的项目]/node_modules/puppeteer/` 下没有找到 `.local-chromium/win64-722234/` 目录，就用DOS工具创建一个
 
