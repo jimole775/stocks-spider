@@ -15,7 +15,7 @@ chromium 是 puppeteer 库的底层依赖，所以必须安装，否则 puppetee
 
 然后到 [这里](https://chromium.en.lo4d.com/download) 下载一个 chromium 资源包
 
-下载完成后，解压出资源目录 chrome-win 把它整个复制粘贴到 
+下载完成后，解压出资源目录 *`chrome-win/`* 把它整个复制粘贴到 
 
 > :/[你的项目]/node_modules/puppeteer/.local-chromium/win64-722234/chrome-win/
 
