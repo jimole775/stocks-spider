@@ -1,22 +1,28 @@
 
-const superagent = require('superagent')
+import superagent from 'superagent'
 /**
  * 
- * @param {*} url 
- * @param {*} params 
+ * @param url 
+ * @param {method, header} 
  * @return String
  */
-export function quest(url, params) {
+export function quest(url, { method = 'POST', header = {} }) {
   return new Promise(async (s, j) => {
     const ip = Math.random(1 , 254)  
         + "." + Math.random(1 , 254)  
         + "." + Math.random(1 , 254)  
         + "." + Math.random(1 , 254)  
     let response = null
-    if (params && params.method && params.method.toUpperCase === 'POST') {
-      response = await superagent.post(url).send(params.data).set('X-Forwarded-For', ip).catch(err => j(err))
+    if (method.toUpperCase === 'POST') {
+      response = await superagent.post(url).send(params.data).set({
+        'X-Forwarded-For': ip,
+        ...header
+      }).catch(err => j(err))
     } else {
-      response = await superagent.get(url).set('X-Forwarded-For', ip).catch(err => j(err))
+      response = await superagent.get(url).set({
+        'X-Forwarded-For': ip,
+        ...header
+      }).catch(err => j(err))
     }
   
     if (response.status === 200) {
@@ -26,4 +32,16 @@ export function quest(url, params) {
       return j(response.info)
     }
   })
+}
+
+function questType (url) {
+  url = url.split('?')
+}
+
+function questFile () {
+
+}
+
+function questJson () {
+
 }
