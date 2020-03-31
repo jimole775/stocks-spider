@@ -27,13 +27,13 @@ export function quest(url, { method = 'POST', header = {} }) {
   
     if (response.status === 200) {
       // response.body 是 Buffer
-      if (questType (url) === 'json') {
-        return s(response.body ? response.body.toString() : '')
-      } else if (questType (url) === 'file') {
-        return s(response.text ? response.text.toString() : '')
-      } else {
-        return s(response.body ? response.body.toString() : '')
-      }
+      // if (questType (url) === 'json') {
+      return s(response.body ? response.body.toString() : '')
+      // } else if (questType (url) === 'file') {
+      //   return s(response.text ? response.text.toString() : '')
+      // } else {
+      //   return s(response.body ? response.body.toString() : '')
+      // }
     } else {
       return j(response.info)
     }
