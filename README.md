@@ -19,9 +19,9 @@
 
 > :/[你的项目]/node_modules/puppeteer/.local-chromium/win64-722234/chrome-win/
 
-如果 `*:/[你的项目]/node_modules/puppeteer/*` 下没有找到 `*.local-chromium/win64-722234/*` 目录，就用DOS工具创建一个
+如果 *`:/[你的项目]/node_modules/puppeteer/`* 下没有找到 *`.local-chromium/win64-722234/`* 目录，就用DOS工具创建一个
 
-**注意**: `*win64-722234*` 是 puppeteer@2.1.1 依赖 **chromium** 的最低版本，当前APP使用的是 puppeteer@2.1.1，所以，只要 **chromium** 的版本高于 **722234**  ，就可以把资源包扔进 `*win64-722234*` 目录
+**注意**: *`win64-722234`* 是 puppeteer@2.1.1 依赖 **chromium** 的最低版本，当前APP使用的是 puppeteer@2.1.1，所以，只要 **chromium** 的版本高于 **722234**  ，就可以把资源包扔进 *`win64-722234`* 目录
 
 #### 2. 翻墙的情况下
 
