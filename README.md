@@ -1,11 +1,9 @@
 ## 环境依赖
-首先，要运行本APP，需要确保您的系统可以正常运行 nodejs 和 chromium，nodejs就不用说了
+首先，要运行本APP，需要确保你的系统可以正常运行 nodejs 和 chromium，nodejs就不说了
 
-chromium 是 puppeteer 库的底层依赖，所以必须安装，否则 puppeteer 的核心API无法使用
+chromium 是 puppeteer 库的底层依赖，必须安装，否则 puppeteer 的核心API无法使用
 
 但是由于 chromium 是墙外资源，如果你没有梯子，那么只有自己配置了
-
-下面是配置步骤:
 
 #### 1. 非翻墙情况下
 
