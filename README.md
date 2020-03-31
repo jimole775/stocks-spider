@@ -1,5 +1,5 @@
 ## 环境依赖
-需要保证系统可以安装 `nodejs` 和 `chromium`，nodejs就不用说了
+需要保证系统可以安装 nodejs 和 `chromium`，nodejs就不用说了
 
 `chromium` 是 puppeteer 库的底层依赖，必须安装，否则无法使用
 
