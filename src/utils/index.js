@@ -16,11 +16,12 @@ import { readFile } from './read-file'
 import { getDate } from './get-date' // 从默认站点，采集最后交易日的时间
 import { unique } from './unique' // 去重
 import { quest } from './quest' // superagent的封装
+import { Flow } from './flow' // 
 export {
   readFile, writeFile, quest, 
   isArray, isEmptyArray, isObject, 
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat,
-  rangeEqual, getPathSeparator, buildPath
+  rangeEqual, getPathSeparator, buildPath, Flow
 }
