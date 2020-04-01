@@ -6,7 +6,7 @@
  */
 import fs from 'fs'
 const { recordPeerDeal } = require('./record-peer-deal')
-const { readFile, batchLink, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
+const { readFile, batchLinkC, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
 export async function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
