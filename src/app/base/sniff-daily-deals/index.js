@@ -28,7 +28,7 @@ async function excution(s, j) {
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   if (unlinks.length) {
-    await batchLink(unlinks, {
+    batchLinkC(unlinks, {
       onResponse: function(response) {
         if (response.status() === 200 && peerDealReg.test(response.url())) {
           return recordPeerDeal(response)
@@ -36,7 +36,7 @@ async function excution(s, j) {
       }
     })
   }
-  return s(true)
+  // return s(true)
 }
 
 function canContinue() {

@@ -5,7 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 const { recordKlines } = require(`./record-klines`)
-const { readFile, batchLink, hasUninks, hasRefreshLinks } = require(`${global.srcRoot}/utils`)
+const { readFile, batchLinkC, hasUninks, hasRefreshLinks } = require(`${global.srcRoot}/utils`)
 export async function sniffStockHome() {
   return new Promise(excution).catch(err => err)
 }
@@ -25,12 +25,12 @@ async function excution(s, j) {
   const refreshLinks = await hasRefreshLinks(urls, recordDir)
   // console.log('klines unlinks:', unlinks.length)
   // console.log('klines refreshLinks:', refreshLinks.length)
-  await batchLink(unlinks.concat(refreshLinks), {
+  batchLinkC(unlinks.concat(refreshLinks), {
     onResponse: function(response) {
       if (response.status() === 200 && dailyKlineReg.test(response.url())) {
         recordKlines(response)
       }
     },
   })
-  return s(true)
+  // return s(true)
 }
