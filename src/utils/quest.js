@@ -7,13 +7,14 @@ import { getPathSeparator } from './get-path-separator'
  * @param {method, header} 
  * @return String
  */
-export function quest(url, { method = 'POST', header = {} }) {
+export function quest(url, params = {}) {
+  const { method = 'GET', header = {}} = params
   return new Promise(async (s, j) => {
     const ip = 124 + "." + 23
         + "." + Math.round(Math.random() * 254)
         + "." + Math.round(Math.random() * 254)
     let response = {}
-    if (method.toUpperCase === 'POST') {
+    if (method === 'POST') {
       response = await superagent.post(url).send(params.data).set({
         'X-Forwarded-For': ip,
         ...header
@@ -27,13 +28,13 @@ export function quest(url, { method = 'POST', header = {} }) {
   
     if (response.status === 200) {
       // response.body 是 Buffer
-      // if (questType (url) === 'json') {
-      return s(response.body ? response.body.toString() : '')
-      // } else if (questType (url) === 'file') {
-      //   return s(response.text ? response.text.toString() : '')
-      // } else {
-      //   return s(response.body ? response.body.toString() : '')
-      // }
+      if (questType (url) === 'json') {
+        return s(response.body ? response.body.toString() : '')
+      } else if (questType (url) === 'file') {
+        return s(response.text ? response.text.toString() : '')
+      } else {
+        return s(response.body ? response.body.toString() : '')
+      }
     } else {
       return j(response.info)
     }
