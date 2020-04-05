@@ -23,5 +23,5 @@ export {
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat,
-  rangeEqual, getPathSeparator, buildPath, StepFlow, rangeEqual
+  rangeEqual, getPathSeparator, buildPath, StepFlow
 }
