@@ -1,15 +1,15 @@
 import { initPage } from './init-page'
-let taskLiving = 0
-const taskQueue = [] // 存储队列
+import { BunchThread } from './bunch-thread'
 const pageStore = []
 const limitBunch = global.concurrentLimit
 export async function batchLinkC (urls, callback) {
-  // return new Promise((s, j) => {
-    // try {
+  return new Promise((s, j) => {
+    try {
+      const bunch = new BunchThread(limitBunch)
       let loopTimes = urls.length
       while (loopTimes--) {
         const url = urls[loopTimes]
-        threadManager(() => {
+        bunch.taskCall(() => {
           return new Promise(async (s, j) => {
             try {
               await taskEntity(url, callback)
@@ -20,29 +20,31 @@ export async function batchLinkC (urls, callback) {
           })
         })
       }
-    //   return s(true)
-    // } catch (error) {
-    //   return j(false)
-    // }
-  // })
+      bunch.final(() => {
+        s(shutdownPages())
+      })
+    } catch (error) {
+      return j(false)
+    }
+  })
 }
 
-function threadManager (task) {
-  if (taskLiving >= limitBunch) {
-    taskQueue.push(task)
-  } else {
-    thread(task)
-  }
-  taskLiving ++
-}
+// function threadManager (task) {
+//   if (taskLiving >= limitBunch) {
+//     taskQueue.push(task)
+//   } else {
+//     thread(task)
+//   }
+// }
 
-async function thread (task) {
-  await task()
-  if (taskQueue.length > 0) {
-    taskLiving --
-    return thread(taskQueue.shift())
-  }
-}
+// async function thread (task) {
+//   taskLiving ++
+//   await task()
+//   if (taskQueue.length > 0) {
+//     taskLiving --
+//     return thread(taskQueue.shift())
+//   }
+// }
 
 function taskEntity (url, callback) {
   return new Promise(async (s, j) => {

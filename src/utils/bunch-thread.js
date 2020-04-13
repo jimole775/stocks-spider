@@ -1,31 +1,36 @@
 
-export function BunchThread (limit = 5) {
-  this.taskQueue = []
-  this.limit = limit
-  this.taskLiving = 0
-  this.threadEnd = 0
-}
-
-BunchThread.prototype.threadManager = function (task) {
-  if (this.taskLiving >= this.limit) {
-    this.taskQueue.push(task)
-  } else {
-    this.thread(task)
+export class BunchThread {
+  constructor (limit = 5, endCallback = () => { console.log('auto end') }) {
+    this.limit = limit
+    this.taskQueue = []
+    this.taskLiving = 0
+    this.endCallback = endCallback
+    return this
   }
-  this.taskLiving ++
-}
 
-BunchThread.prototype.thread = async function (task) {
-  await task()
-  this.threadEnd ++
-  if (this.taskQueue.length) {
+  taskCall (task) {
+    if (this.taskLiving >= this.limit) {
+      this.taskQueue.push(task)
+    } else {
+      this.thread(task)
+    }
+    this.taskLiving ++
+    return this
+  }
+
+  async thread (task) {
+    await task()
     this.taskLiving --
-    this.threadEnd --
-    return this.thread(this.taskQueue.shift())
-  } else {
-    if (this.threadEnd === this.limit && this.taskLiving === 0) {
-      console.log('closed')
+    if (this.taskQueue.length) {
+      return this.thread(this.taskQueue.shift())
+    } else {
+      if (this.taskLiving <= 0) {
+        this.endCallback && this.endCallback()
+      }
     }
   }
-}
 
+  final (callback) {
+    this.endCallback = callback
+  }
+}
