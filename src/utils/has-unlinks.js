@@ -20,7 +20,8 @@ export function hasUninks(links, recordDir) {
         let k = files.length
         let isAlready = false
         while (k--) {
-          const stockCode = files[k].replace(/\D*(\d{6})\D*/, '$1')
+          // const stockCode = files[k].replace(/\D*(\d{6})\D*/, '$1')
+          const stockCode = files[k].replace(/^.*\D?(\d{6})\D?.*$/, '$1')
           const reg = new RegExp(`\^${stockCode}\$|\^${stockCode}\\D*|\\D*${stockCode}\$|(\\D${stockCode}\\D)`, 'g')
           if (reg.test(urlItem)) {
             isAlready = true
