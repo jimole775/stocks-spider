@@ -1,26 +1,24 @@
 import { initPage } from './init-page'
 import { BunchThread } from './bunch-thread'
-const pageStore = []
+const pages = []
 const limitBunch = global.concurrentLimit
 export async function batchLinkC (urls, callback) {
   return new Promise((s, j) => {
     try {
       const bunch = new BunchThread(limitBunch)
-      let loopTimes = urls.length
-      while (loopTimes--) {
-        const url = urls[loopTimes]
-        bunch.taskCall(() => {
-          return new Promise(async (s, j) => {
-            try {
-              await taskEntity(url, callback)
-              return s(true)
-            } catch (error) {
-              return j(false)
-            }
-          })
+      let loop = urls.length
+      while (loop--) {
+        const url = urls[loop]
+        bunch.taskCalling(() => {
+          // return new Promise(async ($$s, $$j) => {
+          //   await taskEntity(url, callback)
+          //     .catch((err) => { console.log(err) })
+          //   return $$s(true)
+          // })
+          return taskEntity(url, callback)
         })
       }
-      bunch.final(() => {
+      bunch.finally(() => {
         s(shutdownPages())
       })
     } catch (error) {
@@ -29,44 +27,26 @@ export async function batchLinkC (urls, callback) {
   })
 }
 
-// function threadManager (task) {
-//   if (taskLiving >= limitBunch) {
-//     taskQueue.push(task)
-//   } else {
-//     thread(task)
-//   }
-// }
-
-// async function thread (task) {
-//   taskLiving ++
-//   await task()
-//   if (taskQueue.length > 0) {
-//     taskLiving --
-//     return thread(taskQueue.shift())
-//   }
-// }
-
 function taskEntity (url, callback) {
   return new Promise(async (s, j) => {
-    const idlPage = await createPages(callback)
+    const idlPage = await buildPage(callback)
     idlPage.idl = false
     await idlPage.goto(url, { timeout: 0 })
-    .catch((err) => {
-      console.log(err)
-    })
+      .catch((err) => { console.log(err) })
     idlPage.idl = true
     return s(true)
   })
 }
 
-function createPages (callback) {
+function buildPage (callback) {
   return new Promise(async (s, j) => {
-    let idlPage = {}
-    if (pageStore.length < limitBunch) {
+    let idlPage = null
+    if (pages.length < limitBunch) {
       idlPage = await initPage(callback.onRequest, callback.onResponse)
-      pageStore.push(idlPage)
+        .catch((err) => { console.log(err) })
+      pages.push(idlPage)
     } else {
-      for (const page of pageStore) {
+      for (const page of pages) {
         if (page.idl) {
           idlPage = page
           break
@@ -77,16 +57,8 @@ function createPages (callback) {
   })
 }
 
-async function shutdownPages (alivePages) {
-  const bussingPages = []
-  for (const page of alivePages) {
-    if (page.idl) {
-      await page.close()
-    } else {
-      bussingPages.push(page)
-    }
-  }
-  if (bussingPages.length) {
-    return shutdownPages(bussingPages)
+function shutdownPages () {
+  for (const page of pages) {
+    page.close()
   }
 }
