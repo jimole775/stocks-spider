@@ -16,25 +16,27 @@ async function excution(s, j) {
   const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
   const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
   const allStocks = JSON.parse(baseData ? baseData.data : {})
-  const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDate}`
+  const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`
   if (!canContinue()) return s(true)
   const urls = allStocks.map(item => {
     return urlModel.model.PeerDeal
       .replace('[stockCode]', item.code)
       .replace('[marketCode]', item.marketCode)
   })
-  const unlinks = await hasUninks(urls, recordDir)
+  const unlinks = hasUninks(urls, recordDir)
   // console.log('daily deals unlink: ', unlinks.length)
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   if (unlinks.length) {
-    await batchLinkC(unlinks, {
-      onResponse: function(response) {
-        if (response.status() === 200 && peerDealReg.test(response.url())) {
-          return recordPeerDeal(response)
+    await batchLinkC(unlinks, () => {
+        return hasUninks(urls, recordDir)
+      }, {
+        onResponse: function(response) {
+          if (response.status() === 200 && peerDealReg.test(response.url())) {
+            return recordPeerDeal(response)
+          }
         }
-      }
-    }).catch((err) => { console.log(err) })
+      })
   }
   return s(true)
 }
@@ -44,7 +46,7 @@ function canContinue() {
   const curDate = dateFormat('YYYY-mm-dd', new Date())
   // 如果最后的交易日是APP运行的当天，那么，15点钟收盘之前，recordPeerDeal都不要运行
   // 这样做可以让 星期六 的任何时间都可以正常运行 recordPeerDeal
-  if (global.finalDate === curDate && new Date().getHours() < 15) {
+  if (global.finalDealDate === curDate && new Date().getHours() < 15) {
     pass = false
   }
   return pass

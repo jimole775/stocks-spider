@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-const { readFile } = require(`./read-file`)
 /**
  * links 中，必须包含【股票代码】
  * recordDir 目录下的文件，必须确保能取到【股票代码】
@@ -8,28 +7,24 @@ const { readFile } = require(`./read-file`)
  * @param {*} recordDir 
  */
 export function hasRefreshLinks(links, recordDir) {
-  return new Promise(async (s, j) => {
-    const files = fs.readdirSync(recordDir)
-    if (files.length === 0) return s([])
-    if (links.length === 0) return s([])
-    if (!fs.existsSync(recordDir)) return s([])
+  const files = fs.readdirSync(recordDir)
+  if (files.length === 0) return []
+  if (links.length === 0) return []
+  if (!fs.existsSync(recordDir)) return []
 
-    const expireFiles = []
-    for (const file of files) {
-      const data = await readFile(path.join(recordDir, file))
-      // 当前时间对比文件的时间戳，不超过一天，就不需要进行重新采集
-      if (data && new Date(global.finalDate).getTime() - data.date < 24 * 60 * 60 * 1000) {
-        continue
-      }
+  const expireFiles = []
+  for (const file of files) {
+    const date = file.split('_').pop()
+    // 已保存文件的日期，超过最后交易日1天，就需要重新采集
+    if (moment(date).getTime() + 24 * 60 * 60 * 1000 < new Date(global.finalDealDate).getTime()) {
       expireFiles.push(file)
     }
-    
-    return s(matchURL(links, expireFiles))
-  }).catch((err) => {
-    return s(links)
-  })
+  }
+
+  return matchURL(links, expireFiles)
 }
 
+// 把文件名换成link
 function matchURL(links, expireFiles) {
   const refreshLinks = []
   let l = links.length

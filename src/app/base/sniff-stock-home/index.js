@@ -21,21 +21,21 @@ async function excution(s, j) {
       .replace('[marketName]', item.marketName)
       .replace('[stockCode]', item.code)
   })
-  const unlinks = await hasUninks(urls, recordDir)
-  const refreshLinks = await hasRefreshLinks(urls, recordDir)
+  const unlinks = hasUninks(urls, recordDir)
+  const refreshLinks = hasRefreshLinks(urls, recordDir)
   console.log('klines unlinks:', unlinks.length)
   console.log('klines refreshLinks:', refreshLinks.length)
   const links = unlinks.concat(refreshLinks)
   if (links.length) {
-    await batchLinkC(links, {
+    await batchLinkC(links, () => {
+      return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
+    }, {
       onResponse: function(response) {
         if (response.status() === 200 && dailyKlineReg.test(response.url())) {
           recordKlines(response)
         }
-      },
-    }).catch(() => { j(false) })
-    return s(true)
-  } else {
-    return s(true)
+      }
+    })
   }
+  return s(true)
 }
