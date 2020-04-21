@@ -18,11 +18,11 @@ function loopFn (urls, checkRemainUrl, s, j) {
   })
   bunch.finally(async () => {
     let remainUrls = checkRemainUrl()
-    console.log('remainUrls: ', remainUrls.length)
     if (remainUrls.length) {
-      await shutdownPages(pages).catch()
+      console.log('remainUrls: ', remainUrls.length)
       return loopFn(remainUrls, checkRemainUrl, s, j)
     } else {
+      console.log('loop end！shutting down pages!')
       await shutdownPages(pages).catch()
       return s()
     }
@@ -76,9 +76,5 @@ function pickIdlPage (pages) {
       break
     }
   }
-  // if (!pageActT[idlPage.id]) {
-  //   pageActT[idlPage.id] = 0
-  // }
-  // pageActT[idlPage.id] ++
   return idlPage
 }
