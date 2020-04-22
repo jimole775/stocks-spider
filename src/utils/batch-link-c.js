@@ -2,14 +2,18 @@ import { initPage } from './init-page'
 import { BunchThread } from './bunch-thread'
 const pages = []
 const limitBunch = global.concurrentLimit
-export async function batchLinkC (urls, checkRemainUrl, callback) {
-  await buildPage (callback, pages)
+export async function batchLinkC (urls, {
+  onRequest,
+  onResponse,
+  onBatchEnd = () => {return []}
+}) {
+  await buildPage (onRequest, onResponse)
   return new Promise((s, j) => {
-    return loopFn (urls, checkRemainUrl, s, j)
+    return loopFn (urls, onBatchEnd, s, j)
   })
 }
 
-function loopFn (urls, checkRemainUrl, s, j) {
+function loopFn (urls, onBatchEnd, s, j) {
   const bunch = new BunchThread(limitBunch)
   urls.forEach((url) => {
     bunch.taskCalling(() => {
@@ -17,13 +21,13 @@ function loopFn (urls, checkRemainUrl, s, j) {
     })
   })
   bunch.finally(async () => {
-    let remainUrls = checkRemainUrl()
+    let remainUrls = onBatchEnd()
     if (remainUrls.length) {
       console.log('remainUrls: ', remainUrls.length)
-      return loopFn(remainUrls, checkRemainUrl, s, j)
+      return loopFn(remainUrls, onBatchEnd, s, j)
     } else {
       console.log('loop end！shutting down pages!')
-      await shutdownPages(pages).catch()
+      await shutdownPages()
       return s()
     }
   })
@@ -31,7 +35,7 @@ function loopFn (urls, checkRemainUrl, s, j) {
 
 function taskEntity (url) {
   return new Promise(async (s, j) => {
-    let idlPage = pickIdlPage(pages)
+    let idlPage = pickIdlPage()
     idlPage.idl = false
     await idlPage.goto(url, { timeout: 0 }).catch(() => {
       console.log('idlPage.goto error')
@@ -41,11 +45,11 @@ function taskEntity (url) {
   })
 }
 
-function buildPage (callback, pages) {
+function buildPage (onRequest, onResponse) {
   return new Promise(async (s, j) => {
     for (let i = 0; i < limitBunch; i++) {
       let idlPage
-      idlPage = await initPage(callback.onRequest, callback.onResponse)
+      idlPage = await initPage(onRequest, onResponse)
       idlPage.id = '_id_' + i
       idlPage.idl = true
       pages.push(idlPage)
@@ -54,11 +58,11 @@ function buildPage (callback, pages) {
   })
 }
 
-function shutdownPages (pages) {
+function shutdownPages () {
   return new Promise((s, j)=>{
     return loopShut(pages.pop(), s, j)
     async function loopShut (page, s, j) {
-      await page.close()
+      await page.close().catch()
       if (pages.length) {
         return loopShut(pages.pop(), s, j)
       } else {
@@ -68,7 +72,7 @@ function shutdownPages (pages) {
   })
 }
 
-function pickIdlPage (pages) {
+function pickIdlPage () {
   let idlPage
   for (const page of pages) {
     if (page.idl) {

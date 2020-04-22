@@ -27,13 +27,14 @@ async function excution(s, j) {
   console.log('klines refreshLinks:', refreshLinks.length)
   const links = unlinks.concat(refreshLinks)
   if (links.length) {
-    await batchLinkC(links, () => {
-      return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
-    }, {
+    await batchLinkC(links, {
       onResponse: function(response) {
         if (response.status() === 200 && dailyKlineReg.test(response.url())) {
           recordKlines(response)
         }
+      },
+      onBatchEnd: function () {
+        return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
       }
     })
   }
