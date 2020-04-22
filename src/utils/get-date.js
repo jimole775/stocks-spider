@@ -5,7 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 // const { readFile } = require(`./read-file`)
-const { batchLink } = require(`./batch-link`)
+const { batchLinkC } = require(`./batch-link-c`)
 const { quest } = require(`./quest`)
 export function getDate() {
   // # 上证指数的数据，可以从里面筛出交易的时间
@@ -13,27 +13,42 @@ export function getDate() {
   // dateReg: "push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/trends2\\/get\\?"
   // SHome: "http://quote.eastmoney.com/zs000001.html"
   // const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
+  return new Promise(excution)
+}
+
+function excution (s, j) {
   const dateReg = new RegExp('push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/trends2\\/get\\?', 'ig')
-  return new Promise(async (s, j) => {
-    batchLink(['http://quote.eastmoney.com/zs000001.html'], {
-      onResponse: response => {
+  batchLinkC(['http://quote.eastmoney.com/zs000001.html'], {
+      onResponse: async response => {
         if (response.status() === 200 && dateReg.test(response.url())) {
-          return s(handle(response))
+          const res = await handle(response)
+          if (res) {
+            return s(res)
+          } else {
+            return loop (s, j)
+          }
         }
       }
     })
-  })
 }
 
-async function handle(response) {
-  // 从URL上过滤出stockCode，然后拼接文件名，尝试读取数据
-  const dirtyData = await quest(response.url()).catch(err => j(err))
-  const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-  const curDate = new Date((pureData.data.time || 0) * 1000)
-  let year = curDate.getFullYear()
-  let mm = curDate.getMonth() + 1
-  let dd = curDate.getDate()
-  mm = mm.toString().length === 1 ? '0' + mm : mm
-  dd = dd.toString().length === 1 ? '0' + dd : dd
-  return `${year}-${mm}-${dd}`
+function handle(response) {
+  return new Promise(async (s, j) => {
+    // 从URL上过滤出stockCode，然后拼接文件名，尝试读取数据
+    let res = null
+    try {
+      const dirtyData = await quest(response.url())
+      const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
+      const curDate = new Date((pureData.data.time || 0) * 1000)
+      let year = curDate.getFullYear()
+      let mm = curDate.getMonth() + 1
+      let dd = curDate.getDate()
+      mm = mm.toString().length === 1 ? '0' + mm : mm
+      dd = dd.toString().length === 1 ? '0' + dd : dd
+      res = `${year}-${mm}-${dd}`
+    } catch (error) {
+      res = null
+    }
+    return s(res)
+  })
 }
