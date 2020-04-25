@@ -5,7 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 const { recordKlines } = require(`./record-klines`)
-const { readFile, batchLink, hasUninks, hasRefreshLinks } = require(`${global.srcRoot}/utils`)
+const { readFile, BunchLinks, hasUninks, hasRefreshLinks } = require(`${global.srcRoot}/utils`)
 export async function sniffStockHome() {
   return new Promise(excution).catch(err => err)
 }
@@ -21,16 +21,25 @@ async function excution(s, j) {
       .replace('[marketName]', item.marketName)
       .replace('[stockCode]', item.code)
   })
-  const unlinks = await hasUninks(urls, recordDir)
-  const refreshLinks = await hasRefreshLinks(urls, recordDir)
-  // console.log('klines unlinks:', unlinks.length)
-  // console.log('klines refreshLinks:', refreshLinks.length)
-  await batchLink(unlinks.concat(refreshLinks), {
-    onResponse: function(response) {
-      if (response.status() === 200 && dailyKlineReg.test(response.url())) {
-        recordKlines(response)
-      }
-    },
-  })
+  const unlinks = hasUninks(urls, recordDir)
+  const refreshLinks = hasRefreshLinks(urls, recordDir)
+  console.log('klines unlinks:', unlinks.length)
+  console.log('klines refreshLinks:', refreshLinks.length)
+  const links = unlinks.concat(refreshLinks)
+  if (links.length) {
+    const bunchLinks = new BunchLinks(3)
+    await bunchLinks
+      .on({
+        response: function(response) {
+          if (response.status() === 200 && dailyKlineReg.test(response.url())) {
+            return recordKlines(response)
+          }
+        },
+        batchEnd: function () {
+          return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
+        }
+      })
+      .dispatching(links)
+  }
   return s(true)
 }
