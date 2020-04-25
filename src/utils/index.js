@@ -12,7 +12,7 @@ import { rangeEqual } from './range-equal' // 约等于运算
 import { dateFormat } from './date-format'
 import { writeFile } from './write-file'
 import { batchLink } from './batch-link' // 单线程形式批量采访链接
-import { batchLinkC } from './batch-link-c' // 多线程形式批量采访链接
+import { BunchLinks } from './bunch-links' // 多线程形式批量采访链接
 import { initPage } from './init-page' // batchLink的依赖函数
 import { readFile } from './read-file'
 import { getDate } from './get-date' // 从默认站点，采集最后交易日的时间
@@ -24,5 +24,5 @@ export {
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat,
-  rangeEqual, getPathSeparator, buildPath, StepFlow, batchLinkC
+  rangeEqual, getPathSeparator, buildPath, StepFlow, BunchLinks
 }

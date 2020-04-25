@@ -5,7 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 // const { readFile } = require(`./read-file`)
-const { batchLinkC } = require(`./batch-link-c`)
+const { BunchLinks } = require(`./bunch-links`)
 const { quest } = require(`./quest`)
 export function getDate() {
   // # 上证指数的数据，可以从里面筛出交易的时间
@@ -16,20 +16,24 @@ export function getDate() {
   return new Promise(excution)
 }
 
-function excution (s, j) {
+async function excution (s, j) {
   const dateReg = new RegExp('push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/trends2\\/get\\?', 'ig')
-  batchLinkC(['http://quote.eastmoney.com/zs000001.html'], {
-      onResponse: async response => {
+  const links = ['http://quote.eastmoney.com/zs000001.html']
+  const bunchLinks = new BunchLinks()
+  await bunchLinks
+    .on({
+      response: async response => {
         if (response.status() === 200 && dateReg.test(response.url())) {
           const res = await handle(response)
           if (res) {
             return s(res)
           } else {
-            return loop (s, j)
+            return excution(s, j)
           }
         }
       }
     })
+    .dispatching(links)
 }
 
 function handle(response) {

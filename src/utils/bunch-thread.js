@@ -1,5 +1,5 @@
 export class BunchThread {
-  constructor (limit = 5, endCallback = () => { console.log('auto end') }) {
+  constructor (limit = global.bunchLimit, endCallback = () => { console.log('auto end') }) {
     this.limit = limit
     this.taskQueue = []
     this.taskLiving = 0
