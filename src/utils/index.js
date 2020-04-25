@@ -1,14 +1,14 @@
 import { 
   isArray, isEmptyArray, isObject, 
   isEmptyObject, isString, isEmpty, 
-  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl 
+  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl,
+  rangeEqual/*约等于运算*/
 } from './assert'
 import { StepFlow } from './step-flow' // 同步流程
 import { hasRefreshLinks } from './has-refresh-links'  // 从已采集的库里筛选出过期数据
 import { getPathSeparator } from './get-path-separator'  // 获取路径分隔符
 import { buildPath } from './build-path' // 创建多级路径
 import { hasUninks } from './has-unlinks' // 从已采集的库筛选出未访问的URL
-import { rangeEqual } from './range-equal' // 约等于运算
 import { dateFormat } from './date-format'
 import { writeFile } from './write-file'
 import { batchLink } from './batch-link' // 单线程形式批量采访链接
