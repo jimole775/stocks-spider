@@ -16,7 +16,7 @@ export async function recordPeerDeal(response) {
         data: pureData.data.data
       })
   } catch (error) {
-    console.log('deal:', error)
+    console.error('deal error:', error)
     return false
   }
 }
