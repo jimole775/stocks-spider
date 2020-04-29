@@ -36,11 +36,11 @@ async function excution(s, j) {
             return recordPeerDeal(response)
           }
         },
-        batchEnd: function () {
+        end: function () {
           return hasUninks(urls, recordDir)
         }
       })
-      .dispatching(unlinks)
+      .emit(unlinks)
   }
   return s(true)
 }

@@ -35,11 +35,11 @@ async function excution(s, j) {
             return recordKlines(response)
           }
         },
-        batchEnd: function () {
+        end: function () {
           return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
         }
       })
-      .dispatching(links)
+      .emit(links)
   }
   return s(true)
 }

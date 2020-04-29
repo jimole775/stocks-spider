@@ -7,18 +7,16 @@ export class BunchLinks {
     this.bunch = new BunchThread(limit)
     this.request = () => { return [] }
     this.response = () => { return [] }
-    this.batchEnd = () => { return [] }
+    this.end = () => { return [] }
     return this
   }
-
-  on ({ request, response, batchEnd }) {
+  on ({ request, response, end }) {
     if (request) this.request = request
     if (response) this.response = response
-    if (batchEnd) this.batchEnd = batchEnd
+    if (end) this.end = end
     return this
   }
-
-  async dispatching (urls) {
+  async emit (urls) {
     await this.buildPage()
     return new Promise((s, j) => {
       return this.loop(urls, s, j)
@@ -31,7 +29,7 @@ export class BunchLinks {
       })
     })
     this.bunch.finally(async () => {
-      let remainUrls = this.batchEnd()
+      let remainUrls = this.end()
       if (remainUrls && remainUrls.length) {
         console.log('remainUrls: ', remainUrls.length)
         return this.loop(remainUrls, s, j)
