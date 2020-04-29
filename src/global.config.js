@@ -1,4 +1,4 @@
 global.srcRoot = __dirname
 global.baseUrl = 'src'
-global.bunchLimit = 3
+global.bunchLimit = 5
 global.finalDealDate = new Date()

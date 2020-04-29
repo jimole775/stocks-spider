@@ -27,7 +27,7 @@ async function excution(s, j) {
   console.log('klines refreshLinks:', refreshLinks.length)
   const links = unlinks.concat(refreshLinks)
   if (links.length) {
-    const bunchLinks = new BunchLinks(3)
+    const bunchLinks = new BunchLinks()
     await bunchLinks
       .on({
         response: function(response) {

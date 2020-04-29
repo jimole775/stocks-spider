@@ -28,7 +28,7 @@ async function excution(s, j) {
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   if (unlinks.length) {
-    const bunchLinks = new BunchLinks(3)
+    const bunchLinks = new BunchLinks()
     await bunchLinks
       .on({
         response: function (response) {
