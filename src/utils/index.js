@@ -11,7 +11,7 @@ import { buildPath } from './build-path' // 创建多级路径
 import { hasUninks } from './has-unlinks' // 从已采集的库筛选出未访问的URL
 import { dateFormat } from './date-format'
 import { writeFile } from './write-file'
-import { batchLink } from './batch-link' // 单线程形式批量采访链接
+import { Link } from './link' // 
 import { BunchLinks } from './bunch-links' // 多线程形式批量采访链接
 import { initPage } from './init-page' // batchLink的依赖函数
 import { readFile } from './read-file'
@@ -23,6 +23,6 @@ export {
   isArray, isEmptyArray, isObject, 
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
-  batchLink, getDate, hasUninks, hasRefreshLinks, dateFormat,
+  Link, getDate, hasUninks, hasRefreshLinks, dateFormat,
   rangeEqual, getPathSeparator, buildPath, StepFlow, BunchLinks
 }

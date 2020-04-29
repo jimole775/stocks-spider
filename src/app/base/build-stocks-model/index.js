@@ -25,10 +25,11 @@ export function buildStocksModel() {
       })
       return s('success')
     } catch (error) {
+      console.error('build model error:', error)
       return j(error)
     }
   }).catch(function(error) {
-    console.error(error)
+    console.error('build model error:', error)
   })
 }
 

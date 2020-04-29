@@ -18,6 +18,7 @@ export async function recordKlines(response) {
       ...pureData.data
     })
   } catch (error) {
+    console.error('kline error:', error)
     return false
   }
 }
