@@ -11,7 +11,7 @@ chromium 是 puppeteer 库的底层依赖，必须安装，否则 puppeteer 的�
 
 1. 首先运行安装 puppeteer 
 ```
-npm install puppeteer --ignore-scripts
+npm install puppeteer@2.1.1 --ignore-scripts
 ```
 
 2. 然后到 [这里](https://chromium.en.lo4d.com/download) 下载一个 chromium 资源包
