@@ -50,14 +50,15 @@
     "webpack": "^4.42.0"
   },
   "dependencies": {
-    "superagent": "^5.1.0",
+    "browserify-shim": "^3.8.14",
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
-    "browserify-shim": "^3.8.14",
     "js-yaml": "^3.13.1",
     "moment": "^2.24.0",
     "mongodb": "^3.3.4",
-    "puppeteer": "^2.1.1"
+    "os-utils": "0.0.14",
+    "puppeteer": "^2.1.1",
+    "superagent": "^5.1.0"
   },
   "browserify": {
     "transform": "browserify-shim"

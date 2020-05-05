@@ -1,9 +1,12 @@
+
+const os = require('os-utils')
 export class BunchThread {
   constructor (limit = global.bunchLimit, endCallback = () => { console.log('auto end') }) {
     this.limit = limit
     this.taskQueue = []
     this.taskLiving = 0
     this.endCallback = endCallback
+    // this.updateCPU()
     return this
   }
 
@@ -32,5 +35,14 @@ export class BunchThread {
 
   finally (callback) {
     this.endCallback = callback
+  }
+
+  updateCPU () {
+    setTimeout(() => {
+      os.cpuUsage((value) => {
+        console.log(value)
+        this.updateCPU()
+      })
+    }, 0)
   }
 }

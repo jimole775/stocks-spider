@@ -4,9 +4,9 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-import fs from 'fs'
 const { recordPeerDeal } = require('./record-peer-deal')
 const { readFile, BunchLinks, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
+const { batchLink } = require(`${global.srcRoot}/utils/batch-link`)
 export async function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
@@ -24,11 +24,18 @@ async function excution(s, j) {
       .replace('[marketCode]', item.marketCode)
   })
   const unlinks = hasUninks(urls, recordDir)
-  // console.log('daily deals unlink: ', unlinks.length)
+  console.log('daily deals unlink: ', unlinks.length)
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
   if (unlinks.length) {
-    const bunchLinks = new BunchLinks()
+    // batchLink(unlinks, {
+    //   onResponse: (response) => {
+    //     if (response.status() === 200 && peerDealReg.test(response.url())) {
+    //       return recordPeerDeal(response)
+    //     }
+    //   }
+    // })
+    const bunchLinks = new BunchLinks(unlinks)
     await bunchLinks
       .on({
         response: function (response) {
@@ -40,7 +47,7 @@ async function excution(s, j) {
           return hasUninks(urls, recordDir)
         }
       })
-      .emit(unlinks)
+      .emit()
   }
   return s(true)
 }
