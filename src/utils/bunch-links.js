@@ -1,8 +1,9 @@
 import { initPage } from './init-page'
 import { BunchThread } from './bunch-thread'
 export class BunchLinks {
-  constructor (limit = global.bunchLimit) {
+  constructor (urls = [], limit = global.bunchLimit) {
     this.limitBunch = limit
+    this.urls = urls
     this.pages = []
     this.bunch = new BunchThread(limit)
     this.request = () => { return [] }
@@ -16,10 +17,10 @@ export class BunchLinks {
     if (end) this.end = end
     return this
   }
-  async emit (urls) {
+  async emit () {
     await this.buildPage()
     return new Promise((s, j) => {
-      return this.loop(urls, s, j)
+      return this.loop(this.urls, s, j)
     })
   }
   loop (urls, s, j) {
@@ -42,11 +43,12 @@ export class BunchLinks {
   }
   taskEntity (url) {
     return new Promise(async (s, j) => {
-      let idlPage = this.pickIdlPage()
+      const idlPage = this.pickIdlPage()
       idlPage.idl = false
-      await idlPage.goto(url, { timeout: 0 }).catch(() => {
-        console.log('idlPage.goto error')
-      })
+      await idlPage.goto(url, { timeout: 0 })
+        .catch(() => {
+          console.log('idlPage.goto error')
+        })
       idlPage.idl = true
       return s(true)
     })
@@ -55,8 +57,7 @@ export class BunchLinks {
   buildPage () {
     return new Promise(async (s, j) => {
       for (let i = 0; i < this.limitBunch; i++) {
-        let idlPage
-        idlPage = await initPage(this.request, this.response)
+        const idlPage = await initPage(this.request, this.response)
         idlPage.id = '_id_' + i
         idlPage.idl = true
         this.pages.push(idlPage)

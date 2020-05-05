@@ -27,7 +27,7 @@ async function excution(s, j) {
   console.log('klines refreshLinks:', refreshLinks.length)
   const links = unlinks.concat(refreshLinks)
   if (links.length) {
-    const bunchLinks = new BunchLinks()
+    const bunchLinks = new BunchLinks(links)
     await bunchLinks
       .on({
         response: function(response) {
@@ -39,7 +39,7 @@ async function excution(s, j) {
           return hasUninks(urls, recordDir).concat(hasRefreshLinks(urls, recordDir))
         }
       })
-      .emit(links)
+      .emit()
   }
   return s(true)
 }
