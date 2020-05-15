@@ -31,4 +31,4 @@ npm install puppeteer@2.1.1 --ignore-scripts
 接下来就是安装项目的其他依赖包，运行 `npm i` 或者 `yarn` 即可。
 
 ## 运行项目
-`npm run dev`
+`npm run start`
