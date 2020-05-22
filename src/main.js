@@ -8,6 +8,7 @@ const { testLink } = require ('./utils/batch-link')
 const { sniffDailyDeals } = require ('./app/base/sniff-daily-deals')
 // const { shadowLines } = require ('./app/analyze/peer-deals')
 ;(async function (){
+  console.log('run start!')
   global.finalDealDate = await getDate() // 先截取最后一个交易日的时间
   console.log('date: ', global.finalDealDate)
   // await buildStocksModel()

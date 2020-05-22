@@ -42,6 +42,8 @@ async function responseEvent(url, s, j) {
     dd = dd.toString().length === 1 ? '0' + dd : dd
     return s(`${year}-${mm}-${dd}`)
   } catch (error) {
-    return responseEvent(url, s, j)
+    console.log(error)
+    // 为了防止link访问丢失，增加1秒间隔，减少无谓的请求
+    return setTimeout(() => {responseEvent(url, s, j)}, 1000)
   }
 }

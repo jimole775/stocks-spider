@@ -28,6 +28,7 @@ export class Link {
       await this.shutdownPage()
       return s()
     } catch (error) {
+      console.log(error)
       return this.emitHandler (url, s, j)
     }
   }
@@ -42,7 +43,7 @@ export class Link {
     try {
       return s(await this.page.close())
     } catch (error) {
-      return this.shutdownHandler(s, j)
+      return setTimeout(() => this.shutdownHandler(s, j), 15)
     }
   }
 }

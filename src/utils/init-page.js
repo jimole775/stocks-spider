@@ -26,8 +26,7 @@ async function loop (requestCallback, responseCallback, s, j) {
     }
     return s(page)
   } catch (error) {
-    if (page) page = null
-    if (browser) browser = null
-    return loop(requestCallback, responseCallback, s, j)
+    console.log(error)
+    return setTimeout(() => { loop(requestCallback, responseCallback, s, j) }, 15)
   }
 }
