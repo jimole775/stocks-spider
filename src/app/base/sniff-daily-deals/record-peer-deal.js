@@ -1,5 +1,5 @@
 import path from 'path'
-const { writeFile, quest } = require(`${global.srcRoot}/utils`)
+const { writeFileAsync, quest } = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`
 export async function recordPeerDeal(response) {
   try {
@@ -10,7 +10,7 @@ export async function recordPeerDeal(response) {
     const stockCode = pureData.data.c
     const stockName = pureData.data.n
     console.log('deal:', stockCode)
-    return writeFile(path.join(recordPath, global.finalDealDate, `${stockCode}.json`),
+    return writeFileAsync(path.join(recordPath, global.finalDealDate, `${stockCode}.json`),
       {
         date: new Date(global.finalDealDate).getTime(), 
         data: pureData.data.data

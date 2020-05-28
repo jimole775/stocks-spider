@@ -8,8 +8,8 @@
  * 过滤掉创业板的股票
  */
 import puppeteer from 'puppeteer'
-const { readFile } = require(`${global.srcRoot}/utils`)
-const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
+const { readFileAsync } = require(`${global.srcRoot}/utils`)
+const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const url = urlModel.api.GemBoardList
 function init() {
 	return new Promise(async (s, j) => {

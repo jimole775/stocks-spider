@@ -1,6 +1,6 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
-export function readFile(filePath) {
+export function readFileAsync(filePath) {
   let data = null
   try {
     const isExist = fs.existsSync(filePath)

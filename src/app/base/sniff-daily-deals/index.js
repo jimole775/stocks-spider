@@ -5,15 +5,15 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 const { recordPeerDeal } = require('./record-peer-deal')
-const { readFile, BunchLinks, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
+const { readFileAsync, BunchLinks, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
 const { batchLink } = require(`${global.srcRoot}/utils/batch-link`)
 export async function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
 
 async function excution(s, j) {
-  const baseData = readFile(`${global.srcRoot}/db/warehouse/base.json`)
-  const urlModel = readFile(`${global.srcRoot}/url-model.yml`)
+  const baseData = readFileAsync(`${global.srcRoot}/db/warehouse/base.json`)
+  const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
   const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
   const allStocks = JSON.parse(baseData ? baseData.data : {})
   const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`

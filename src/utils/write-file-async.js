@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { buildPath } from './build-path'
 import { isArray, isObject } from './assert'
-export function writeFile(asbFilePath, data) {
+export function writeFileAsync(asbFilePath, data) {
   let fd = null
   try {
     buildPath(asbFilePath)
@@ -10,7 +10,7 @@ export function writeFile(asbFilePath, data) {
     }
     fd = fs.writeFileSync(asbFilePath, data, 'utf8')
   } catch (error) {
-    console.log('writeFile:', error)
+    console.log('writeFileAsync:', error)
     fd = null
   }
   return fd

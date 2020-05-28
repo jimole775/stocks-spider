@@ -8,7 +8,7 @@ import fs from 'fs'
 import path from 'path'
 import puppeteer from 'puppeteer'
 import { buildModel } from './build-model'
-const { readFile, writeFile } = require(`${global.srcRoot}/utils`)
+const { readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 const baseDataPath = `${global.srcRoot}/db/warehouse`
 const fileName = 'base.json'
 export function buildStocksModel() {
@@ -19,7 +19,7 @@ export function buildStocksModel() {
       const browser = await puppeteer.launch().catch()
       const page = await browser.newPage().catch()
       const allStocks = await buildModel(page)
-      writeFile(path.join(baseDataPath, fileName), {
+      writeFileAsync(path.join(baseDataPath, fileName), {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)
       })
@@ -48,7 +48,7 @@ function goToken(url) {
 }
 
 function tryToloadAlreadyData(filePath) {
-  let data = readFile(filePath, 'utf8')
+  let data = readFileAsync(filePath, 'utf8')
   if (!data) return ''
   if (Number.parseInt(data.date) - new Date().getTime() >= 24 * 60 * 60 * 1000) {
     return ''

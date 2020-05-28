@@ -10,17 +10,18 @@ import { getPathSeparator } from './get-path-separator'  // 获取路径分隔�
 import { buildPath } from './build-path' // 创建多级路径
 import { hasUninks } from './has-unlinks' // 从已采集的库筛选出未访问的URL
 import { dateFormat } from './date-format'
-import { writeFile } from './write-file'
+import { writeFileAsync } from './write-file-async'
 import { Link } from './link' // 
 import { BunchLinks } from './bunch-links' // 多线程形式批量采访链接
 import { initPage } from './init-page' // batchLink的依赖函数
-import { readFile } from './read-file'
+import { readFileAsync } from './read-file-async'
 import { getDate } from './get-date' // 从默认站点，采集最后交易日的时间
 import { unique } from './unique' // 去重
 import { quest } from './quest' // superagent的封装
+import { removeDir } from './remove-dir' // 
 export {
-  readFile, writeFile, quest, 
-  isArray, isEmptyArray, isObject, 
+  readFileAsync, writeFileAsync, quest, 
+  isArray, isEmptyArray, isObject, removeDir,
   isEmptyObject, isString, isEmpty, unique, 
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   Link, getDate, hasUninks, hasRefreshLinks, dateFormat,

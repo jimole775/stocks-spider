@@ -4,7 +4,7 @@
  */
 import fs from 'fs'
 import path from 'path'
-const { rangeEqual, readFile, writeFile } = require(`${global.srcRoot}/utils`)
+const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 export function shadowLines() {
   return new Promise(async(s, j) => {
     const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
@@ -13,9 +13,9 @@ export function shadowLines() {
       const files = fs.readdirSync(path.join(dirRoot, dateDir))
       for (const file of files) {
         const filePath = path.join(dirRoot, dateDir, file)
-        const data = await readFile(filePath)
+        const data = await readFileAsync(filePath)
         const analyzeData = cacal(data)
-        writeFile(`${global.srcRoot}/db/analyze/peer-deals/${dateDir}/${file}`, analyzeData)
+        writeFileAsync(`${global.srcRoot}/db/analyze/peer-deals/${dateDir}/${file}`, analyzeData)
       }
       s(true)
     }

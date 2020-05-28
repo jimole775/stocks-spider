@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 /**
  * links 中，必须包含【股票代码】
  * recordDir 目录下的文件，必须确保能取到【股票代码】
@@ -10,13 +9,15 @@ export function hasRefreshLinks(links, recordDir) {
   const files = fs.readdirSync(recordDir)
   if (files.length === 0) return []
   if (links.length === 0) return []
+  // 如果还没生成文件夹，就直接返回 []
   if (!fs.existsSync(recordDir)) return []
 
   const expireFiles = []
   for (const file of files) {
-    const date = file.split('_').pop()
+    const recordedDate = file.split('.').shift()
     // 已保存文件的日期，超过最后交易日1天，就需要重新采集
-    if (moment(date).getTime() + 24 * 60 * 60 * 1000 < new Date(global.finalDealDate).getTime()) {
+    if (new Date(recordedDate).getTime() + 24 * 60 * 60 * 1000 
+        < new Date(global.finalDealDate).getTime()) {
       expireFiles.push(file)
     }
   }
