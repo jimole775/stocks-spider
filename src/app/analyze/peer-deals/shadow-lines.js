@@ -2,10 +2,10 @@
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
  */
-import fs from 'fs'
-import path from 'path'
-const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
-export function shadowLines() {
+const fs = require('fs')
+const path = require('path')
+const rangeEqual, readFileAsync, writeFileAsync = require(`${global.srcRoot}/utils`)
+module.exports = function shadowLines() {
   return new Promise(async(s, j) => {
     const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
     const dateDirs = fs.readdirSync(dirRoot)

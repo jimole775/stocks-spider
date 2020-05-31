@@ -1,7 +1,7 @@
-import path from 'path'
-const { writeFileAsync, quest } = require(`${global.srcRoot}/utils`)
+const path = require('path')
+const writeFileAsync, quest = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`
-export async function recordPeerDeal(response) {
+module.exports = async function recordPeerDeal(response) {
   try {
     // 修改数据的请求数量?pagesize=144&
     const url = response.url().replace(/^(http.*?)\?pagesize\=\d*?\&(.*?)$/, '$1?pagesize=99999&$2')

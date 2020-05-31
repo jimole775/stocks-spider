@@ -32,7 +32,7 @@
 const superagent = require('superagent')
 const fs = require('fs')
 
-export function handleDealDetail(url) {
+module.exports = function handleDealDetail(url) {
   return quest(url)
     .then(function ({ data = [], code, name }) {
       // 拿到每日交易概况，从里面分析出个股的股性

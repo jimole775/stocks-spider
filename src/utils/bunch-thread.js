@@ -1,6 +1,6 @@
 
 const os = require('os-utils')
-export class BunchThread {
+module.exports = class BunchThread {
   constructor (limit = global.bunchLimit, endCallback = () => { console.log('auto end') }) {
     this.limit = limit
     this.taskQueue = []

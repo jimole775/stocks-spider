@@ -1,4 +1,4 @@
-const { shadowLines } = require('./shadow-lines')
-export {
+const shadowLines = require('./shadow-lines')
+module.exports = {
   shadowLines
 }

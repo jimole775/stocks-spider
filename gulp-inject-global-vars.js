@@ -28,13 +28,13 @@ module.exports = function inject(globalVars) {
   })
   
   /**
-   * 由于写入global对象的时候，import 语法会提前加载外部模块， 所以要把 import 换为 require
+   * 由于写入global对象的时候，const 语法会提前加载外部模块， 所以要把 const 换为 require
    * @param {*} content 
    */
   function transformModuleType(content) {
-    // var b = new RegExp('import ', 'g')
-    var a = new RegExp('import (.*?) from \'(.*?)\'', 'g')
-    var b = new RegExp('import \'(.*?)\'', 'g')
+    // var b = new RegExp('const ', 'g')
+    var a = new RegExp('const (.*?) from \'(.*?)\'', 'g')
+    var b = new RegExp('const \'(.*?)\'', 'g')
     // content = content.replace(b, 'const ')
     content = content.replace(a, 'const $1 = require(\'$2\')')
     content = content.replace(b, 'require(\'$1\')')

@@ -1,11 +1,11 @@
-import fs from 'fs'
+const fs = require('fs')
 /**
  * links 中，必须包含【股票代码】
  * recordDir 目录下的文件，必须确保能取到【股票代码】
  * @param {*} links  
  * @param {*} recordDir 
  */
-export function hasUninks(links, recordDir) {
+module.exports = function hasUninks(links, recordDir) {
   if (links.length === 0) return links
   // 目录找不到，就直接返回所有links
   if (!fs.existsSync(recordDir)) return links

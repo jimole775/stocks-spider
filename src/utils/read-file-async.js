@@ -1,6 +1,6 @@
-import fs from 'fs'
-import yaml from 'js-yaml'
-export function readFileAsync(filePath) {
+const fs = require('fs')
+const yaml = require('js-yaml')
+module.exports = function readFileAsync(filePath) {
   let data = null
   try {
     const isExist = fs.existsSync(filePath)

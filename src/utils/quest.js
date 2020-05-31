@@ -1,13 +1,13 @@
 
-import superagent from 'superagent'
-import { getPathSeparator } from './get-path-separator'
+const superagent = require('superagent')
+const getPathSeparator = require('./get-path-separator')
 /**
  * 
  * @param url 
  * @param {method, header} 
  * @return String
  */
-export function quest(url, params = {}) {
+module.exports = function quest(url, params = {}) {
   const { method = 'GET', header = {}} = params
   return new Promise(async (s, j) => {
     const ip = 124 + "." + 23

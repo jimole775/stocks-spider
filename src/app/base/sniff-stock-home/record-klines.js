@@ -1,10 +1,10 @@
 const path = require(`path`)
-const { quest, writeFileAsync } = require(`${global.srcRoot}/utils`)
+const quest, writeFileAsync = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
 
-export function recordKlines(response) {
+module.exports = function recordKlines(response) {
   try {
     // 从URL上过滤出stockCode，然后拼接文件名，尝试读取数据
     const homeUrl = response._request._frame._navigationURL || ''

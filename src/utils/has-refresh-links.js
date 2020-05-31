@@ -1,11 +1,11 @@
-import fs from 'fs'
+const fs = require('fs')
 /**
  * links 中，必须包含【股票代码】
  * recordDir 目录下的文件，必须确保能取到【股票代码】
  * @param {*} links  
  * @param {*} recordDir 
  */
-export function hasRefreshLinks(links, recordDir) {
+module.exports = function hasRefreshLinks(links, recordDir) {
   const files = fs.readdirSync(recordDir)
   if (files.length === 0) return []
   if (links.length === 0) return []

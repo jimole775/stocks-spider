@@ -4,9 +4,9 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const { Link } = require(`./link`)
-const { quest } = require(`./quest`)
-export function getDate() {
+const Link = require(`./link`)
+const quest = require(`./quest`)
+module.exports = function getDate() {
   // # 上证指数的数据，可以从里面筛出交易的时间
   // date: "http://push2his.eastmoney.com/api/qt/stock/trends2/get?cb=jQuery1124012891801110637102_1584422853173&secid=1.000001&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11&fields2=f51%2Cf53%2Cf56%2Cf58&iscr=0&ndays=1&_=1584422853176"
   // dateReg: "push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/trends2\\/get\\?"

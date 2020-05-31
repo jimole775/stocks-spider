@@ -1,6 +1,6 @@
-import { initPage } from './init-page'
-import { BunchThread } from './bunch-thread'
-export class BunchLinks {
+const initPage = require('./init-page')
+const BunchThread = require('./bunch-thread')
+module.exports = class BunchLinks {
   constructor (urls = [], limit = global.bunchLimit) {
     this.limitBunch = limit
     this.urls = urls

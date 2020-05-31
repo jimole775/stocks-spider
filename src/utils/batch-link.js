@@ -1,5 +1,5 @@
-import { initPage } from './init-page'
-export async function batchLink(urls, callback) {
+const initPage = require('./init-page')
+module.exports = async function batchLink(urls, callback) {
   return new Promise((s, j) => excution(s, j, urls, callback)).catch(err => err)
 }
 

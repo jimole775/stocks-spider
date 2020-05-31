@@ -4,15 +4,15 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const { recordKlines } = require(`./record-klines`)
-const { readFileAsync, BunchLinks, hasUninks } = require(`${global.srcRoot}/utils`)
+const recordKlines = require(`./record-klines`)
+const readFileAsync, BunchLinks, hasUninks = require(`${global.srcRoot}/utils`)
 const baseData = readFileAsync(`${global.srcRoot}/db/warehouse/base.json`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
 const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/${global.finalDealDate}/`
 const allStocks = JSON.parse(baseData ? baseData.data : {})
 
-export async function sniffStockHome() {
+module.exports = async function sniffStockHome() {
   return new Promise(excution).catch(err => err)
 }
 

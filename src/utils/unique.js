@@ -1,5 +1,5 @@
-import { isArray, isObject } from './assert'
-export function unique(likeArray) {
+const { isArray, isObject } = require('./assert')
+module.exports = function unique(likeArray) {
   if (!isArray(likeArray)) return likeArray
   const newArray = []
   for (let i = 0; i < likeArray.length; i++) {

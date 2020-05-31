@@ -1,7 +1,7 @@
-import fs from 'fs'
-import { buildPath } from './build-path'
-import { isArray, isObject } from './assert'
-export function writeFileAsync(asbFilePath, data) {
+const fs = require('fs')
+const buildPath = require('./build-path')
+const { isArray, isObject } = require('./assert')
+module.exports = function writeFileAsync(asbFilePath, data) {
   let fd = null
   try {
     buildPath(asbFilePath)

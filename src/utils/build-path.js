@@ -1,7 +1,7 @@
-import fs from 'fs'
-import path from 'path'
-import { getPathSeparator } from './get-path-separator'
-export function buildPath(asbFilePath) {
+const fs = require('fs')
+const path = require('path')
+const getPathSeparator = require('./get-path-separator')
+module.exports = function buildPath(asbFilePath) {
   const isExist = fs.existsSync(asbFilePath)
   if (isExist) return asbFilePath
   let prevPath = ''

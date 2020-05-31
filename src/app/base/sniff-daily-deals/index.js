@@ -4,10 +4,10 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const { recordPeerDeal } = require('./record-peer-deal')
-const { readFileAsync, BunchLinks, hasUninks, dateFormat } = require(`${global.srcRoot}/utils`)
-const { batchLink } = require(`${global.srcRoot}/utils/batch-link`)
-export async function sniffDailyDeals() {
+const recordPeerDeal = require('./record-peer-deal')
+const readFileAsync, BunchLinks, hasUninks, dateFormat = require(`${global.srcRoot}/utils`)
+const batchLink = require(`${global.srcRoot}/utils/batch-link`)
+module.exports = async function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
 

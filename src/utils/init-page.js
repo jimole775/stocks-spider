@@ -1,6 +1,6 @@
-import puppeteer from 'puppeteer'
-import {isCSSUrl, isImgUrl} from './assert'
-export function initPage(requestCallback, responseCallback) {
+const puppeteer = require('puppeteer')
+const { isCSSUrl, isImgUrl } = require('./assert')
+module.exports = function initPage(requestCallback, responseCallback) {
   return new Promise(async (s, j) => {
     return loop(requestCallback, responseCallback, s, j)
   })

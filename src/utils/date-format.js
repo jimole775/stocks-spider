@@ -1,4 +1,4 @@
-export function dateFormat(fmt, date) {
+module.exports = function dateFormat(fmt, date) {
     let ret
     const opt = {
         "Y+": date.getFullYear().toString(),        // 年

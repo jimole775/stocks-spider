@@ -4,14 +4,14 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:26
  */
-import fs from 'fs'
-import path from 'path'
-import puppeteer from 'puppeteer'
-import { buildModel } from './build-model'
-const { readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
+const fs = require('fs')
+const path = require('path')
+const puppeteer = require('puppeteer')
+const buildModel = require('./build-model')
+const readFileAsync, writeFileAsync = require(`${global.srcRoot}/utils`)
 const baseDataPath = `${global.srcRoot}/db/warehouse`
 const fileName = 'base.json'
-export function buildStocksModel() {
+module.exports = function buildStocksModel() {
   return new Promise(async (s, j) => {
     const alreadyData = await tryToloadAlreadyData(path.join(baseDataPath, fileName))
     if (alreadyData) return s('success')

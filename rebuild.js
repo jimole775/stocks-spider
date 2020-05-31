@@ -2,7 +2,7 @@ require('@babel/register') // 转接外部模块的加载方式，amd改为commo
 const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
-const { readFileAsync, writeFileAsync } = require('./src/utils/index')
+const readFileAsync, writeFileAsync = require('./src/utils/index')
 // 取出 json 数据中的 date 数据，当作当前数据的文件名
 const srcDir = './src/db/warehouse/daily-klines'
 const targetDir = './src/db/warehouse/daily-klines-tmp'
