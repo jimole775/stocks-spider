@@ -1,5 +1,5 @@
 const path = require(`path`)
-const quest, writeFileAsync = require(`${global.srcRoot}/utils`)
+const { quest, writeFileAsync } = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`

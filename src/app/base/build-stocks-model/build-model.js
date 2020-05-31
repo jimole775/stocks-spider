@@ -1,5 +1,5 @@
 
-const readFileAsync, writeFileAsync = require(`${global.srcRoot}/utils`)
+const { readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const urlPool = [
   urlModel.page.SHStockList,

@@ -1,5 +1,5 @@
 const path = require('path')
-const writeFileAsync, quest = require(`${global.srcRoot}/utils`)
+const { writeFileAsync, quest } = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`
 module.exports = async function recordPeerDeal(response) {
   try {

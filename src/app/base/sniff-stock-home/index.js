@@ -5,7 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 const recordKlines = require(`./record-klines`)
-const readFileAsync, BunchLinks, hasUninks = require(`${global.srcRoot}/utils`)
+const { readFileAsync, BunchLinks, hasUninks } = require(`${global.srcRoot}/utils`)
 const baseData = readFileAsync(`${global.srcRoot}/db/warehouse/base.json`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')

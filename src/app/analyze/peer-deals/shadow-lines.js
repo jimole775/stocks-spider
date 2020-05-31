@@ -4,7 +4,7 @@
  */
 const fs = require('fs')
 const path = require('path')
-const rangeEqual, readFileAsync, writeFileAsync = require(`${global.srcRoot}/utils`)
+const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 module.exports = function shadowLines() {
   return new Promise(async(s, j) => {
     const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
