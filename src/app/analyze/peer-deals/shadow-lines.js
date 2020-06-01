@@ -4,22 +4,32 @@
  */
 const fs = require('fs')
 const path = require('path')
+const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
+const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/`
 const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 module.exports = function shadowLines() {
   return new Promise(async(s, j) => {
-    const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
     const dateDirs = fs.readdirSync(dirRoot)
     for (const dateDir of dateDirs) {
-      const files = fs.readdirSync(path.join(dirRoot, dateDir))
-      for (const file of files) {
+      const wareFiles = fs.readdirSync(path.join(dirRoot, dateDir))
+      if (fs.existsSync(path.join(targetRoot, dateDir))) {
+        const analyzeFiles = fs.readdirSync(path.join(targetRoot, dateDir))
+        if (wareFiles.length === analyzeFiles.length) continue
+      }
+      for (const file of wareFiles) {
         const filePath = path.join(dirRoot, dateDir, file)
         const data = await readFileAsync(filePath)
+        if (!data) continue
         const analyzeData = cacal(data)
-        writeFileAsync(`${global.srcRoot}/db/analyze/peer-deals/${dateDir}/${file}`, analyzeData)
+        writeFileAsync(`${targetRoot}/${dateDir}/${file}`, analyzeData)
       }
-      s(true)
     }
+    return s(true)
   })
+}
+
+function isExist (dateDir) {
+
 }
 
 function cacal(fileData) {
