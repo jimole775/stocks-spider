@@ -11,11 +11,11 @@ const { shadowLines } = require ('./app/analyze/peer-deals')
   console.log('run start!')
   global.finalDealDate = await getDate() // 先截取最后一个交易日的时间
   console.log('date: ', global.finalDealDate)
-  if (global.crossEnv.type === 'kline') {
+  if (['kline', 'all'].includes(global.crossEnv.type)) {
     await buildStocksModel()
     await sniffStockHome()
   }
-  if (global.crossEnv.type === 'deal') {
+  if (['deal', 'all'].includes(global.crossEnv.type)) {
     await sniffDailyDeals()
     await shadowLines()
   }
