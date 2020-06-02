@@ -6,7 +6,7 @@ global.crossEnv = queryParam()
 
 function queryParam () {
   const res = {}
-  let [param = null] = process.argv.pop()
+  let param = process.argv.pop()
   if (param && /^\-\-.+/.test(param)) {
     param = param.replace(/\-\-/, '')
     param = param.split('=')
