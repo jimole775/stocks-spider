@@ -10,6 +10,8 @@ const baseData = readFileAsync(`${global.srcRoot}/db/warehouse/base.json`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
 const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/${global.finalDealDate}/`
+// 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
+const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
 const allStocks = JSON.parse(baseData ? baseData.data : {})
 
 module.exports = async function sniffStockHome() {
@@ -22,7 +24,7 @@ async function excution(s, j) {
       .replace('[marketName]', item.marketName)
       .replace('[stockCode]', item.code)
   })
-  const unlinks = hasUninks(urls, recordPath)
+  const unlinks = hasUninks(urls, formerRecordPath)
   if (unlinks.length) {
     if (unlinks.length === urls.length) {
       // 1. 没有当日目录，新建当日目录，干掉旧目录
@@ -33,7 +35,7 @@ async function excution(s, j) {
     }
   }
   
-  // const refreshLinks = hasRefreshLinks(urls, recordPath)
+  // const refreshLinks = hasRefreshLinks(urls, formerRecordPath)
   // console.log('klines refreshLinks:', refreshLinks.length)
   // const links = unlinks.concat(refreshLinks)
   const links = unlinks.length ? unlinks : urls
@@ -48,8 +50,8 @@ async function excution(s, j) {
         }
       },
       end: function () {
-        // return hasUninks(urls, recordPath).concat(hasRefreshLinks(urls, recordPath))
-        return hasUninks(urls, recordPath)
+        // return hasUninks(urls, recordPath).concat(hasRefreshLinks(urls, formerRecordPath))
+        return hasUninks(urls, formerRecordPath)
       }
     })
     .emit()

@@ -6,7 +6,7 @@ const fs = require('fs')
  * @param {*} recordDir 
  */
 module.exports = function hasUninks(links, recordDir) {
-  if (links.length === 0) return links
+  if (links.length === 0) return []
   // 目录找不到，就直接返回所有links
   if (!fs.existsSync(recordDir)) return links
 
@@ -22,13 +22,12 @@ module.exports = function hasUninks(links, recordDir) {
         const stockCode = files[k].replace(/^.*\D?(\d{6})\D?.*$/, '$1')
         const reg = new RegExp(`\^${stockCode}\$|\^${stockCode}\\D*|\\D*${stockCode}\$|(\\D${stockCode}\\D)`, 'g')
         if (reg.test(urlItem)) {
+          files.splice(k, 1)
           isAlready = true
           break
         }
       }
-      if (!isAlready) {
-        unlinks.push(urlItem)
-      }
+      if (isAlready === false) unlinks.push(urlItem)
     }
   }
   return unlinks
