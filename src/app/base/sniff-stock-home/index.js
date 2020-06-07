@@ -35,12 +35,8 @@ async function excution(s, j) {
     }
   }
   
-  // const refreshLinks = hasRefreshLinks(urls, formerRecordPath)
-  // console.log('klines refreshLinks:', refreshLinks.length)
-  // const links = unlinks.concat(refreshLinks)
   const links = unlinks.length ? unlinks : urls
   console.log('klines unlinks:', links.length)
-  // if (unlinks.length) {
   const bunchLinks = new BunchLinks(links)
   await bunchLinks
     .on({
@@ -50,11 +46,9 @@ async function excution(s, j) {
         }
       },
       end: function () {
-        // return hasUninks(urls, recordPath).concat(hasRefreshLinks(urls, formerRecordPath))
         return hasUninks(urls, formerRecordPath)
       }
     })
     .emit()
-  // }
   return s(true)
 }

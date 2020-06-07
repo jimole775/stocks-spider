@@ -14,16 +14,17 @@ const fileName = 'base.json'
 module.exports = function buildStocksModel() {
   return new Promise(async (s, j) => {
     const alreadyData = await tryToloadAlreadyData(path.join(baseDataPath, fileName))
-    if (alreadyData) return s('success')
+    if (alreadyData) return s(alreadyData)
     try {
       const browser = await puppeteer.launch().catch()
       const page = await browser.newPage().catch()
       const allStocks = await buildModel(page)
-      writeFileAsync(path.join(baseDataPath, fileName), {
+      const baseData = {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)
-      })
-      return s('success')
+      }
+      writeFileAsync(path.join(baseDataPath, fileName), baseData)
+      return s(baseData)
     } catch (error) {
       console.error('build model error:', error)
       return j(error)

@@ -3,7 +3,7 @@ global.baseUrl = 'src'
 global.bunchLimit = 3
 global.finalDealDate = null
 global.crossEnv = queryParam()
-
+global.baseData = null
 function queryParam () {
   const res = {}
   let param = process.argv.pop()
