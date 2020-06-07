@@ -40,9 +40,10 @@ async function excution(s, j) {
   const bunchLinks = new BunchLinks(links)
   await bunchLinks
     .on({
-      response: function(response) {
+      response: function (response) {
         if (response.status() === 200 && dailyKlineReg.test(response.url())) {
-          return recordKlines(response)
+          recordKlineUrl(response.url())
+          return recordKlines(response.url())
         }
       },
       end: function () {
