@@ -9,11 +9,9 @@ const path = require('path')
 const puppeteer = require('puppeteer')
 const buildModel = require('./build-model')
 const { readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
-const baseDataPath = `${global.srcRoot}/db/warehouse`
-const fileName = 'base.json'
 module.exports = function buildStocksModel() {
   return new Promise(async (s, j) => {
-    const alreadyData = await tryToloadAlreadyData(path.join(baseDataPath, fileName))
+    const alreadyData = await tryToloadAlreadyData(global.baseDataFile)
     if (alreadyData) return s(alreadyData)
     try {
       const browser = await puppeteer.launch().catch()
@@ -23,7 +21,7 @@ module.exports = function buildStocksModel() {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)
       }
-      writeFileAsync(path.join(baseDataPath, fileName), baseData)
+      writeFileAsync(global.baseDataFile, baseData)
       return s(baseData)
     } catch (error) {
       console.error('build model error:', error)

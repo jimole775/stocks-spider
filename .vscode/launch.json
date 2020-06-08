@@ -11,7 +11,9 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\src\\main.js"
+      "program": "${workspaceFolder}\\src\\main.js",
+      "args":["--type=deal"]
+
       // "program": "${workspaceFolder}\\test.js"
     }
   ]
