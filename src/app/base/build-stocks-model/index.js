@@ -4,8 +4,6 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:26
  */
-const fs = require('fs')
-const path = require('path')
 const puppeteer = require('puppeteer')
 const buildModel = require('./build-model')
 const { readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
@@ -21,14 +19,12 @@ module.exports = function buildStocksModel() {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)
       }
-      writeFileAsync(global.baseDataFile, baseData)
+      await writeFileAsync(global.baseDataFile, baseData)
       return s(baseData)
     } catch (error) {
       console.error('build model error:', error)
       return j(error)
     }
-  }).catch(function(error) {
-    console.error('build model error:', error)
   })
 }
 

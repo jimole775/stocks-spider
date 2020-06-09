@@ -9,7 +9,10 @@ const querystring = require('querystring')
 const baseData = require(global.baseDataFile).data
 const allStocks = JSON.parse(baseData ? baseData : [])
 const recordPeerDeal = require('./record-peer-deal')
-const { readFileAsync, BunchLinking, hasUninks, recordUsedAPI, hasFullRecordInbaseData } = require(`${global.srcRoot}/utils`)
+const {
+  readFileAsync, BunchLinking, hasUninks,
+  recordUsedAPI, hasFullRecordInbaseData
+} = require(`${global.srcRoot}/utils`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`
@@ -20,7 +23,6 @@ module.exports = function sniffDailyDeals() {
 
 async function excution (s, j) {
   // if (!canContinue()) return s(true)
-  console.log(typeof allStocks)
   const urls = allStocks.map(item => {
     return urlModel.model.PeerDeal
       .replace('[stockCode]', item.code)
@@ -49,8 +51,7 @@ async function excution (s, j) {
 async function sniffUrlFromWeb (unlinkedUrls) {
   const doneApiMap = {}
   const bunchLinking = new BunchLinking(unlinkedUrls)
-  await bunchLinking
-    .on({
+  await bunchLinking.on({
       response: function (response) {
         if (response.status() === 200 && peerDealReg.test(response.url())) {
           const api = response.url()
@@ -67,8 +68,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       end: function () {
         return hasUninks(unlinkedUrls, recordDir)
       }
-    })
-    .emit()
+    }).emit()
   return Promise.resolve(doneApiMap)
 }
 

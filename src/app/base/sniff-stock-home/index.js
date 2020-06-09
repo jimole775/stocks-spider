@@ -54,27 +54,25 @@ async function excution(s, j) {
 }
 
 async function sniffUrlFromWeb (unlinkedUrls) {
-  const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
   const doneApiMap = {}
   const bunchLinking = new BunchLinking(unlinkedUrls)
-  await bunchLinking
-    .on({
-      response: function (response) {
-        if (response.status() === 200 && dailyKlineReg.test(response.url())) {
-          const apiObj = querystring.decode(response.url())
-          const stockCode = apiObj.secid.split('.').pop() // secid: '1.603005',
-          apiObj.lmt = 99999 // lmt: '120',
-          apiObj.fqt = 1 // fqt: '0'-不复权，'1'-前复权,
-          const FRKlineApi = querystring.encode(apiObj)
-          doneApiMap[stockCode] = FRKlineApi
-          return recordKlines(stockCode, FRKlineApi)
-        }
-      },
-      end: function () {
-        return hasUninks(unlinkedUrls, formerRecordPath)
+  const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
+  await bunchLinking.on({
+    response: function (response) {
+      if (response.status() === 200 && dailyKlineReg.test(response.url())) {
+        const apiObj = querystring.decode(response.url())
+        const stockCode = apiObj.secid.split('.').pop() // secid: '1.603005',
+        apiObj.lmt = 99999 // lmt: '120',
+        apiObj.fqt = 1 // fqt: '0'-不复权，'1'-前复权,
+        const FRKlineApi = querystring.encode(apiObj)
+        doneApiMap[stockCode] = FRKlineApi
+        return recordKlines(stockCode, FRKlineApi)
       }
-    })
-    .emit()
+    },
+    end: function () {
+      return hasUninks(unlinkedUrls, formerRecordPath)
+    }
+  }).emit()
   return Promise.resolve(doneApiMap)
 }
 
