@@ -34,7 +34,7 @@ module.exports = async function sniffDailyDeals() {
           }
         },
         end: function () {
-          return hasUninks(urls, recordDir)
+          return hasUninks(unlinks, recordDir)
         }
       })
       .emit()

@@ -36,7 +36,7 @@ async function excution (s, j) {
   // 就直接读取，不用再去每个网页爬取，浪费流量
   if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
     allStocks.forEach((stockItem) => {
-      recordPeerDeal(stockItem.dealApi)
+      recordPeerDeal(stockItem.code, stockItem.dealApi)
     })
   } else {
     // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
@@ -65,7 +65,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUninks(urls, recordDir)
+        return hasUninks(unlinkedUrls, recordDir)
       }
     })
     .emit()

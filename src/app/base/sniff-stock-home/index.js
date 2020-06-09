@@ -71,7 +71,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUninks(urls, formerRecordPath)
+        return hasUninks(unlinkedUrls, formerRecordPath)
       }
     })
     .emit()
