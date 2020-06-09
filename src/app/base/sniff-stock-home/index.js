@@ -75,25 +75,3 @@ async function sniffUrlFromWeb (unlinkedUrls) {
   }).emit()
   return Promise.resolve(doneApiMap)
 }
-
-// function hasFullRecordInbaseData () {
-//   const linkSum = allStocks.length
-//   const linkCount = 0
-//   allStocks.forEach((stockItem) => {
-//     if (stockItem.FRKlineApi) {
-//       linkCount ++
-//     }
-//   })
-//   return linkSum === linkCount
-// }
-
-// async function recordAPI (apiMap) {
-//   allStocks.map(stockItem => {
-//     // const apiMapItem = apiMap[stockItem.code]
-//     // stockItem.klineApi = apiMapItem['klineApi']
-//     stockItem.FRKlineApi = apiMap[stockItem.code]
-//     return stockItem
-//   })
-//   await writeFileAsync(global.baseDataFile, { date: global.finalDealDate, data: allStocks })
-//   return Promise.resolve(allStocks)
-// }

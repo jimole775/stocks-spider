@@ -82,23 +82,3 @@ function canContinue() {
   }
   return pass
 }
-
-// function hasFullRecordInbaseData (allStocks, apiKey) {
-//   const linkSum = allStocks.length
-//   const linkCount = 0
-//   allStocks.forEach((stockItem) => {
-//     if (stockItem[apiKey]) {
-//       linkCount ++
-//     }
-//   })
-//   return linkSum === linkCount
-// }
-
-// async function recordAPI (apiMap) {
-//   allStocks.map(stockItem => {
-//     stockItem.dealApi = apiMap[stockItem.code]
-//     return stockItem
-//   })
-//   await writeFileAsync(global.baseDataFile, { date: global.finalDealDate, data: allStocks })
-//   return Promise.resolve(allStocks)
-// }
