@@ -39,7 +39,7 @@ module.exports = function buildModel(page) {
           return s(allStocks)
         }
         return loopLoadPage(++i, s, j)
-      }, Math.random() * 800 + Math.random() * 500 + Math.random() * 300)
+      }, Math.random() * 300)
     }
   }).catch(function(error) {
     console.error(error)
