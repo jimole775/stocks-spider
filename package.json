@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/main.js --type=all",
     "start:kline": "node src/main.js --type=kline",
+    "start:shadowline": "node src/main.js --type=shadowline",
     "start:deal": "node src/main.js --type=deal"
   },
   "author": "Rongxis",

@@ -4,13 +4,15 @@
   
   const sniffStockHome = require('./app/base/sniff-stock-home')
   const sniffDailyDeals = require('./app/base/sniff-daily-deals')
-  const { shadowLines } = require('./app/analyze/peer-deals')
+  const analyzer = require('./app/analyze/peer-deals')
   if (['kline', 'all'].includes(global.crossEnv.type)) {
     await sniffStockHome()
   }
   if (['deal', 'all'].includes(global.crossEnv.type)) {
     await sniffDailyDeals()
-    await shadowLines()
+  }
+  if (['shadowline', 'all'].includes(global.crossEnv.type)) {
+    await analyzer.shadowLines()
   }
   process.exit()
 })()

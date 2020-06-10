@@ -36,6 +36,6 @@ async function getDate () {
   } catch (error) {
     console.log('getdate: ', error)
     // 为了防止link访问丢失，增加1秒间隔，减少无谓的请求
-    return setTimeout(() => {responseEvent(s, j)}, 1000)
+    return setTimeout(() => { getDate() }, 1000)
   }
 }
