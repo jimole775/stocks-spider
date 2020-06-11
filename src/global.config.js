@@ -7,17 +7,21 @@ module.exports = async function () {
   global.bunchLimit = 3
   global.finalDealDate = await getDate()
   global.crossEnv = queryParam()
+  global.mode = global.crossEnv.mode
+  global.onBusyNetwork = global.crossEnv.netstat === 'busy'
   global.baseDataFile = `${__dirname}\\db\\warehouse\\base.json`
   return Promise.resolve(global)
 }
 
 function queryParam () {
   const res = {}
-  let param = process.argv.pop()
-  if (param && /^\-\-.+/.test(param)) {
-    param = param.replace(/\-\-/, '')
-    param = param.split('=')
-    res[param[0]] = param[1]
+  if (process.argv && process.argv.length) {
+    process.argv.forEach((item) => {
+      if (item && /^\-\-.+/.test(item)) {
+        const param = item.replace(/\-\-/, '').split('=')
+        res[param[0]] = param[1]
+      }
+    })
   }
   return res
 }

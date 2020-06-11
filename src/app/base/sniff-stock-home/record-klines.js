@@ -5,6 +5,7 @@ const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
 module.exports = function recordKlines (stockCode, FRLink) {
   try {
+    console.log('kline:', stockCode)
     const file = path.join(recordPath, global.finalDealDate, stockCode + '.json')
     const FRFile = path.join(formerRecordPath, global.finalDealDate, stockCode + '.json')
     // handleRecord(file, url)
@@ -17,7 +18,7 @@ module.exports = function recordKlines (stockCode, FRLink) {
 
 async function handleRecord (file, link) {
   // 修改数据的请求数量
-  const dirtyData = await quest(link) || 'jquey_123456({"data":{"klines":[]}});'
+  const dirtyData = await quest(link) // 'jquey_123456({"data":{"klines":[]}});'
   const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-  return writeFileAsync(file, pureData.data.klines)
+  return writeFileAsync(file, pureData.data ? pureData.data.klines : [])
 }

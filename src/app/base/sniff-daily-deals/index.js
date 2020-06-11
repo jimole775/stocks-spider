@@ -53,14 +53,14 @@ async function sniffUrlFromWeb (unlinkedUrls) {
   const bunchLinking = new BunchLinking(unlinkedUrls)
   await bunchLinking.on({
       response: function (response) {
-        if (response.status() === 200 && peerDealReg.test(response.url())) {
-          const api = response.url()
-          const base = api.split('?')[0]
+        const api = response.url()
+        if (response.status() === 200 && peerDealReg.test(api)) {
+          const host = api.split('?')[0]
           const query = api.split('?')[1]
           const queryObj = querystring.decode(query)
           const stockCode = queryObj.code
           queryObj.pagesize = 99999
-          const apiEncode = `${base}?${querystring.encode(queryObj)}`
+          const apiEncode = `${host}?${querystring.encode(queryObj)}`
           doneApiMap[stockCode] = apiEncode
           return recordPeerDeal(stockCode, apiEncode)
         }

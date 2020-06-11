@@ -12,8 +12,7 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\src\\main.js",
-      "args":["--type=deal"]
-
+      "args":["--mode=all"]
       // "program": "${workspaceFolder}\\test.js"
     }
   ]

@@ -22,6 +22,9 @@ module.exports = class BunchThread {
 
   async thread ($$task) {
     await $$task().catch()
+    if (global.onBusyNetwork) {
+      await this.sleep(1000 * global.bunchLimit)
+    }
     this.taskLiving --
     if (this.taskQueue.length) {
       return this.thread(this.taskQueue.shift())
@@ -36,7 +39,11 @@ module.exports = class BunchThread {
   finally (callback) {
     this.endCallback = callback
   }
-
+  sleep (time) {
+    return new Promise((s, j) => { 
+      setTimeout(() => { s() }, time)
+    })
+  }
   updateCPU () {
     setTimeout(() => {
       os.cpuUsage((value) => {

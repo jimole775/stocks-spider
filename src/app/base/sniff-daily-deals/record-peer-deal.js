@@ -8,7 +8,8 @@ module.exports = async function recordPeerDeal(stockCode, api) {
     const adjustToMax = api.replace(/^(http.*?)\?pagesize\=\d*?\&(.*?)$/, '$1?pagesize=99999&$2')
     const dirtyData = await quest(adjustToMax) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-    return writeFileAsync(path.join(recordPath, global.finalDealDate, `${stockCode}.json`), pureData.data.data)
+    const file = path.join(recordPath, global.finalDealDate, `${stockCode}.json`)
+    return writeFileAsync(file, pureData.data ? pureData.data.data : [])
   } catch (error) {
     console.error('record-peer-deal error:', error)
     return false

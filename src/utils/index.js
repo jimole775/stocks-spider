@@ -6,6 +6,7 @@ const {
 } = require('./assert')
 const hasRefreshLinks = require('./has-refresh-links')  // 从已采集的库里筛选出过期数据
 const getPathSeparator = require('./get-path-separator')  // 获取路径分隔符
+const removeSiblingDir = require('./remove-sibling-dir')  // 
 const buildPath = require('./build-path') // 创建多级路径
 const hasUninks = require('./has-unlinks') // 从已采集的库筛选出未访问的URL
 const dateFormat = require('./date-format')
@@ -23,7 +24,7 @@ const removeDir = require('./remove-dir') //
 module.exports = {
   readFileAsync, writeFileAsync, quest, 
   isArray, isEmptyArray, isObject, removeDir,
-  isEmptyObject, isString, isEmpty, unique, 
+  isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
   Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi,
   rangeEqual, getPathSeparator, buildPath, BunchLinking, hasFullRecordInbaseData
