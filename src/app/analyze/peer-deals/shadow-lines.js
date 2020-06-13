@@ -1,6 +1,26 @@
 /**
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
+ * 
+ * {
+    "sale_p": {
+      "483": 9069774, // 存储每个价格的成交额
+      ...
+    },
+    "overview": {
+      "min_p": 4.83, // 最低价
+      "max_p": 5.16, // 最高价
+      "start_p": 5.05, // 开盘价
+      "end_p": 5.09, // 收盘价
+      "sum_v": 8238827, // 成交均价
+      "sum_p": 4125515597, // 成交总额
+      "sum_p_v": "5.01", // 成交均价
+      "diff_p": "6.53%", // 最大振幅
+      "downShadowSize": "4.36%", // 下影线长度
+      "upShadowSize": "1.39%", // 上影线长度
+      "isCrossShadow": false // 是否是十字星
+    }
+  }
  */
 const fs = require('fs')
 const path = require('path')
@@ -20,7 +40,7 @@ module.exports = async function shadowLines() {
       const data = await readFileAsync(filePath)
       if (!data) continue
       const analyzeData = cacal(data)
-      await writeFileAsync(`${targetRoot}/${dateDir}/${file}`, analyzeData)
+      await writeFileAsync(path.join(targetRoot, dateDir, file), analyzeData)
     }
   }
   return Promise.resolve(true)
@@ -41,7 +61,7 @@ function cacal(fileData) {
   let start_p = 0 // 开盘价
   let end_p = 0 // 收盘价
   let diff_p = 0 // 振幅差价
-  for (let { p, t, v } of fileData.data) {
+  for (let { p, t, v } of fileData) {
     // 9:25分是开盘价, 9:25分之前的，都未成交
     if (t >= 92500) {
       p = p / 1000 // 先把 p 转换成正常的价格
@@ -126,11 +146,12 @@ function cacalCrossShadow(base) {
 
 function saveSaleP(sale_p, v, p) {
   // 计算每个价位的成交额
-  if (!sale_p[p * 100]) {
+  p = p.toFixed(2)
+  if (!sale_p[p]) {
     // Math.round 主要处理js的运算误差
-    sale_p[p * 100] = Math.round(v * p * 100)
+    sale_p[p] = Math.round(v * p * 100)
   } else {
     // Math.round 主要处理js的运算误差
-    sale_p[p * 100] += Math.round(v * p * 100)
+    sale_p[p] += Math.round(v * p * 100)
   }
 }

@@ -5,9 +5,9 @@ module.exports = async function () {
   global.srcRoot = __dirname
   global.baseUrl = 'src'
   global.bunchLimit = 3
-  global.finalDealDate = await getDate()
   global.crossEnv = queryParam()
   global.mode = global.crossEnv.mode
+  global.finalDealDate = await getDate()
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
   global.baseDataFile = `${__dirname}\\db\\warehouse\\base.json`
   return Promise.resolve(global)
