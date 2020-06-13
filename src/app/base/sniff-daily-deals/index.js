@@ -11,7 +11,7 @@ const allStocks = JSON.parse(baseData ? baseData : [])
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileAsync, BunchLinking, hasUninks,
-  recordUsedAPI, hasFullRecordInbaseData
+  recordUsedApi, hasFullRecordInbaseData
 } = require(`${global.srcRoot}/utils`)
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
@@ -43,7 +43,7 @@ async function excution (s, j) {
   } else {
     // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedAPI(doneApiMap, 'dealApi')
+    await recordUsedApi(doneApiMap, 'dealApi')
   }
   return s(true)
 }

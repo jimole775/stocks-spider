@@ -9,7 +9,7 @@ const querystring = require('querystring')
 const recordKlines = require(`./record-klines`)
 const {
   readFileAsync, BunchLinking, hasUninks,
-  recordUsedAPI, hasFullRecordInbaseData
+  recordUsedApi, hasFullRecordInbaseData
 } = require(`${global.srcRoot}/utils`)
 const baseData = require(global.baseDataFile).data
 const allStocks = JSON.parse(baseData ? baseData : [])
@@ -50,7 +50,7 @@ async function excution(s, j) {
   } else {
     // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedAPI(doneApiMap, 'FRKlineApi')
+    await recordUsedApi(doneApiMap, 'FRKlineApi')
   }
   return s(true)
 }
