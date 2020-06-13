@@ -20,12 +20,13 @@ const readFileAsync = require('./read-file-async')
 // const getDate = require('../get-date') // 从默认站点，采集最后交易日的时间
 const unique = require('./unique') // 去重
 const quest = require('./quest') // superagent的封装
+const sleep = require('./sleep') // 睡眠装置
 const removeDir = require('./remove-dir') // 
 module.exports = {
   readFileAsync, writeFileAsync, quest, 
   isArray, isEmptyArray, isObject, removeDir,
   isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
-  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage,
+  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep,
   Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi,
   rangeEqual, getPathSeparator, buildPath, BunchLinking, hasFullRecordInbaseData
 }

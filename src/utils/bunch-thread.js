@@ -41,7 +41,7 @@ module.exports = class BunchThread {
   }
   sleep (time) {
     return new Promise((s, j) => { 
-      setTimeout(() => { s() }, time)
+      setTimeout(s, time)
     })
   }
   updateCPU () {
