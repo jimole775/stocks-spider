@@ -1,5 +1,5 @@
 const writeFileAsync = require('./write-file-async')
-module.exports = async function recordAPI (apiMap, apiKey) {
+module.exports = async function recordUsedAPI (apiMap, apiKey) {
   const allStocks = require(global.baseDataFile).data
   const newStocks = JSON.parse(allStocks).map(stockItem => {
     stockItem[apiKey] = apiMap[stockItem.code]

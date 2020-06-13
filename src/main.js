@@ -15,4 +15,6 @@
     await analyzer.shadowLines()
   }
   process.exit()
+
+  // recordUsedAPI is not a function
 })()
