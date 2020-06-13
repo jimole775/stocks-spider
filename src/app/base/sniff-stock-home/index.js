@@ -11,8 +11,8 @@ const {
   readFileAsync, BunchLinking, hasUninks,
   recordUsedApi, hasFullRecordInbaseData
 } = require(`${global.srcRoot}/utils`)
-const baseData = require(global.baseDataFile).data
-const allStocks = JSON.parse(baseData ? baseData : [])
+const allStocks = require(global.baseDataFile).data
+// const allStocks = JSON.parse(baseData ? baseData : '[]')
 const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
 
 // const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`

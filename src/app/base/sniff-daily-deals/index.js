@@ -6,8 +6,9 @@
  */
 const moment = require('moment')
 const querystring = require('querystring')
-const baseData = require(global.baseDataFile).data
-const allStocks = JSON.parse(baseData ? baseData : [])
+const allStocks = require(global.baseDataFile).data
+// console.log('baseData:', typeof baseData)
+// const allStocks = JSON.parse(baseData ? baseData : '[]')
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileAsync, BunchLinking, hasUninks,

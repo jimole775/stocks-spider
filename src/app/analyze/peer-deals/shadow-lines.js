@@ -4,7 +4,7 @@
  */
 const fs = require('fs')
 const path = require('path')
-const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/shadowline/`
+const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
 const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/shadowline/`
 const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
 module.exports = async function shadowLines() {
