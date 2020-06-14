@@ -80,21 +80,23 @@ function calc (date, stock) {
       startSit = dealObj
     }
     if (moment(dealObj.t) - moment(startSit.t) <= 15 * 60 * 1000) {
-        endSit = dealObj
-    }
-
-    if (startSit && endSit) {
+      endSit = dealObj
       if (!endSit.isLowDeep) {
         const diff_p = endSit.P - startSit.P
         if (diff_p / start_p > 0.03) {
+          start_p.isLowDeep = true
           endSit.isLowDeep = true
         }
       }
 
       if (endSit.isLowDeep && !endSit.isCoverUp) {
-
+        rangeEqual(endSit.p, startSit.p, 1)
       }
+    } else {
+      startSit = null
+      endSit = null
     }
+
 
   })
 }
