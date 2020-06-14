@@ -86,6 +86,13 @@ function calc (date, stock) {
     if (startSit && endSit) {
       if (!endSit.isLowDeep) {
         const diff_p = endSit.P - startSit.P
+        if (diff_p / start_p > 0.03) {
+          endSit.isLowDeep = true
+        }
+      }
+
+      if (endSit.isLowDeep && !endSit.isCoverUp) {
+
       }
     }
 
