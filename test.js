@@ -54,6 +54,9 @@
 //   console.log('call end')
 // })
 
-const querystring = require('querystring')
-const res = querystring.parse('http://push2ex.eastmoney.com/getStockFenShi?pagesize=144&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery1123011401122580670009_1584374552958&pageindex=0&id=0006522&sort=1&ft=1&code=000652&market=0&_=1584374552959')
-console.log(res)
+// const querystring = require('querystring')
+// const res = querystring.parse('http://push2ex.eastmoney.com/getStockFenShi?pagesize=144&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery1123011401122580670009_1584374552958&pageindex=0&id=0006522&sort=1&ft=1&code=000652&market=0&_=1584374552959')
+// console.log(res)
+
+const moment = require('moment')
+console.log(moment('2020-10-11 12:12:10') - moment('2020-10-11 11:12:10'))
