@@ -1,3 +1,14 @@
+/**
+ * return:
+ * [
+ *  {
+ *    t: 1234,
+ *    p: 1234,
+ *    v: 1234,
+ *    bs: 1234, // 交易类型'1'：卖出，'2'：买入，'4'：竞价
+ *  }
+ * ]
+ */
 const path = require('path')
 const { writeFileAsync, quest } = require(`${global.srcRoot}/utils`)
 const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`

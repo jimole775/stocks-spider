@@ -5,13 +5,13 @@
   const sniffStockHome = require('./app/base/sniff-stock-home')
   const sniffDailyDeals = require('./app/base/sniff-daily-deals')
   const analyzer = require('./app/analyze/peer-deals')
-  if (['kline', 'all'].includes(global.mode)) {
+  if (['kline', 'all'].includes(global.module)) {
     await sniffStockHome()
   }
-  if (['deal', 'all'].includes(global.mode)) {
+  if (['deal', 'all'].includes(global.module)) {
     await sniffDailyDeals()
   }
-  if (['shadowline', 'all'].includes(global.mode)) {
+  if (['shadowline', 'all'].includes(global.module)) {
     await analyzer.shadowLines()
   }
   process.exit()

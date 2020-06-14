@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/main.js --mode=all",
-    "start:kline": "node src/main.js --mode=kline",
-    "start:shadowline": "node src/main.js --mode=shadowline",
-    "start:deal": "node src/main.js --mode=deal",
-    "busy": "node src/main.js --mode=all --netstat=busy",
-    "busy:kline": "node src/main.js --mode=kline --netstat=busy",
-    "busy:shadowline": "node src/main.js --mode=shadowline --netstat=busy",
-    "busy:deal": "node src/main.js --mode=deal --netstat=busy"
+    "start": "node src/main.js --module=all",
+    "start:kline": "node src/main.js --module=kline",
+    "start:shadowline": "node src/main.js --module=shadowline",
+    "start:deal": "node src/main.js --module=deal",
+    "busy": "node src/main.js --module=all --netstat=busy",
+    "busy:kline": "node src/main.js --module=kline --netstat=busy",
+    "busy:shadowline": "node src/main.js --module=shadowline --netstat=busy",
+    "busy:deal": "node src/main.js --module=deal --netstat=busy"
   },
   "author": "Rongxis",
   "license": "ISC",
