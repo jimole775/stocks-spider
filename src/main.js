@@ -14,5 +14,9 @@
   if (['shadowline', 'all'].includes(global.module)) {
     await analyzer.shadowLines()
   }
+  
+  if (['vline', 'all'].includes(global.module)) {
+    await analyzer.vlines()
+  }
   process.exit()
 })()

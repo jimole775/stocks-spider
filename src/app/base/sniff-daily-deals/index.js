@@ -11,10 +11,10 @@ const allStocks = require(global.baseDataFile).data
 // const allStocks = JSON.parse(baseData ? baseData : '[]')
 const recordPeerDeal = require('./record-peer-deal')
 const {
-  readFileAsync, BunchLinking, hasUninks,
+  readFileSync, BunchLinking, hasUninks,
   recordUsedApi, hasFullRecordInbaseData
 } = require(`${global.srcRoot}/utils`)
-const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
+const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`
 
@@ -37,15 +37,16 @@ async function excution (s, j) {
 
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
-  if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
-    allStocks.forEach((stockItem) => {
-      recordPeerDeal(stockItem.code, stockItem.dealApi)
-    })
-  } else {
+  // if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
+  //   allStocks.forEach((stockItem) => {
+  //     console.log(stockItem.code, stockItem.dealApi)
+  //     recordPeerDeal(stockItem.code, stockItem.dealApi)
+  //   })
+  // } else {
     // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedApi(doneApiMap, 'dealApi')
-  }
+    // await recordUsedApi(doneApiMap, 'dealApi')
+  // }
   return s(true)
 }
 

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const yaml = require('js-yaml')
-module.exports = function readFileAsync(filePath) {
+module.exports = function readFileSync(filePath) {
   let data = null
   try {
     const isExist = fs.existsSync(filePath)

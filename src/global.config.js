@@ -10,6 +10,8 @@ module.exports = async function () {
   global.finalDealDate = await getDate()
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
   global.baseDataFile = `${__dirname}\\db\\warehouse\\base.json`
+  global.db = `${__dirname}\\db`
+  global.utils = `${__dirname}\\utils`
   return Promise.resolve(global)
 }
 

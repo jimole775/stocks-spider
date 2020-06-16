@@ -8,12 +8,12 @@ const path = require('path')
 const querystring = require('querystring')
 const recordKlines = require(`./record-klines`)
 const {
-  readFileAsync, BunchLinking, hasUninks,
+  readFileSync, BunchLinking, hasUninks,
   recordUsedApi, hasFullRecordInbaseData
 } = require(`${global.srcRoot}/utils`)
 const allStocks = require(global.baseDataFile).data
 // const allStocks = JSON.parse(baseData ? baseData : '[]')
-const urlModel = readFileAsync(`${global.srcRoot}/url-model.yml`)
+const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 
 // const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 // const recordPathDate = path.join(recordPath, global.finalDealDate)

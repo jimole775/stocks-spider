@@ -1,7 +1,7 @@
 const fs = require('fs')
 const buildPath = require('./build-path')
 const { isArray, isObject } = require('./assert')
-module.exports = function writeFileAsync(asbFilePath, data) {
+module.exports = function writeFileSync(asbFilePath, data) {
   let fd = null
   try {
     buildPath(asbFilePath)
@@ -10,7 +10,7 @@ module.exports = function writeFileAsync(asbFilePath, data) {
     }
     fd = fs.writeFileSync(asbFilePath, data, 'utf8')
   } catch (error) {
-    console.log('writeFileAsync:', error)
+    console.log('writeFileSync:', error)
     fd = null
   }
   return fd

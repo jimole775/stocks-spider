@@ -13,48 +13,55 @@
  *  }
  * }
  */
-const shadowlineBsaeDir = `{global.srcRoot}/db/analyze/peer-deals/shadowline` 
-const peerDealBsaeDir = `{global.srcRoot}/db/warehouse/peer-deals`
-module.exports = function () {
-// 先获取，当天振幅超过3%的票
-const qualityStockObj = queryQualityStockObj()
-
+const fs = require('fs')
+const path = require('path')
+const moment = require('moment')
+const { writeFileSync, readFileSync } = require(global.utils)
+const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
+const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines` 
+const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
+module.exports = async function vlines () {
+  // 先获取，当天振幅超过3%的票
+  const qualityStockObj = await queryQualityStockObj()
+  recordRightRange(qualityStockObj)
 }
 
-async function queryQualityStockObj () { 
-  const qualitySTock = {
+async function queryQualityStockObj () {
+  const qualitySTockObj = {
     // 'date': ['stocks']
   }
-  const dateDirs = fs.readDirSync(shadowlineBsaeDir)
+  const dateDirs = fs.readdirSync(read_shadowline_dir)
   for (let dirIndex = 0; dirIndex < dateDirs.length; dirIndex++) {
     const date = dateDirs[dirIndex]
-    const stocks = fs.readDirSync(path.join(shadowlineBsaeDir, date))
+    const stocks = await fs.readdirSync(path.join(read_shadowline_dir, date))
     for (let stockIndex = 0; stockIndex < stocks.length; stockIndex++) {
       const stock = stocks[stockIndex]
-      const stockPeerAnilyze = await readFileSync(path.join(shadowlineBsaeDir, date, stock))
+      const stockPeerAnilyze = await readFileSync(path.join(read_shadowline_dir, date, stock))
       const { overview: { diff_p }} = stockPeerAnilyze
 
       // 直接过滤掉 振幅低于 3% 的票
       if (diff_p && Number.parseFloat(diff_p) >= 3) {
-        if (!qualitySTock[date]) {
-          qualitySTock[date] = [stock]
+        if (!qualitySTockObj[date]) {
+          qualitySTockObj[date] = [stock]
         } else {
-          qualitySTock[date].push(stock)
+          qualitySTockObj[date].push(stock)
         }
       }
     }
   }
-  return qualitySTock
+  return Promise.resolve(qualitySTockObj)
 }
+
 function recordRightRange (qualityStockObj) {
-  for (const { date, stocks } of qualityStockObj) {
+  for (const date in qualityStockObj) {
+    const stocks = qualityStockObj[date]
     for (let index = 0; index < stocks.length; index++) {
       const stock = stocks[index]
-      calcLogic(date, stock)
+      console.log('running:', stock)
+      const res = calcLogic(date, stock)
+      if (res && res.length) writeFileSync(path.join(save_vlines_dir, date, stock), res)
     }
   }
-
-  return 
 }
 
 /**
@@ -62,12 +69,17 @@ function recordRightRange (qualityStockObj) {
  * @param {*} date 
  * @param {*} stock 
  * return [{
-*      v_p: 123, // 成交均价
-*      sum_p: 12345, // 成交总额
-*      sum_v: 12345, // 成交量
-*      pecent: 12%, // 成交比重
-*      heavy: [] // 大单记录
- * }]
+ *  heavies, // 买入总额
+ *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
+ *  v_p_buy: (sum_p_buy / sum_v_buy).toFixed(2), // 买入均价
+ *  v_p_sale: (sum_p_sale / sum_v_sale).toFixed(2), // 卖出均价
+ *  sum_p_buy: (sum_p_buy).toFixed(2), // 买入总额
+ *  sum_v_buy: (sum_v_buy).toFixed(2), // 买入总额
+ *  sum_p_sale: (sum_p_sale).toFixed(2), // 买入总额
+ *  sum_v_sale: (sum_v_sale).toFixed(2), // 买入总额
+ *  heavy_buy: (heavy_buy).toFixed(2), // 买入总额
+ *  heavy_sale: (heavy_sale).toFixed(2) // 买入总额
+ * },...]
  *
  */
 function calcLogic (date, stock) {
@@ -93,12 +105,12 @@ function calcLogic (date, stock) {
     },
     */
   const res = []
-  const tmpCan = []
-  const target = path.join(peerDealBsaeDir, date, stock + '.json')
-  const deals = readFileSync(target)
-  const startSite = null
-  const endSite = null
-  const open_p = null
+  const deals = readFileSync(path.join(read_peerdeal_dir, date, stock))
+
+  let rangeCans = []
+  let startSite = null
+  let endSite = null
+  let open_p = null
   let isLowDeep = false
   let isCoverUp = false
   for (let index = 0; index < deals.length; index++) {
@@ -120,7 +132,7 @@ function calcLogic (date, stock) {
   
       // 判断 15 分钟内的交易
       if (moment(dealObj.t) - moment(startSite.t) <= 15 * 60 * 1000) {
-        tmpCan.push(dealObj)
+        rangeCans.push(dealObj)
         endSite = dealObj
   
         if (!isLowDeep) {
@@ -134,7 +146,7 @@ function calcLogic (date, stock) {
           // 如果价差小于 -1% 或者 大于 开始下跌的价格
           if (endSite.P - startSite.P <= -(open_p * 0.01) || endSite.P > startSite.P) {
             isCoverUp = true
-            calcAtimes(tmpCan)
+            res.push(sumRanges(rangeCans))
             // 成功获取起点和终点
             // 进行时间点的记录
             // res.push({
@@ -144,7 +156,7 @@ function calcLogic (date, stock) {
             // todo 计算
 
             // 重新赋值，进入下一个轮询
-            tmpCan = []
+            rangeCans = []
             startSite = null
             isLowDeep = null
             isCoverUp = null
@@ -153,7 +165,7 @@ function calcLogic (date, stock) {
         }
       } else {
         // 如果超过15分钟，重新给 startSite 赋值，进入下一个轮询
-        tmpCan = []
+        rangeCans = []
         startSite = null
         isLowDeep = null
         isCoverUp = null
@@ -163,7 +175,7 @@ function calcLogic (date, stock) {
   return res
 }
 
-function calcAtimes (cans) {
+function sumRanges (rangeCans) {
   // *return:     [{
   //          timeRange: '12:11-12:12'
   //   *      v_p: 123, // 成交均价
@@ -176,28 +188,59 @@ function calcAtimes (cans) {
   //   "t": 91509,
   //   "p": 34870, 
   //   "v": 109,
-  //   "bs": 4
+  //   "bs": 4 // 1卖， 2买， 4竞价
   // },
-  let sum_p = 0
-  let sum_v = 0
-  const heavy = []
-  for (let index = 0; index < cans.length; index++) {
-    const canItem = cans[index]
-    sum_p += canItem.p * canItem.v * 100
-    sum_v += canItem.v
-    if (sum_p >= 100000) {
-      heavy.push({
-        v: canItem.v,
-        p: canItem.p
-      })
+  let sum_p_buy = 0
+  let sum_v_buy = 0
+  let sum_p_sale = 0
+  let sum_v_sale = 0
+  let heavy_buy = 0
+  let heavy_sale = 0
+  const heavies = []
+  for (let index = 0; index < rangeCans.length; index++) {
+    const canItem = rangeCans[index]
+    if (canItem.bs === 1) {
+      sum_p_sale += canItem.p * canItem.v * 100
+      sum_v_sale += canItem.v
+      // 每单金额超过10W，就当作大单记录
+      if (sum_p_sale >= 100000) {
+        heavies.push(canItem)
+      }
+    }
+
+    if (canItem.bs === 2) {
+      sum_p_buy += canItem.p * canItem.v * 100
+      sum_v_buy += canItem.v
+      // 每单金额超过10W，就当作大单记录
+      if (sum_p_buy >= 100000) {
+        heavies.push(canItem)
+      }
     }
   }
+
+  // 汇总大单金额
+  if (heavies.length) {
+    heavies.forEach(element => {
+      if (element.bs === 1) {
+        heavy_sale += element.p * element.v * 100
+      }
+      if (element.bs === 2) {
+        heavy_buy += element.p * element.v * 100
+      }
+    })
+  }
+
   return {
-    timeRange: `${cans[0].t}~${cans[cans.length - 1].t}`,
-    v_p: sum_p / sum_v,
-    heavy,
-    sum_v,
-    sum_p,
+    heavies, // 买入总额
+    timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
+    v_p_buy: (sum_p_buy / sum_v_buy).toFixed(2), // 买入均价
+    v_p_sale: (sum_p_sale / sum_v_sale).toFixed(2), // 卖出均价
+    sum_p_buy: (sum_p_buy).toFixed(2), // 买入总额
+    sum_v_buy: (sum_v_buy).toFixed(2), // 买入总额
+    sum_p_sale: (sum_p_sale).toFixed(2), // 买入总额
+    sum_v_sale: (sum_v_sale).toFixed(2), // 买入总额
+    heavy_buy: (heavy_buy).toFixed(2), // 买入总额
+    heavy_sale: (heavy_sale).toFixed(2) // 买入总额
   }
 }
 
@@ -210,5 +253,5 @@ function timeFormat (t) {
 }
 
 function priceFormat (p) {
-  return ((p / 1000) + '').toFixed(2)
+  return (p / 1000).toFixed(2)
 }

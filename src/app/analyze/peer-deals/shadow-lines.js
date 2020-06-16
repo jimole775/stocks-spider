@@ -1,7 +1,7 @@
 /**
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
- * 数据路径：F:\MyPro\stocks\src\db\analyze\peer-deals\shadowline
+ * 数据路径：F:\MyPro\stocks\src\db\analyze\peer-deals\shadowlines
  * return: 
  * {
     "sale_p": {
@@ -26,8 +26,8 @@
 const fs = require('fs')
 const path = require('path')
 const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
-const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/shadowline/`
-const { rangeEqual, readFileAsync, writeFileAsync } = require(`${global.srcRoot}/utils`)
+const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/shadowlines/`
+const { rangeEqual, readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
 module.exports = async function shadowLines() {
   const dateDirs = fs.readdirSync(dirRoot)
   for (const dateDir of dateDirs) {
@@ -38,10 +38,10 @@ module.exports = async function shadowLines() {
     }
     for (const file of wareFiles) {
       const filePath = path.join(dirRoot, dateDir, file)
-      const data = await readFileAsync(filePath)
+      const data = await readFileSync(filePath)
       if (!data) continue
       const analyzeData = cacal(data)
-      await writeFileAsync(path.join(targetRoot, dateDir, file), analyzeData)
+      await writeFileSync(path.join(targetRoot, dateDir, file), analyzeData)
     }
   }
   return Promise.resolve(true)
