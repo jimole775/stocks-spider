@@ -20,7 +20,7 @@ npm install puppeteer@2.1.1 --ignore-scripts
 
 > :/[你的项目]/node_modules/puppeteer/.local-chromium/win64-722234/chrome-win/
 
-4. 如果没有找到 *`/.local-chromium/win64-722234/`* 目录，就用DOS工具创建一个
+4. 如果没有找到 *`/win64-722234/`* 目录，就用DOS工具创建一个
 
 **注意**: *`/win64-722234/`* 是 puppeteer@2.1.1 用来声明依赖的 chromium 的最低版本的，所以，只要 chromium 的版本高于 **722234**  ，就可以把资源包扔进 *`/win64-722234/`* 目录。
 
