@@ -99,10 +99,10 @@ function analyzing(min_p, max_p, start_p, end_p, sum_v, sum_p, sum_p_v, diff_p) 
   let downShadowSize = 0 // 下影线，开收盘价格相差在1%以内，并且当日最【低】价超过开盘价3-5%
   let upShadowSize = 0 // 上影线，开收盘价格相差在1%以内，并且当日最【高】价超过开盘价3-5%
   let isCrossShadow = false // 十字星，开收盘价格相差在1%以内，并且当日最【高】，最【低】价超过开盘价3-5%
-  const res = { min_p, max_p, start_p, end_p, sum_v, sum_p, sum_p_v, diff_p, downShadowSize, upShadowSize, isCrossShadow }
-  cacalDownShadow(res)
-  cacalUpShadow(res)
-  cacalCrossShadow(res)
+  let res = { min_p, max_p, start_p, end_p, sum_v, sum_p, sum_p_v, diff_p, downShadowSize, upShadowSize, isCrossShadow }
+  res = cacalDownShadow(res)
+  res = cacalUpShadow(res)
+  res = cacalCrossShadow(res)
   return res
 }
 
