@@ -12,6 +12,7 @@ const hasUninks = require('./has-unlinks') // 从已采集的库筛选出未访�
 const dateFormat = require('./date-format')
 const writeFileSync = require('./write-file-sync')
 const recordUsedApi = require('./record-used-api')
+const BunchThread = require('./bunch-thread')
 const Link = require('./link') // 
 const BunchLinking = require('./bunch-linking') // 多线程形式批量采访链接
 const hasFullRecordInbaseData = require('./has-full-record-in-base-data') // 多线程形式批量采访链接
@@ -26,7 +27,7 @@ module.exports = {
   readFileSync, writeFileSync, quest, 
   isArray, isEmptyArray, isObject, removeDir,
   isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
-  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep,
+  isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep, BunchThread,
   Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi,
   rangeEqual, getPathSeparator, buildPath, BunchLinking, hasFullRecordInbaseData
 }
