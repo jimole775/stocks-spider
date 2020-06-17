@@ -64,7 +64,8 @@ async function requestApiInBunch (allStocks) {
       })
     })
     bunch.finally(() => {
-      resovle()
+      console.log('kline requestApiInBunch end!')
+      return resolve()
     })
   })
 }

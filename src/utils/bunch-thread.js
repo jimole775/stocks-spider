@@ -31,7 +31,7 @@ module.exports = class BunchThread {
     } else {
       if (this.taskLiving <= 0) {
         this.taskLiving = 0
-        this.endCallback && this.endCallback()
+        return this.endCallback && this.endCallback()
       }
     }
   }

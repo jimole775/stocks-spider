@@ -46,7 +46,7 @@ async function excution (resolve, reject) {
   return resolve(true)
 }
 async function requestApiInBunch (allStocks) {
-  return new Promise((resovle, reject) => {
+  return new Promise((resolve, reject) => {
     const bunch = new BunchThread(3)
     allStocks.forEach((stockItem) => {
       bunch.taskCalling(() => {
@@ -57,7 +57,8 @@ async function requestApiInBunch (allStocks) {
       })
     })
     bunch.finally(() => {
-      resovle()
+      console.log('deal requestApiInBunch end!')
+      return resolve()
     })
   })
 }
