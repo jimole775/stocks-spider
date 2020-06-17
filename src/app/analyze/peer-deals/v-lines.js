@@ -20,6 +20,7 @@ const { writeFileSync, readFileSync } = require(global.utils)
 const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
 const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
+const dvdtimes = 15 * 60 * 1000
 module.exports = async function vlines () {
   // 先获取，当天振幅超过3%的票
   const qualityStockObj = await queryQualityStockObj()
@@ -57,7 +58,6 @@ function recordRightRange (qualityStockObj) {
     const stocks = qualityStockObj[date]
     for (let index = 0; index < stocks.length; index++) {
       const stock = stocks[index]
-      console.log('running:', stock)
       const res = calcLogic(date, stock)
       if (res && res.length) writeFileSync(path.join(save_vlines_dir, date, stock), res)
     }
@@ -115,37 +115,38 @@ function calcLogic (date, stock) {
   let isCoverUp = false
   for (let index = 0; index < deals.length; index++) {
     const dealObj = deals[index]
+    
       // 9点25分之前的数据都不算
-      if (dealObj.t < 92500) return
+      if (dealObj.t < 92500) break
 
       // 记录开盘价
       if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
 
       // 转换数据格式，方便计算
-      dealObj.t = timeFormat(dealObj.t)
+      dealObj.t = timeFormat(date, dealObj.t)
       dealObj.p = priceFormat(dealObj.p)
   
       // 初始先给 startSite 赋值
       if (!startSite && !endSite) {
         startSite = dealObj
       }
-  
       // 判断 15 分钟内的交易
-      if (moment(dealObj.t) - moment(startSite.t) <= 15 * 60 * 1000) {
+      if (new Date(dealObj.t) - new Date(startSite.t) <= dvdtimes) {
         rangeCans.push(dealObj)
         endSite = dealObj
   
         if (!isLowDeep) {
           // 如果价差大于 -3%
-          if (endSite.P - startSite.P >= -(open_p * 0.03)) {
+          if (endSite.p - startSite.p >= -(open_p * 0.03)) {
             isLowDeep = true
           }
         }
         
         if (isLowDeep && !isCoverUp) {
           // 如果价差小于 -1% 或者 大于 开始下跌的价格
-          if (endSite.P - startSite.P <= -(open_p * 0.01) || endSite.P > startSite.P) {
+          if (endSite.p - startSite.p <= -(open_p * 0.01) || endSite.p > startSite.p) {
             isCoverUp = true
+            console.log('has vline:', date, stock)
             res.push(sumRanges(rangeCans))
             // 成功获取起点和终点
             // 进行时间点的记录
@@ -244,12 +245,12 @@ function sumRanges (rangeCans) {
   }
 }
 
-function timeFormat (t) {
+function timeFormat (date, t) {
   t = t + ''
   const s = t.substring(t.length - 2, t.length)
   const m = t.substring(t.length - 4, t.length - 2)
-  const h = t.substring(t.length - 6, t.length - 2)
-  return `${global.finalDealDate} ${h}:${m}:${s}`
+  const h = t.substring(t.length - 6, t.length - 4)
+  return `${date} ${h}:${m}:${s}`
 }
 
 function priceFormat (p) {

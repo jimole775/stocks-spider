@@ -7,13 +7,12 @@
 const moment = require('moment')
 const querystring = require('querystring')
 const allStocks = require(global.baseDataFile).data
-// console.log('baseData:', typeof baseData)
-// const allStocks = JSON.parse(baseData ? baseData : '[]')
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileSync, BunchLinking, hasUninks,
-  recordUsedApi, hasFullRecordInbaseData
-} = require(`${global.srcRoot}/utils`)
+  recordUsedApi, hasFullRecordInbaseData,
+  BunchThread
+} = require(global.utils)
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`
@@ -22,7 +21,7 @@ module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
 
-async function excution (s, j) {
+async function excution (resolve, reject) {
   // if (!canContinue()) return s(true)
   const urls = allStocks.map(item => {
     return urlModel.model.PeerDeal
@@ -37,17 +36,30 @@ async function excution (s, j) {
 
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
-  // if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
-  //   allStocks.forEach((stockItem) => {
-  //     console.log(stockItem.code, stockItem.dealApi)
-  //     recordPeerDeal(stockItem.code, stockItem.dealApi)
-  //   })
-  // } else {
+  if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
+    await requestApiInBunch(allStocks)
+  } else {
     // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    // await recordUsedApi(doneApiMap, 'dealApi')
-  // }
-  return s(true)
+    await recordUsedApi(doneApiMap, 'dealApi')
+  }
+  return resolve(true)
+}
+async function requestApiInBunch (allStocks) {
+  return new Promise((resovle, reject) => {
+    const bunch = new BunchThread(3)
+    allStocks.forEach((stockItem) => {
+      bunch.taskCalling(() => {
+        return new Promise(async (s, j) => {
+          await recordPeerDeal(stockItem.code, stockItem.dealApi)
+          return s()
+        })
+      })
+    })
+    bunch.finally(() => {
+      resovle()
+    })
+  })
 }
 
 async function sniffUrlFromWeb (unlinkedUrls) {

@@ -10,7 +10,7 @@
  * ]
  */
 const path = require('path')
-const { writeFileSync, quest } = require(`${global.srcRoot}/utils`)
+const { writeFileSync, quest } = require(global.utils)
 const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`
 module.exports = async function recordPeerDeal(stockCode, api) {
   try {
@@ -20,9 +20,10 @@ module.exports = async function recordPeerDeal(stockCode, api) {
     const dirtyData = await quest(adjustToMax) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
     const file = path.join(recordPath, global.finalDealDate, `${stockCode}.json`)
-    return writeFileSync(file, pureData.data ? pureData.data.data : [])
+    await writeFileSync(file, pureData.data ? pureData.data.data : [])
+    return Promise.resolve()
   } catch (error) {
     console.error('record-peer-deal error:', error)
-    return false
+    return Promise.resolve()
   }
 }
