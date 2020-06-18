@@ -1,43 +1,53 @@
 /**
  * 短时间(1min-15min)下潜（3%以上）并回升的票(1%-3%幅度的误差)
  * 回升时间取 1min， 3min， 5min... 时间段做测试，筛选一个比较可靠的区间
- * 数据路径：F:\MyPro\stocks\src\db\analyze\peer-deals\v-lines
- * return:
- * {
- *  '12:11-12:12': {
- *    v_p: 123, // 成交均价
- *    sum_p: 12345, // 成交总额
- *    sum_v: 12345, // 成交量
- *    pecent: 12%, // 成交比重
- *    heavy: [] // 大单记录
- *  }
- * }
+ * 数据路径存储：./src/db/analyze/peer-deals/v-lines
  */
-const fs = require('fs')
 const path = require('path')
-const { writeFileSync, readFileSync, moneyFormat } = require(global.utils)
+const { writeFileSync, readFileSync, readDirSync, moneyFormat } = require(global.utils)
 const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
-const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines` 
+const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines/` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_dvd = global.vline.price_dvd || 0.01 // 默认为1%价格间隔
 module.exports = async function vlines () {
-  // 先获取，当天振幅超过3%的票
-  const qualityStockObj = await queryQualityStockObj()
+  const unCalculateDates = getUnCalculateDates()
+  const qualityStockObj = await queryQualityStockObj(unCalculateDates)
   recordRightRange(qualityStockObj)
 }
 
-async function queryQualityStockObj () {
+// { date1:[], date2:[], date3:[] }
+// 由于计算顺序是从前到后，
+// 那么可以理解，只要vlines目录的最后一个日期存在数据，
+// 就可以肯定前面的日期都已经计算过了
+function getUnCalculateDates () {
+  const vlineDates = readDirSync(save_vlines_dir)
+  const recordedDates = readDirSync(read_peerdeal_dir)
+  if (vlineDates.length === 0) {
+    return recordedDates
+  } else {
+    const unRecords = recordedDates.filter(($date) => {
+      return !vlineDates.includes($date)
+    })
+    // 有可能最后一个date目录的票子还没统计完，
+    // 所以，不管如何，把他压到unRecords里面，
+    // 保证万无一失
+    return unRecords.unshift(vlineDates.pop())
+  }
+}
+
+// 根据shadowlines的记录，振幅小于 3 个点的都过滤掉
+function queryQualityStockObj (unCalculateDates = []) {
   const qualitySTockObj = {
     // 'date': ['stocks']
   }
-  const dateDirs = fs.readdirSync(read_shadowline_dir)
-  for (let dirIndex = 0; dirIndex < dateDirs.length; dirIndex++) {
-    const date = dateDirs[dirIndex]
-    const stocks = await fs.readdirSync(path.join(read_shadowline_dir, date))
+  const dateFolders = unCalculateDates
+  for (let folderIndex = 0; folderIndex < dateFolders.length; folderIndex++) {
+    const date = dateFolders[folderIndex]
+    const stocks = readDirSync(path.join(read_shadowline_dir, date))
     for (let stockIndex = 0; stockIndex < stocks.length; stockIndex++) {
       const stock = stocks[stockIndex]
-      const stockPeerAnilyze = await readFileSync(path.join(read_shadowline_dir, date, stock))
+      const stockPeerAnilyze = readFileSync(path.join(read_shadowline_dir, date, stock))
       const { overview: { diff_p }} = stockPeerAnilyze
 
       // 直接过滤掉 振幅低于 3% 的票
@@ -58,7 +68,7 @@ function recordRightRange (qualityStockObj) {
     const stocks = qualityStockObj[date]
     for (let index = 0; index < stocks.length; index++) {
       const stock = stocks[index]
-      const res = calcLogic(date, stock)
+      const res = calculateVline(date, stock)
       if (res && res.length) writeFileSync(path.join(save_vlines_dir, date, stock), res)
     }
   }
@@ -82,82 +92,61 @@ function recordRightRange (qualityStockObj) {
  * },...]
  *
  */
-function calcLogic (date, stock) {
-  /**
-  * date: {
-  *  stock: [
-  *    {
-  *      v_p: 123, // 成交均价
-  *      sum_p: 12345, // 成交总额
-  *      sum_v: 12345, // 成交量
-  *      pecent: 12%, // 成交比重
-  *      heavy: [] // 大单记录
-  *    }
-  *  ],
-   };
-  */
-  /**
-    {
-      "t": 91509,
-      "p": 34870, 
-      "v": 109,
-      "bs": 4
-    },
-    */
+function calculateVline (date, stock) {
   const res = []
   const deals = readFileSync(path.join(read_peerdeal_dir, date, stock))
-
   let rangeCans = []
   let startSite = null
   let endSite = null
   let open_p = null
   let isLowDeep = false
   let isCoverUp = false
-
   for (let index = 0; index < deals.length; index++) {
+    // {
+    //   "t": 91509,
+    //   "p": 34870, 
+    //   "v": 109,
+    //   "bs": 4
+    // },
     const dealObj = deals[index]
+    
+    // 9点25分之前的数据都不算
+    if (dealObj.t < 92500) break
 
-      // 9点25分之前的数据都不算
-      if (dealObj.t < 92500) break
+    // 记录开盘价
+    if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
 
-      // 记录开盘价
-      if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
+    // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
+    if (!open_p) open_p = priceFormat(dealObj.p)
+    // 转换数据格式，方便计算
+    dealObj.t = timeFormat(date, dealObj.t)
+    dealObj.p = priceFormat(dealObj.p)
+    // 初始先给 startSite 赋值
+    if (!startSite && !endSite) {
+      startSite = dealObj
+    }
+    // 判断 time_dvd 时间内的交易
+    if (new Date(dealObj.t) - new Date(startSite.t) <= time_dvd) {
+      rangeCans.push(dealObj)
+      endSite = dealObj
 
-      // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
-      if (!open_p) open_p = priceFormat(dealObj.p)
-      // 转换数据格式，方便计算
-      dealObj.t = timeFormat(date, dealObj.t)
-      dealObj.p = priceFormat(dealObj.p)
-      // 初始先给 startSite 赋值
-      if (!startSite && !endSite) {
-        startSite = dealObj
-      }
-      // 判断 time_dvd 时间内的交易
-      if (new Date(dealObj.t) - new Date(startSite.t) <= time_dvd) {
-        rangeCans.push(dealObj)
-        endSite = dealObj
-  
-        if (!isLowDeep) {
-          // 如果价差大于 -3%
-          if (endSite.p - startSite.p <= -(open_p * price_dvd)) {
-            isLowDeep = true
-          }
+      if (!isLowDeep) {
+        // 如果价差大于 -3%
+        if (endSite.p - startSite.p <= -(open_p * price_dvd)) {
+          isLowDeep = true
         }
-        
-        if (isLowDeep && !isCoverUp) {
-          // 如果价差小于 -1% 或者 大于 开始下跌的价格
-          if (endSite.p - startSite.p >= -(open_p * price_dvd) || endSite.p > startSite.p) {
-            isCoverUp = true
-            res.push(sumRanges(rangeCans))
-            // 成功获取起点和终点
-            // 进行时间点的记录
-            // res.push({
-            //   start: startSite,
-            //   end: endSite
-            // })
-            // todo 计算
+      }
+      
+      if (isLowDeep && !isCoverUp) {
+        // 如果价差小于 -1% 或者 大于 开始下跌的价格
+        if (endSite.p - startSite.p >= -(open_p * price_dvd) || endSite.p > startSite.p) {
+          isCoverUp = true
+          // 成功获取起点和终点
+          // 进行时间点的记录
+          res.push(sumRanges(rangeCans))
 
-            // 重新赋值，进入下一个轮询
+          // 重新赋值，进入下一个轮询
+          {
             rangeCans = []
             startSite = null
             isLowDeep = null
@@ -165,27 +154,20 @@ function calcLogic (date, stock) {
             endSite = null
           }
         }
-      } else {
-        // 如果超过15分钟，重新给 startSite 赋值，进入下一个轮询
-        rangeCans = []
-        startSite = null
-        isLowDeep = null
-        isCoverUp = null
-        endSite = null
       }
+    } else {
+      // 如果超过15分钟，重新给 startSite 赋值，进入下一个轮询
+      rangeCans = []
+      startSite = null
+      isLowDeep = null
+      isCoverUp = null
+      endSite = null
+    }
   }
   return res
 }
 
 function sumRanges (rangeCans) {
-  // *return:     [{
-  //          timeRange: '12:11-12:12'
-  //   *      v_p: 123, // 成交均价
-  //   *      sum_p: 12345, // 成交总额
-  //   *      sum_v: 12345, // 成交量
-  //   *      pecent: 12%, // 成交比重 @todo 暂时不做，因为计算量太大
-  //   *      heavy: [] // 大单记录
-  //   *    }]
   // {
   //   "t": 91509,
   //   "p": 34870, 
