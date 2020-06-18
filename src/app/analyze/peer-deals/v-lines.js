@@ -15,12 +15,11 @@
  */
 const fs = require('fs')
 const path = require('path')
-const moment = require('moment')
-const { writeFileSync, readFileSync } = require(global.utils)
+const { writeFileSync, readFileSync, moneyFormat } = require(global.utils)
 const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
 const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
-const dvdtimes = 15 * 60 * 1000
+const dvdtimes = 15 * 60 * 1000 // 默认为15分钟间隔
 module.exports = async function vlines () {
   // 先获取，当天振幅超过3%的票
   const qualityStockObj = await queryQualityStockObj()
@@ -71,12 +70,12 @@ function recordRightRange (qualityStockObj) {
  * return [{
  *  heavies, // 买入总额
  *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
- *  v_p_buy: (sum_p_buy / sum_v_buy).toFixed(2), // 买入均价
- *  v_p_sale: (sum_p_sale / sum_v_sale).toFixed(2), // 卖出均价
- *  sum_p_buy: (sum_p_buy).toFixed(2), // 买入总额
- *  sum_v_buy: (sum_v_buy).toFixed(2), // 买入总额
- *  sum_p_sale: (sum_p_sale).toFixed(2), // 买入总额
- *  sum_v_sale: (sum_v_sale).toFixed(2), // 买入总额
+ *  buy_p_v: (buy_sum_p / buy_sum_v).toFixed(2), // 买入均价
+ *  sale_p_v: (sale_sum_p / sale_sum_v).toFixed(2), // 卖出均价
+ *  buy_sum_p: (buy_sum_p).toFixed(2), // 买入总额
+ *  buy_sum_v: (buy_sum_v).toFixed(2), // 买入总额
+ *  sale_sum_p: (sale_sum_p).toFixed(2), // 买入总额
+ *  sale_sum_v: (sale_sum_v).toFixed(2), // 买入总额
  *  heavy_buy: (heavy_buy).toFixed(2), // 买入总额
  *  heavy_sale: (heavy_sale).toFixed(2) // 买入总额
  * },...]
@@ -113,40 +112,41 @@ function calcLogic (date, stock) {
   let open_p = null
   let isLowDeep = false
   let isCoverUp = false
+
   for (let index = 0; index < deals.length; index++) {
     const dealObj = deals[index]
-    
+
       // 9点25分之前的数据都不算
       if (dealObj.t < 92500) break
 
       // 记录开盘价
       if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
 
+      // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
+      if (!open_p) open_p = priceFormat(dealObj.p)
       // 转换数据格式，方便计算
       dealObj.t = timeFormat(date, dealObj.t)
       dealObj.p = priceFormat(dealObj.p)
-  
       // 初始先给 startSite 赋值
       if (!startSite && !endSite) {
         startSite = dealObj
       }
-      // 判断 15 分钟内的交易
+      // 判断 dvdtimes 时间内的交易
       if (new Date(dealObj.t) - new Date(startSite.t) <= dvdtimes) {
         rangeCans.push(dealObj)
         endSite = dealObj
   
         if (!isLowDeep) {
           // 如果价差大于 -3%
-          if (endSite.p - startSite.p >= -(open_p * 0.03)) {
+          if (endSite.p - startSite.p <= -(open_p * 0.01)) {
             isLowDeep = true
           }
         }
         
         if (isLowDeep && !isCoverUp) {
           // 如果价差小于 -1% 或者 大于 开始下跌的价格
-          if (endSite.p - startSite.p <= -(open_p * 0.01) || endSite.p > startSite.p) {
+          if (endSite.p - startSite.p >= -(open_p * 0.01) || endSite.p > startSite.p) {
             isCoverUp = true
-            console.log('has vline:', date, stock)
             res.push(sumRanges(rangeCans))
             // 成功获取起点和终点
             // 进行时间点的记录
@@ -191,29 +191,29 @@ function sumRanges (rangeCans) {
   //   "v": 109,
   //   "bs": 4 // 1卖， 2买， 4竞价
   // },
-  let sum_p_buy = 0
-  let sum_v_buy = 0
-  let sum_p_sale = 0
-  let sum_v_sale = 0
+  let buy_sum_p = 0
+  let buy_sum_v = 0
+  let sale_sum_p = 0
+  let sale_sum_v = 0
   let heavy_buy = 0
   let heavy_sale = 0
   const heavies = []
   for (let index = 0; index < rangeCans.length; index++) {
     const canItem = rangeCans[index]
     if (canItem.bs === 1) {
-      sum_p_sale += canItem.p * canItem.v * 100
-      sum_v_sale += canItem.v
+      sale_sum_p += canItem.p * canItem.v * 100
+      sale_sum_v += canItem.v
       // 每单金额超过10W，就当作大单记录
-      if (sum_p_sale >= 100000) {
+      if (sale_sum_p >= 100000) {
         heavies.push(canItem)
       }
     }
 
     if (canItem.bs === 2) {
-      sum_p_buy += canItem.p * canItem.v * 100
-      sum_v_buy += canItem.v
+      buy_sum_p += canItem.p * canItem.v * 100
+      buy_sum_v += canItem.v
       // 每单金额超过10W，就当作大单记录
-      if (sum_p_buy >= 100000) {
+      if (buy_sum_p >= 100000) {
         heavies.push(canItem)
       }
     }
@@ -233,15 +233,15 @@ function sumRanges (rangeCans) {
 
   return {
     heavies, // 买入总额
-    timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
-    v_p_buy: (sum_p_buy / sum_v_buy).toFixed(2), // 买入均价
-    v_p_sale: (sum_p_sale / sum_v_sale).toFixed(2), // 卖出均价
-    sum_p_buy: (sum_p_buy).toFixed(2), // 买入总额
-    sum_v_buy: (sum_v_buy).toFixed(2), // 买入总额
-    sum_p_sale: (sum_p_sale).toFixed(2), // 买入总额
-    sum_v_sale: (sum_v_sale).toFixed(2), // 买入总额
-    heavy_buy: (heavy_buy).toFixed(2), // 买入总额
-    heavy_sale: (heavy_sale).toFixed(2) // 买入总额
+    timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
+    buy_p_v: (buy_sum_p / buy_sum_v).toFixed(2), // 买入均价
+    sale_p_v: (sale_sum_p / sale_sum_v).toFixed(2), // 卖出均价
+    buy_sum_p: moneyFormat(buy_sum_p), // 买入总额
+    buy_sum_v: buy_sum_v, // 买入手数
+    sale_sum_p: moneyFormat(sale_sum_p), // 卖出总额
+    sale_sum_v: sale_sum_v, // 卖出手数
+    heavy_buy: moneyFormat(heavy_buy), // 大单买入额
+    heavy_sale: moneyFormat(heavy_sale) // 大单卖出额
   }
 }
 
