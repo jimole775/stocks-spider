@@ -19,14 +19,15 @@ const BunchLinking = require('./bunch-linking') // 多线程形式批量采访�
 const hasFullRecordInbaseData = require('./has-full-record-in-base-data') // 多线程形式批量采访链接
 const initPage = require('./init-page') // batchLink的依赖函数
 const readFileSync = require('./read-file-sync')
+const readDirSync = require('./read-dir-sync')
 // const getDate = require('../get-date') // 从默认站点，采集最后交易日的时间
 const unique = require('./unique') // 去重
 const quest = require('./quest') // superagent的封装
 const sleep = require('./sleep') // 睡眠装置
 const removeDir = require('./remove-dir') // 
 module.exports = {
-  readFileSync, writeFileSync, quest, 
-  isArray, isEmptyArray, isObject, removeDir,
+  readFileSync, writeFileSync, quest,
+  isArray, isEmptyArray, isObject, removeDir, readDirSync,
   isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep, BunchThread,
   Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi, moneyFormat,
