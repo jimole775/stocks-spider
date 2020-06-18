@@ -13,6 +13,7 @@ const dateFormat = require('./date-format')
 const writeFileSync = require('./write-file-sync')
 const recordUsedApi = require('./record-used-api')
 const BunchThread = require('./bunch-thread')
+const moneyFormat = require('./money-format')
 const Link = require('./link') // 
 const BunchLinking = require('./bunch-linking') // 多线程形式批量采访链接
 const hasFullRecordInbaseData = require('./has-full-record-in-base-data') // 多线程形式批量采访链接
@@ -28,6 +29,6 @@ module.exports = {
   isArray, isEmptyArray, isObject, removeDir,
   isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep, BunchThread,
-  Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi,
+  Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi, moneyFormat,
   rangeEqual, getPathSeparator, buildPath, BunchLinking, hasFullRecordInbaseData
 }
