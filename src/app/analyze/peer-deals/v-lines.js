@@ -32,7 +32,8 @@ function getUnCalculateDates () {
     // 有可能最后一个date目录的票子还没统计完，
     // 所以，不管如何，把他压到unRecords里面，
     // 保证万无一失
-    return unRecords.unshift(vlineDates.pop())
+    unRecords.unshift(vlineDates.pop())
+    return unRecords
   }
 }
 
