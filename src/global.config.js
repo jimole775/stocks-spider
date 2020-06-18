@@ -2,16 +2,26 @@
 const { quest } = require(`./utils`)
 const moment = require('moment')
 module.exports = async function () {
-  global.srcRoot = __dirname
-  global.baseUrl = 'src'
   global.bunchLimit = 3
+  global.finalDealDate = await getDate()
+
+  // vline模块配置项
+  global.vline = {
+    time_dvd : 15 * 60 * 1000,
+    price_dvd : 0.02
+  }
+
+  // 命令行参数
   global.crossEnv = queryParam()
   global.module = global.crossEnv.module
-  global.finalDealDate = await getDate()
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
+
+  // 路径别名
+  global.srcRoot = __dirname
   global.baseDataFile = `${__dirname}\\db\\warehouse\\base.json`
   global.db = `${__dirname}\\db`
   global.utils = `${__dirname}\\utils`
+
   return Promise.resolve(global)
 }
 
