@@ -19,7 +19,8 @@ const { writeFileSync, readFileSync, moneyFormat } = require(global.utils)
 const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
 const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
-const dvdtimes = 15 * 60 * 1000 // 默认为15分钟间隔
+const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
+const price_dvd = global.vline.price_dvd || 0.01 // 默认为1%价格间隔
 module.exports = async function vlines () {
   // 先获取，当天振幅超过3%的票
   const qualityStockObj = await queryQualityStockObj()
@@ -131,21 +132,21 @@ function calcLogic (date, stock) {
       if (!startSite && !endSite) {
         startSite = dealObj
       }
-      // 判断 dvdtimes 时间内的交易
-      if (new Date(dealObj.t) - new Date(startSite.t) <= dvdtimes) {
+      // 判断 time_dvd 时间内的交易
+      if (new Date(dealObj.t) - new Date(startSite.t) <= time_dvd) {
         rangeCans.push(dealObj)
         endSite = dealObj
   
         if (!isLowDeep) {
           // 如果价差大于 -3%
-          if (endSite.p - startSite.p <= -(open_p * 0.01)) {
+          if (endSite.p - startSite.p <= -(open_p * price_dvd)) {
             isLowDeep = true
           }
         }
         
         if (isLowDeep && !isCoverUp) {
           // 如果价差小于 -1% 或者 大于 开始下跌的价格
-          if (endSite.p - startSite.p >= -(open_p * 0.01) || endSite.p > startSite.p) {
+          if (endSite.p - startSite.p >= -(open_p * price_dvd) || endSite.p > startSite.p) {
             isCoverUp = true
             res.push(sumRanges(rangeCans))
             // 成功获取起点和终点
