@@ -9,7 +9,7 @@ const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
 const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines/` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
-const price_dvd = global.vline.price_dvd || 0.01 // 默认为1%价格间隔
+const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 module.exports = async function vlines () {
   const unCalculateDates = getUnCalculateDates()
   const qualityStockObj = await queryQualityStockObj(unCalculateDates)
@@ -82,14 +82,14 @@ function recordRightRange (qualityStockObj) {
  * return [{
  *  heavies, // 买入总额
  *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
- *  buy_p_v: (buy_sum_p / buy_sum_v).toFixed(2), // 买入均价
- *  sale_p_v: (sale_sum_p / sale_sum_v).toFixed(2), // 卖出均价
- *  buy_sum_p: (buy_sum_p).toFixed(2), // 买入总额
- *  buy_sum_v: (buy_sum_v).toFixed(2), // 买入总额
- *  sale_sum_p: (sale_sum_p).toFixed(2), // 买入总额
- *  sale_sum_v: (sale_sum_v).toFixed(2), // 买入总额
- *  heavy_buy: (heavy_buy).toFixed(2), // 买入总额
- *  heavy_sale: (heavy_sale).toFixed(2) // 买入总额
+ *  buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
+ *  sale_p_v: (sum_sale_p / sum_sale_v).toFixed(2), // 卖出均价
+ *  sum_buy_p: (sum_buy_p).toFixed(2), // 买入总额
+ *  sum_buy_v: (sum_buy_v).toFixed(2), // 买入总手数
+ *  sum_sale_p: (sum_sale_p).toFixed(2), // 卖出总额
+ *  sum_sale_v: (sum_sale_v).toFixed(2), // 卖出总手数
+ *  heavy_buy: (heavy_buy).toFixed(2), // 大单买入额
+ *  heavy_sale: (heavy_sale).toFixed(2) // 大单卖出额
  * },...]
  *
  */
@@ -119,6 +119,7 @@ function calculateVline (date, stock) {
 
     // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
     if (!open_p) open_p = priceFormat(dealObj.p)
+
     // 转换数据格式，方便计算
     dealObj.t = timeFormat(date, dealObj.t)
     dealObj.p = priceFormat(dealObj.p)
@@ -132,15 +133,17 @@ function calculateVline (date, stock) {
       endSite = dealObj
 
       if (!isLowDeep) {
-        // 如果价差大于 -3%
-        if (endSite.p - startSite.p <= -(open_p * price_dvd)) {
+        // 15分钟内，如果价差大于 -3%(开盘价 * 0.03)，那么就可以判定为V型线开始
+        if (endSite.p - startSite.p <= -(open_p * price_range)) {
+          console.log(date, stock, '下潜 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * price_range))
           isLowDeep = true
         }
       }
       
       if (isLowDeep && !isCoverUp) {
-        // 如果价差小于 -1% 或者 大于 开始下跌的价格
-        if (endSite.p - startSite.p >= -(open_p * price_dvd) || endSite.p > startSite.p) {
+        // 如果价差开始回升，小于 -1% 或者 大于 开始下跌的价格，就说明形成了V型线
+        if (endSite.p - startSite.p >= -(open_p * 0.01) || endSite.p > startSite.p) {
+          console.log(date, stock, '回升 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * 0.01))
           isCoverUp = true
           // 成功获取起点和终点
           // 进行时间点的记录
@@ -175,29 +178,31 @@ function sumRanges (rangeCans) {
   //   "v": 109,
   //   "bs": 4 // 1卖， 2买， 4竞价
   // },
-  let buy_sum_p = 0
-  let buy_sum_v = 0
-  let sale_sum_p = 0
-  let sale_sum_v = 0
+  let sum_buy_p = 0
+  let sum_buy_v = 0
+  let sum_sale_p = 0
+  let sum_sale_v = 0
   let heavy_buy = 0
   let heavy_sale = 0
   const heavies = []
   for (let index = 0; index < rangeCans.length; index++) {
     const canItem = rangeCans[index]
     if (canItem.bs === 1) {
-      sale_sum_p += canItem.p * canItem.v * 100
-      sale_sum_v += canItem.v
+      const sale_p = canItem.p * canItem.v * 100
+      sum_sale_p += sale_p
+      sum_sale_v += canItem.v
       // 每单金额超过10W，就当作大单记录
-      if (sale_sum_p >= 100000) {
+      if (sale_p >= 100000) {
         heavies.push(canItem)
       }
     }
 
     if (canItem.bs === 2) {
-      buy_sum_p += canItem.p * canItem.v * 100
-      buy_sum_v += canItem.v
+      const buy_p = canItem.p * canItem.v * 100
+      sum_buy_p += buy_p
+      sum_buy_v += canItem.v
       // 每单金额超过10W，就当作大单记录
-      if (buy_sum_p >= 100000) {
+      if (buy_p >= 100000) {
         heavies.push(canItem)
       }
     }
@@ -218,12 +223,12 @@ function sumRanges (rangeCans) {
   return {
     heavies, // 买入总额
     timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
-    buy_p_v: (buy_sum_p / buy_sum_v).toFixed(2), // 买入均价
-    sale_p_v: (sale_sum_p / sale_sum_v).toFixed(2), // 卖出均价
-    buy_sum_p: moneyFormat(buy_sum_p), // 买入总额
-    buy_sum_v: buy_sum_v, // 买入手数
-    sale_sum_p: moneyFormat(sale_sum_p), // 卖出总额
-    sale_sum_v: sale_sum_v, // 卖出手数
+    buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
+    sale_p_v: (sum_sale_p / sum_sale_v).toFixed(2), // 卖出均价
+    sum_buy_p: moneyFormat(sum_buy_p), // 买入总额
+    sum_buy_v: sum_buy_v, // 买入手数
+    sum_sale_p: moneyFormat(sum_sale_p), // 卖出总额
+    sum_sale_v: sum_sale_v, // 卖出手数
     heavy_buy: moneyFormat(heavy_buy), // 大单买入额
     heavy_sale: moneyFormat(heavy_sale) // 大单卖出额
   }

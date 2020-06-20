@@ -8,7 +8,7 @@ module.exports = async function () {
   // vline模块配置项
   global.vline = {
     time_dvd : 15 * 60 * 1000,
-    price_dvd : 0.02
+    price_range : 0.05
   }
 
   // 命令行参数
