@@ -12,7 +12,7 @@ const {
   recordUsedApi, hasFullRecordInbaseData,
   BunchThread
 } = require(global.utils)
-const allStocks = require(global.baseDataFile).data
+const allStocks = require(global.baseData).data
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 
 // const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
@@ -39,36 +39,66 @@ async function excution(s, j) {
 
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
-  if (hasFullRecordInbaseData(allStocks, 'FRKlineApi')) {
-    // allStocks.forEach((stockItem) => {
-    //   recordKlines(stockItem.FRKlineApi)
-    // })
-    await requestApiInBunch(allStocks)
+  if (hasFullRecordInbaseData(allStocks, 'klineApi')) {
+    await requestApiInBunch(allStocks, unlinkedUrls)
   } else {
     // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedApi(doneApiMap, 'FRKlineApi')
+    await recordUsedApi(doneApiMap, 'klineApi')
   }
   return s(true)
 }
 
-async function requestApiInBunch (allStocks) {
-  return new Promise((resovle, reject) => {
-    const bunch = new BunchThread(3)
+async function requestApiInBunch (allStocks, unlinkedUrls) {
+  return new Promise((resolve, reject) => {
+    const unLinkStocks = []
     allStocks.forEach((stockItem) => {
+      for (let i = 0; i < unlinkedUrls.length; i++) {
+        const urlItem = unlinkedUrls[i]
+        if (urlItem.includes(stockItem.code)) {
+          unLinkStocks.push(stockItem)
+          unlinkedUrls.splice(i, 1)
+          break
+        }
+      }
+    })
+    
+    const bunch = new BunchThread()
+    unLinkStocks.forEach((stockItem) => {
       bunch.taskCalling(() => {
         return new Promise(async (s, j) => {
-          await recordPeerDeal(stockItem.code, stockItem.dealApi)
+          const { stockCode, klineApi, FRKlineApi } = transApi(stockItem.klineApi)
+          await recordKlines(stockCode, klineApi, FRKlineApi)
           return s()
         })
       })
     })
+
     bunch.finally(() => {
       console.log('kline requestApiInBunch end!')
       return resolve()
     })
   })
 }
+
+// async function requestApiInBunch (allStocks) {
+//   return new Promise((resolve, reject) => {
+//     const bunch = new BunchThread()
+//     allStocks.forEach((stockItem) => {
+//       bunch.taskCalling(() => {
+//         return new Promise(async (s, j) => {
+//           const { stockCode, klineApi, FRKlineApi } = transApi(stockItem.klineApi)
+//           await recordKlines(stockCode, klineApi, FRKlineApi)
+//           return s()
+//         })
+//       })
+//     })
+//     bunch.finally(() => {
+//       console.log('kline requestApiInBunch end!')
+//       return resolve()
+//     })
+//   })
+// }
 
 async function sniffUrlFromWeb (unlinkedUrls) {
   const doneApiMap = {}
@@ -78,15 +108,9 @@ async function sniffUrlFromWeb (unlinkedUrls) {
     response: function (response) {
       const api = response.url()
       if (response.status() === 200 && dailyKlineReg.test(api)) {
-        const host = api.split('?')[0]
-        const query = api.split('?')[1]
-        const queryObj = querystring.decode(query)
-        const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
-        queryObj.lmt = 99999 // lmt: '120',
-        queryObj.fqt = 1 // fqt: '0'-不复权，'1'-前复权,
-        const FRKlineApi = `${host}?${querystring.encode(queryObj)}`
-        doneApiMap[stockCode] = FRKlineApi
-        return recordKlines(stockCode, FRKlineApi)
+        const { stockCode, klineApi, FRKlineApi } = transApi(api)
+        doneApiMap[stockCode] = klineApi
+        return recordKlines(stockCode, klineApi, FRKlineApi)
       }
     },
     end: function () {
@@ -94,4 +118,17 @@ async function sniffUrlFromWeb (unlinkedUrls) {
     }
   }).emit()
   return Promise.resolve(doneApiMap)
+}
+
+function transApi (api) {
+  const host = api.split('?')[0]
+  const query = api.split('?')[1]
+  const queryObj = querystring.decode(query)
+  const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
+  queryObj.lmt = 99999 // lmt: '120',
+  queryObj.fqt = 0 // fqt: '0'-不复权，'1'-前复权,
+  const klineApi = `${host}?${querystring.encode(queryObj)}`
+  queryObj.fqt = 1 // fqt: '0'-不复权，'1'-前复权,
+  const FRKlineApi = `${host}?${querystring.encode(queryObj)}`
+  return { stockCode, klineApi, FRKlineApi }
 }

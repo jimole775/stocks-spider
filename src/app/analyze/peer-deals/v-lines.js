@@ -16,7 +16,6 @@ module.exports = async function vlines () {
   recordRightRange(qualityStockObj)
 }
 
-// { date1:[], date2:[], date3:[] }
 // 由于计算顺序是从前到后，
 // 那么可以理解，只要vlines目录的最后一个日期存在数据，
 // 就可以肯定前面的日期都已经计算过了
@@ -95,11 +94,12 @@ function recordRightRange (qualityStockObj) {
  */
 function calculateVline (date, stock) {
   const res = []
-  const deals = readFileSync(path.join(read_peerdeal_dir, date, stock))
+  const dealData = readFileSync(path.join(read_peerdeal_dir, date, stock))
+  const deals = dealData.data
   let rangeCans = []
   let startSite = null
   let endSite = null
-  let open_p = null
+  let open_p = dealData.cp / 1000
   let isLowDeep = false
   let isCoverUp = false
   for (let index = 0; index < deals.length; index++) {
@@ -115,14 +115,14 @@ function calculateVline (date, stock) {
     if (dealObj.t < 92500) break
 
     // 记录开盘价
-    if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
+    // if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
 
     // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
-    if (!open_p) open_p = priceFormat(dealObj.p)
+    // if (!open_p) open_p = priceFormat(dealObj.p)
 
     // 转换数据格式，方便计算
     dealObj.t = timeFormat(date, dealObj.t)
-    dealObj.p = priceFormat(dealObj.p)
+    dealObj.p = dealObj.p / 1000
     // 初始先给 startSite 赋值
     if (!startSite && !endSite) {
       startSite = dealObj

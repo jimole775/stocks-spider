@@ -6,7 +6,7 @@
  */
 const moment = require('moment')
 const querystring = require('querystring')
-const allStocks = require(global.baseDataFile).data
+const allStocks = require(global.baseData).data
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileSync, BunchLinking, hasUninks,
@@ -37,7 +37,7 @@ async function excution (resolve, reject) {
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
   if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
-    await requestApiInBunch(allStocks)
+    await requestApiInBunch(allStocks, unlinkedUrls)
   } else {
     // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
     const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
@@ -45,10 +45,23 @@ async function excution (resolve, reject) {
   }
   return resolve(true)
 }
-async function requestApiInBunch (allStocks) {
+
+async function requestApiInBunch (allStocks, unlinkedUrls) {
   return new Promise((resolve, reject) => {
-    const bunch = new BunchThread(3)
+    const unLinkStocks = []
     allStocks.forEach((stockItem) => {
+      for (let i = 0; i < unlinkedUrls.length; i++) {
+        const urlItem = unlinkedUrls[i]
+        if (urlItem.includes(stockItem.code)) {
+          unLinkStocks.push(stockItem)
+          unlinkedUrls.splice(i, 1)
+          break
+        }
+      }
+    })
+    
+    const bunch = new BunchThread()
+    unLinkStocks.forEach((stockItem) => {
       bunch.taskCalling(() => {
         return new Promise(async (s, j) => {
           await recordPeerDeal(stockItem.code, stockItem.dealApi)
@@ -56,6 +69,7 @@ async function requestApiInBunch (allStocks) {
         })
       })
     })
+
     bunch.finally(() => {
       console.log('deal requestApiInBunch end!')
       return resolve()

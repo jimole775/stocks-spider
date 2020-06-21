@@ -9,7 +9,7 @@ const buildModel = require('./build-model')
 const { readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
 module.exports = function buildStocksModel() {
   return new Promise(async (s, j) => {
-    const alreadyData = await tryToloadAlreadyData(global.baseDataFile)
+    const alreadyData = await tryToloadAlreadyData(global.baseData)
     if (alreadyData) return s(alreadyData)
     try {
       const browser = await puppeteer.launch().catch()
@@ -19,7 +19,7 @@ module.exports = function buildStocksModel() {
         date: new Date().getTime(),
         data: JSON.stringify(allStocks)
       }
-      await writeFileSync(global.baseDataFile, baseData)
+      await writeFileSync(global.baseData, baseData)
       return s(baseData)
     } catch (error) {
       console.error('build model error:', error)

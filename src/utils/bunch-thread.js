@@ -23,7 +23,7 @@ module.exports = class BunchThread {
   async thread ($$task) {
     await $$task().catch()
     if (global.onBusyNetwork) {
-      await this.sleep(1000 * global.bunchLimit)
+      await this.sleep(3000 * global.bunchLimit)
     }
     this.taskLiving --
     if (this.taskQueue.length) {

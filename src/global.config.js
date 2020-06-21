@@ -2,23 +2,28 @@
 const { quest } = require(`./utils`)
 const moment = require('moment')
 module.exports = async function () {
-  global.bunchLimit = 3
-  global.finalDealDate = await getDate()
-
-  // vline模块配置项
-  global.vline = {
-    time_dvd : 15 * 60 * 1000,
-    price_range : 0.05
-  }
 
   // 命令行参数
   global.crossEnv = queryParam()
   global.module = global.crossEnv.module
+
+  // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
+  // 主要是在公用WIFI中，不造成网络的负担
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
+  global.bunchLimit = global.onBusyNetwork ? 1 : 3
+
+  // 从站点上获取最后一天的交易日期
+  global.finalDealDate = await getDate()
+
+  // vline模块配置项
+  global.vline = {
+    time_dvd : 15 * 60 * 1000, // v型k线的形成时间
+    price_range : 0.05 // v型k线的深度
+  }
 
   // 路径别名
   global.srcRoot = __dirname
-  global.baseDataFile = `${__dirname}\\db\\warehouse\\base.json`
+  global.baseData = `${__dirname}\\db\\warehouse\\base.json`
   global.db = `${__dirname}\\db`
   global.utils = `${__dirname}\\utils`
 

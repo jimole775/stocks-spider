@@ -15,19 +15,19 @@ module.exports = function hasUninks(links, recordDir) {
   if (files.length !== links.length) {
     let l = links.length
     while (l--) {
-      const urlItem = links[l]
+      const linkItem = links[l]
       let k = files.length
       let isAlready = false
       while (k--) {
         const stockCode = files[k].replace(/^.*\D?(\d{6})\D?.*$/, '$1')
         const reg = new RegExp(`\^${stockCode}\$|\^${stockCode}\\D*|\\D*${stockCode}\$|(\\D${stockCode}\\D)`, 'g')
-        if (reg.test(urlItem)) {
+        if (reg.test(linkItem)) {
           files.splice(k, 1)
           isAlready = true
           break
         }
       }
-      if (isAlready === false) unlinks.push(urlItem)
+      if (isAlready === false) unlinks.push(linkItem)
     }
   }
   return unlinks

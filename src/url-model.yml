@@ -22,9 +22,10 @@ api: # API类型的URL，参数太多，不适合动态拼，所以从主页URL�
     halfMMKline: "http://7.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery1124003603678028229251_1584189373446&secid=0.000063&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58&klt=101&fqt=0&beg=0&end=20500101&smplmt=460&lmt=1000000&_=1584189373552"
 
     # 不复权 日K线
-    dailyKline: "http://84.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112409147080661960547_1591894982675&secid=1.603983&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58&klt=101&fqt=0&beg=0&end=20500101&smplmt=460&lmt=1000000&_=1591894982685"
-    dailyKlineReg: "push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/kline\\/get\\?.*?\\&fqt\\=\\d"
-    
+    # dailyKline: "http://50.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112409623512099919946_1592642282710&secid=1.603997&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5&fields2=f51,f52,f53,f54,f55,f56,f57,f58&klt=101&fqt=0&beg=0&end=20500101&lmt=460&lmt=1000000&_=1592642282724"
+    dailyKline: "http://91.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112407654903528779422_1592717206435&secid=1.603997&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58&klt=101&fqt=0&end=20500101&lmt=120&_=1592717206451"
+    dailyKlineReg: "push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/kline\\/get\\?.*?\\&fqt\\=\\d\\&end\\=\\d{8}\\&lmt\\="
+
     # 每笔交易详情
     peerDeal: "http://push2ex.eastmoney.com/getStockFenShi?pagesize=144&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery1123011401122580670009_1584374552958&pageindex=0&id=0006522&sort=1&ft=1&code=000652&market=0&_=1584374552959"
     peerDealReg: "push2ex\\.eastmoney\\.com\\/getStockFenShi\\?pagesize\\="
