@@ -4,19 +4,26 @@
  * 数据路径：F:\MyPro\stocks\src\db\analyze\peer-deals\shadowlines
  * return: 
  * {
-    "sale_p": {
+    "sal_sum_pp": {
+      "4.83": 9069774, // 存储每个价格的成交额
+      ...
+    },
+    "buy_sum_pp": {
       "4.83": 9069774, // 存储每个价格的成交额
       ...
     },
     "overview": {
-      "min_p": 4.83, // 最低价
-      "max_p": 5.16, // 最高价
-      "open_p": 5.05, // 开盘价
-      "end_p": 5.09, // 收盘价
-      "sum_v": 8238827, // 成交量
-      "sum_p": 4125515597, // 成交总额
-      "sum_p_v": "5.01", // 成交均价
-      "diff_p": "6.53%", // 最大振幅
+      "opn_pice": 5.05, // 开盘价
+      "end_pice": 5.09, // 收盘价
+      "min_pice": 4.83, // 最低价
+      "max_pice": 5.16, // 最高价
+      "buy_sum_v": 8238827, // 买入成交量
+      "buy_sum_p": 4125515597, // 买入成交总额
+      "sal_sum_v": 8238827, // 卖出成交量
+      "sal_sum_p": 4125515597, // 卖出成交总额
+      "buy_sum_p_v": "5.01", // 买入成交均价
+      "sal_sum_p_v": "5.01", // 卖出成交均价
+      "waves_percent": "6.53%", // 最大振幅
       "downShadowSize": "4.36%", // 下影线长度
       "upShadowSize": "1.39%", // 上影线长度
       "isCrossShadow": false // 是否是十字星
@@ -28,7 +35,7 @@ const path = require('path')
 const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
 const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/shadowlines/`
 const { rangeEqual, readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
-module.exports = async function shadowLines() {
+module.exports = async function shadowlines() {
   const dateFolders = fs.readdirSync(dirRoot)
   for (const dateFolder of dateFolders) {
     const wareFiles = fs.readdirSync(path.join(dirRoot, dateFolder))
@@ -40,29 +47,32 @@ module.exports = async function shadowLines() {
       const filePath = path.join(dirRoot, dateFolder, file)
       const fileData = await readFileSync(filePath)
       if (!fileData || !fileData.data) continue
-      const analyzeData = cacal(fileData)
+      const analyzeData = calculate(fileData)
       await writeFileSync(path.join(targetRoot, dateFolder, file), analyzeData)
     }
   }
   return Promise.resolve(true)
 }
 
-function isExist (dateFolder) {
+function calculate(fileData) {
+  let buy_sum_pp = {} // 存储每个价格的买入成交额
+  let sal_sum_pp = {} // 存储每个价格的卖出成交额
+  let opn_pice = fileData.cp / 1000 // 开盘价
+  let end_pice = 0 // 收盘价
+  let min_pice = 99999 // 最低价
+  let max_pice = 0 // 最高价
+  let buy_sum_v = 0 // 买入手数
+  let buy_sum_p = 0 // 买入总额
+  let sal_sum_v = 0 // 卖入手数
+  let sal_sum_p = 0 // 卖入总额
+  let buy_sum_p_v = 0 // 买入均价
+  let sal_sum_p_v = 0 // 卖出均价
+  let waves_percent = 0 // 振幅%
+  let downShadowSize = 0 // 下影线%
+  let upShadowSize = 0 // 上影线%
+  let isCrossShadow = false // 十字星
 
-}
-
-function cacal(fileData) {
-  let sale_p = {} // 存储每个价格的成交额
-  let overview = {} // 存储概览
-  let min_p = 99999
-  let max_p = 0
-  let sum_v = 0
-  let sum_p = 0
-  let sum_p_v = 0 // 成交均价
-  let open_p = fileData.cp / 1000 // 开盘价
-  let end_p = 0 // 收盘价
-  let diff_p = 0 // 振幅差价
-  for (let { p, t, v } of fileData.data) {
+  for (let { p, t, v, bs } of fileData.data) {
     
     // 9点25分之前的数据都不算
     if (t < 92500) break
@@ -71,87 +81,101 @@ function cacal(fileData) {
 
     // 存储收盘价
     if(/^1500/.test(t)) {
-      end_p = p
+      end_pice = p
     }
 
-    min_p = min_p > p ? p : min_p
-    max_p = max_p < p ? p : max_p
+    min_pice = min_pice > p ? p : min_pice
+    max_pice = max_pice < p ? p : max_pice
 
-    sum_v += v // 总交易量计算
-    sum_p += v * p * 100 // 总价计算
+    if (bs === 1) {
 
-    saveSaleP(sale_p, v, p)
-  
+      sal_sum_v += v // 总交易量计算
+      sal_sum_p += v * p * 100 // 总价计算
+
+      recordPP(sal_sum_pp, v, p)
+    }
+
+    if (bs === 2) {
+
+      buy_sum_v += v // 总交易量计算
+      buy_sum_p += v * p * 100 // 总价计算
+
+      recordPP(buy_sum_pp, v, p)
+    }
   }
 
-  sum_p_v = (sum_p / sum_v / 100).toFixed(2)
+  buy_sum_p_v = (buy_sum_p / buy_sum_v / 100).toFixed(2)
+  sal_sum_p_v = (sal_sum_p / sal_sum_v / 100).toFixed(2)
 
   // 振幅差价
-  diff_p = ((max_p - min_p) / open_p * 100).toFixed(2) + '%'
+  waves_percent = ((max_pice - min_pice) / opn_pice * 100).toFixed(2)
 
-  overview = analyzing(min_p, max_p, open_p, end_p, sum_v, sum_p, sum_p_v, diff_p)
-
-  return { sale_p, overview }
+  // overview = analyzing(min_pice, max_pice, opn_pice, end_pice, sum_v, sum_p, sum_p_v, waves_percent)
+  upShadowSize = calculateUpShadow(opn_pice, end_pice, min_pice)
+  downShadowSize = calculateDownShadow(opn_pice, end_pice, min_pice)
+  isCrossShadow = calculateCrosShadow(upShadowSize, downShadowSize)
+  return {
+    buy_sum_pp,
+    sal_sum_pp,
+    overview: {
+      buy_sum_v,
+      buy_sum_p,
+      sal_sum_v,
+      sal_sum_p,
+      buy_sum_p_v,
+      sal_sum_p_v,
+      upShadowSize,
+      waves_percent,
+      downShadowSize,
+      isCrossShadow
+    }
+  }
 }
 
-function analyzing(min_p, max_p, open_p, end_p, sum_v, sum_p, sum_p_v, diff_p) {
-  let downShadowSize = 0 // 下影线，开收盘价格相差在1%以内，并且当日最【低】价超过开盘价3-5%
-  let upShadowSize = 0 // 上影线，开收盘价格相差在1%以内，并且当日最【高】价超过开盘价3-5%
-  let isCrossShadow = false // 十字星，开收盘价格相差在1%以内，并且当日最【高】，最【低】价超过开盘价3-5%
-  let res = { min_p, max_p, open_p, end_p, sum_v, sum_p, sum_p_v, diff_p, downShadowSize, upShadowSize, isCrossShadow }
-  res = cacalDownShadow(res)
-  res = cacalUpShadow(res)
-  res = cacalCrossShadow(res)
-  return res
-}
-
-function cacalDownShadow(base) {
-  if (base.open_p > base.end_p && base.end_p > base.min_p) {
+function calculateDownShadow (opn_pice, end_pice, min_pice) {
+  let downShadowSize = 0
+  if (opn_pice > end_pice && end_pice > min_pice) {
     // 绿色收盘
-    base.downShadowSize = (base.end_p - base.min_p) / base.open_p * 100
-  } else if (base.open_p < base.end_p && base.open_p > base.min_p) {
+    downShadowSize = (end_pice - min_pice) / opn_pice * 100
+  } else if (opn_pice < end_pice && opn_pice > min_pice) {
     // 红色收盘
-    base.downShadowSize = (base.open_p - base.min_p) / base.open_p * 100
-  } else if (base.open_p === base.end_p && base.end_p > base.min_p) {
+    downShadowSize = (opn_pice - min_pice) / opn_pice * 100
+  } else if (opn_pice === end_pice && end_pice > min_pice) {
     // 平盘
-    base.downShadowSize = (base.end_p - base.min_p) / base.open_p * 100
+    downShadowSize = (end_pice - min_pice) / opn_pice * 100
   }
-  base.downShadowSize = base.downShadowSize.toFixed(2) + '%'
-  return base
+  return downShadowSize.toFixed(2)
 }
 
-function cacalUpShadow(base) {
-  if (base.open_p > base.end_p && base.open_p < base.max_p) {
+function calculateUpShadow (opn_pice, end_pice, max_pice) {
+  let upShadowSize = 0
+  if (opn_pice > end_pice && opn_pice < max_pice) {
     // 绿色收盘
-    base.upShadowSize = (base.max_p - base.open_p) / base.open_p * 100
+    upShadowSize = (max_pice - opn_pice) / opn_pice * 100
 
-  } else if (base.open_p < base.end_p && base.end_p < base.max_p) {
+  } else if (opn_pice < end_pice && end_pice < max_pice) {
     // 红色收盘
-    base.upShadowSize = (base.max_p - base.end_p) / base.open_p * 100
+    upShadowSize = (max_pice - end_pice) / opn_pice * 100
 
-  } else if (base.open_p === base.end_p && base.end_p < base.max_p) {
+  } else if (opn_pice === end_pice && end_pice < max_pice) {
     // 平盘
-    base.upShadowSize = (base.max_p - base.end_p) / base.open_p * 100
+    upShadowSize = (max_pice - end_pice) / opn_pice * 100
   }
-  base.upShadowSize = base.upShadowSize.toFixed(2) + '%'
-  return base
+  return upShadowSize.toFixed(2)
 }
 
-function cacalCrossShadow(base) {
-  if (rangeEqual(base.upShadowSize, base.downShadowSize, 0.01)){
-    base.isCrossShadow = true
-  }
-  return base
+function calculateCrosShadow(upShadowSize, downShadowSize) {
+  return rangeEqual(upShadowSize, downShadowSize, 0.01)
 }
 
-function saveSaleP(sale_p, v, p) {
+function recordPP(pp, v, p) {
   // 计算每个价位的成交额
   p = p.toFixed(2)
-  if (!sale_p[p]) {
+  if (!pp[p]) {
     // Math.round 主要处理js的运算误差
-    sale_p[p] = Math.round(v * p * 100)
+    pp[p] = Math.round(v * p * 100)
   } else {
     // Math.round 主要处理js的运算误差
-    sale_p[p] += Math.round(v * p * 100)
+    pp[p] += Math.round(v * p * 100)
   }
 }
