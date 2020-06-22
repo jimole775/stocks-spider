@@ -99,9 +99,9 @@ function calculateVline (date, stock) {
   let rangeCans = []
   let startSite = null
   let endSite = null
-  let open_p = dealData.cp / 1000
   let isLowDeep = false
   let isCoverUp = false
+  let open_p = dealData.cp / 1000
   for (let index = 0; index < deals.length; index++) {
     // {
     //   "t": 91509,
@@ -113,12 +113,6 @@ function calculateVline (date, stock) {
     
     // 9点25分之前的数据都不算
     if (dealObj.t < 92500) break
-
-    // 记录开盘价
-    // if (/^925/.test(dealObj.t)) open_p = priceFormat(dealObj.p)
-
-    // 如果当前股票的当日，收集不到 9:25 之前的竞价信息，只能取 9:25 之后的第一个成交价作为开盘价
-    // if (!open_p) open_p = priceFormat(dealObj.p)
 
     // 转换数据格式，方便计算
     dealObj.t = timeFormat(date, dealObj.t)
@@ -187,24 +181,20 @@ function sumRanges (rangeCans) {
   const heavies = []
   for (let index = 0; index < rangeCans.length; index++) {
     const canItem = rangeCans[index]
+    const sum_p = canItem.p * canItem.v * 100
+    // 每单金额超过10W，就当作大单记录
+    if (sum_p >= 100000) {
+      heavies.push(canItem)
+    }
+
     if (canItem.bs === 1) {
-      const sale_p = canItem.p * canItem.v * 100
-      sum_sale_p += sale_p
+      sum_sale_p += sum_p
       sum_sale_v += canItem.v
-      // 每单金额超过10W，就当作大单记录
-      if (sale_p >= 100000) {
-        heavies.push(canItem)
-      }
     }
 
     if (canItem.bs === 2) {
-      const buy_p = canItem.p * canItem.v * 100
-      sum_buy_p += buy_p
+      sum_buy_p += sum_p
       sum_buy_v += canItem.v
-      // 每单金额超过10W，就当作大单记录
-      if (buy_p >= 100000) {
-        heavies.push(canItem)
-      }
     }
   }
 
@@ -225,12 +215,12 @@ function sumRanges (rangeCans) {
     timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
     buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
     sale_p_v: (sum_sale_p / sum_sale_v).toFixed(2), // 卖出均价
-    sum_buy_p: moneyFormat(sum_buy_p), // 买入总额
+    sum_buy_p: sum_buy_p, // 买入总额
     sum_buy_v: sum_buy_v, // 买入手数
-    sum_sale_p: moneyFormat(sum_sale_p), // 卖出总额
+    sum_sale_p: sum_sale_p, // 卖出总额
     sum_sale_v: sum_sale_v, // 卖出手数
-    heavy_buy: moneyFormat(heavy_buy), // 大单买入额
-    heavy_sale: moneyFormat(heavy_sale) // 大单卖出额
+    heavy_buy: heavy_buy, // 大单买入额
+    heavy_sale: heavy_sale // 大单卖出额
   }
 }
 
@@ -240,8 +230,4 @@ function timeFormat (date, t) {
   const m = t.substring(t.length - 4, t.length - 2)
   const h = t.substring(t.length - 6, t.length - 4)
   return `${date} ${h}:${m}:${s}`
-}
-
-function priceFormat (p) {
-  return (p / 1000).toFixed(2)
 }
