@@ -7,7 +7,7 @@ module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
   return new Promise((resolve) => excutes(stockCode, klineApi, FRKlineApi, resolve, 0))
 }
 
-function excutes (stockCode, klineApi, FRKlineApi, resolve, loopTimes) {
+async function excutes (stockCode, klineApi, FRKlineApi, resolve, loopTimes) {
   try {
     console.log('kline:', stockCode)
     const file = path.join(recordPath, global.finalDealDate, stockCode + '.json')

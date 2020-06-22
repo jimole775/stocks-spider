@@ -2,8 +2,8 @@
 const { readFileSync } = require(`${global.srcRoot}/utils`)
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const urlPool = [
-  urlModel.pageEnity.SHStockList,
-  urlModel.pageEnity.SZStockList
+  urlModel.page.SHStockList,
+  urlModel.page.SZStockList
 ]
 /**
  * 

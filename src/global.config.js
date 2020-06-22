@@ -10,6 +10,7 @@ module.exports = async function () {
   // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
   // 主要是在公用WIFI中，不造成网络的负担
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
+  global.sleepTimes = 5000 // 每一个访问的睡眠时长(ms)
   global.bunchLimit = global.onBusyNetwork ? 1 : 3
 
   // 从站点上获取最后一天的交易日期

@@ -46,9 +46,7 @@ module.exports = class bunchLinking {
       const idlPage = this.pickIdlPage()
       idlPage.idl = false
       await idlPage.goto(url, { timeout: 0 })
-        .catch(() => {
-          console.log('idlPage.goto error')
-        })
+        .catch((err) => console.log('idlPage.goto:', err))
       idlPage.idl = true
       return s(true)
     })
