@@ -10,12 +10,12 @@ const allStocks = require(global.baseData).data
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileSync, BunchLinking, hasUninks,
-  recordUsedApi, hasFullRecordInbaseData,
+  recordUsedApi, hasRecordedApis,
   BunchThread
 } = require(global.utils)
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
-const recordDir = `${global.srcRoot}/db/warehouse/peer-deals/${global.finalDealDate}`
+const recordDir = `${global.db}/warehouse/peer-deals/${global.finalDealDate}`
 
 module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
@@ -28,31 +28,34 @@ async function excution (resolve, reject) {
       .replace('[stockCode]', item.code)
       .replace('[marketCode]', item.marketCode)
   })
-  const unlinkedUrls = hasUninks(urls, recordDir)
+
+  let unlinkedUrls = hasUninks(urls, recordDir)
   console.log('daily deals unlink: ', unlinkedUrls.length)
   // 每日交易详情会以日期为目录区分，
   // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
-  if (unlinkedUrls.length === 0) return s(true)
+  if (unlinkedUrls.length === 0) return resolve(true)
 
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
-  if (hasFullRecordInbaseData(allStocks, 'dealApi')) {
-    await requestApiInBunch(allStocks, unlinkedUrls)
-  } else {
-    // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
-    const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedApi(doneApiMap, 'dealApi')
+  const recordedStocks = hasRecordedApis(allStocks, 'dealApi')
+  if (recordedStocks && recordedStocks.length) {
+    unlinkedUrls = await requestApiInBunch(recordedStocks, unlinkedUrls)
   }
+
+  if (unlinkedUrls.length === 0) return resolve(true)
+  // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
+  const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
+  await recordUsedApi(doneApiMap, 'dealApi')
   return resolve(true)
 }
 
-async function requestApiInBunch (allStocks, unlinkedUrls) {
+async function requestApiInBunch (recordedStocks, unlinkedUrls) {
   return new Promise((resolve, reject) => {
     const unLinkStocks = []
-    allStocks.forEach((stockItem) => {
+    recordedStocks.forEach((stockItem) => {
       for (let i = 0; i < unlinkedUrls.length; i++) {
-        const urlItem = unlinkedUrls[i]
-        if (urlItem.includes(stockItem.code)) {
+        const url = unlinkedUrls[i]
+        if (url.includes(stockItem.code)) {
           unLinkStocks.push(stockItem)
           unlinkedUrls.splice(i, 1)
           break
@@ -72,7 +75,7 @@ async function requestApiInBunch (allStocks, unlinkedUrls) {
 
     bunch.finally(() => {
       console.log('deal requestApiInBunch end!')
-      return resolve()
+      return resolve(unlinkedUrls)
     })
   })
 }

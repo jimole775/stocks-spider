@@ -1,5 +1,5 @@
 
-module.exports = function hasFullRecordInbaseData (allStocks, apiKey) {
+module.exports = function hasRecordedApis (allStocks, apiKey) {
   const linkSum = allStocks.length
   let linkCount = 0
   allStocks.forEach((stockItem) => {

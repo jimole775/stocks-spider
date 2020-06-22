@@ -1,5 +1,5 @@
-const shadowLines = require('./shadow-lines')
+const shadowlines = require('./shadow-lines')
 const vlines = require('./v-lines')
 module.exports = {
-  shadowLines, vlines
+  shadowlines, vlines
 }

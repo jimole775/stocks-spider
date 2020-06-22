@@ -16,7 +16,7 @@ const BunchThread = require('./bunch-thread')
 const moneyFormat = require('./money-format')
 const Link = require('./link') // 
 const BunchLinking = require('./bunch-linking') // 多线程形式批量采访链接
-const hasFullRecordInbaseData = require('./has-full-record-in-base-data') // 多线程形式批量采访链接
+const hasRecordedApis = require('./has-recorded-apis') // 多线程形式批量采访链接
 const initPage = require('./init-page') // batchLink的依赖函数
 const readFileSync = require('./read-file-sync')
 const readDirSync = require('./read-dir-sync')
@@ -31,5 +31,5 @@ module.exports = {
   isEmptyObject, isString, isEmpty, unique, removeSiblingDir,
   isImgUrl, isHTMLUrl, isCSSUrl, isJSUrl, initPage, sleep, BunchThread,
   Link, hasUninks, hasRefreshLinks, dateFormat, recordUsedApi, moneyFormat,
-  rangeEqual, getPathSeparator, buildPath, BunchLinking, hasFullRecordInbaseData
+  rangeEqual, getPathSeparator, buildPath, BunchLinking, hasRecordedApis
 }

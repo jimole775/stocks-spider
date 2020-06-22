@@ -4,7 +4,7 @@
  * 数据路径存储：./src/db/analyze/peer-deals/v-lines
  */
 const path = require('path')
-const { writeFileSync, readFileSync, readDirSync, moneyFormat } = require(global.utils)
+const { writeFileSync, readFileSync, readDirSync } = require(global.utils)
 const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
 const read_shadowline_dir = `${global.db}/analyze/peer-deals/shadowlines/` 
 const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
@@ -82,13 +82,13 @@ function recordRightRange (qualityStockObj) {
  *  heavies, // 买入总额
  *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
  *  buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
- *  sale_p_v: (sum_sale_p / sum_sale_v).toFixed(2), // 卖出均价
+ *  sal_p_v: (sum_sal_p / sum_sal_v).toFixed(2), // 卖出均价
  *  sum_buy_p: (sum_buy_p).toFixed(2), // 买入总额
  *  sum_buy_v: (sum_buy_v).toFixed(2), // 买入总手数
- *  sum_sale_p: (sum_sale_p).toFixed(2), // 卖出总额
- *  sum_sale_v: (sum_sale_v).toFixed(2), // 卖出总手数
+ *  sum_sal_p: (sum_sal_p).toFixed(2), // 卖出总额
+ *  sum_sal_v: (sum_sal_v).toFixed(2), // 卖出总手数
  *  heavy_buy: (heavy_buy).toFixed(2), // 大单买入额
- *  heavy_sale: (heavy_sale).toFixed(2) // 大单卖出额
+ *  heavy_sal: (heavy_sal).toFixed(2)  // 大单卖出额
  * },...]
  *
  */
@@ -174,10 +174,10 @@ function sumRanges (rangeCans) {
   // },
   let sum_buy_p = 0
   let sum_buy_v = 0
-  let sum_sale_p = 0
-  let sum_sale_v = 0
+  let sum_sal_p = 0
+  let sum_sal_v = 0
   let heavy_buy = 0
-  let heavy_sale = 0
+  let heavy_sal = 0
   const heavies = []
   for (let index = 0; index < rangeCans.length; index++) {
     const canItem = rangeCans[index]
@@ -188,8 +188,8 @@ function sumRanges (rangeCans) {
     }
 
     if (canItem.bs === 1) {
-      sum_sale_p += sum_p
-      sum_sale_v += canItem.v
+      sum_sal_p += sum_p
+      sum_sal_v += canItem.v
     }
 
     if (canItem.bs === 2) {
@@ -202,7 +202,7 @@ function sumRanges (rangeCans) {
   if (heavies.length) {
     heavies.forEach(element => {
       if (element.bs === 1) {
-        heavy_sale += element.p * element.v * 100
+        heavy_sal += element.p * element.v * 100
       }
       if (element.bs === 2) {
         heavy_buy += element.p * element.v * 100
@@ -214,13 +214,13 @@ function sumRanges (rangeCans) {
     heavies, // 买入总额
     timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
     buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
-    sale_p_v: (sum_sale_p / sum_sale_v).toFixed(2), // 卖出均价
+    sal_p_v: (sum_sal_p / sum_sal_v).toFixed(2), // 卖出均价
     sum_buy_p: sum_buy_p, // 买入总额
     sum_buy_v: sum_buy_v, // 买入手数
-    sum_sale_p: sum_sale_p, // 卖出总额
-    sum_sale_v: sum_sale_v, // 卖出手数
+    sum_sal_p: sum_sal_p, // 卖出总额
+    sum_sal_v: sum_sal_v, // 卖出手数
     heavy_buy: heavy_buy, // 大单买入额
-    heavy_sale: heavy_sale // 大单卖出额
+    heavy_sal: heavy_sal // 大单卖出额
   }
 }
 

@@ -59,7 +59,7 @@ function calculate(fileData) {
   let sal_sum_pp = {} // 存储每个价格的卖出成交额
   let opn_pice = fileData.cp / 1000 // 开盘价
   let end_pice = 0 // 收盘价
-  let min_pice = 99999 // 最低价
+  let min_pice = 9999 // 最低价
   let max_pice = 0 // 最高价
   let buy_sum_v = 0 // 买入手数
   let buy_sum_p = 0 // 买入总额

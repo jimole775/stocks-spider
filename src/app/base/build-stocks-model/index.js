@@ -8,24 +8,26 @@ const puppeteer = require('puppeteer')
 const buildModel = require('./build-model')
 const { readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
 module.exports = function buildStocksModel() {
-  return new Promise(async (s, j) => {
-    const alreadyData = await tryToloadAlreadyData(global.baseData)
-    if (alreadyData) return s(alreadyData)
-    try {
-      const browser = await puppeteer.launch().catch()
-      const page = await browser.newPage().catch()
-      const allStocks = await buildModel(page)
-      const baseData = {
-        date: new Date().getTime(),
-        data: JSON.stringify(allStocks)
-      }
-      await writeFileSync(global.baseData, baseData)
-      return s(baseData)
-    } catch (error) {
-      console.error('build model error:', error)
-      return j(error)
+  return new Promise(excutes)
+}
+
+async function excutes (resolve, reject) {
+  const alreadyData = await tryToloadAlreadyData(global.baseData)
+  if (alreadyData) return resolve(alreadyData)
+  try {
+    const browser = await puppeteer.launch().catch()
+    const pageEnity = await browser.newPage().catch()
+    const allStocks = await buildModel(pageEnity)
+    const baseData = {
+      date: new Date().getTime(),
+      data: JSON.stringify(allStocks)
     }
-  })
+    writeFileSync(global.baseData, baseData)
+    return resolve(baseData)
+  } catch (error) {
+    console.error('build model error:', error)
+    return reject(error)
+  }
 }
 
 function goToken(url) {
@@ -38,7 +40,6 @@ function goToken(url) {
     }
   } catch (error) {
     console.log('./src/app/process/phantomjs/sniff_home_page.js:87 ', error)
-    // phantom.exit()
   }
 }
 

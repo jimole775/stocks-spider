@@ -2,34 +2,32 @@
 const { readFileSync } = require(`${global.srcRoot}/utils`)
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const urlPool = [
-  urlModel.page.SHStockList,
-  urlModel.page.SZStockList
+  urlModel.pageEnity.SHStockList,
+  urlModel.pageEnity.SZStockList
 ]
 /**
  * 
  * @return [{ code: [String], name: [String], marketName: [String], marketCode: [String | Number]}]  
  */
-module.exports = function buildModel(page) {
-  return new Promise((s, j) => {
-    let allStocks = []
-    loopLoadPage(0, s, j)
-    async function loopLoadPage(i, s, j) {
-      const url = urlPool[i]
-      await page.goto(url)
-      const content = await page.content().catch()
-      if (content.length) { 
-        const rightContext = queryContent(content)
-        const typeMap = { 0: 'sh', 1: 'sz' } // sh: 上海交易所 sz: 深圳交易所
-        const stockList = spillStockList(rightContext, typeMap[i])
-        allStocks = allStocks.concat(stockList)
-      }
-      if (i === urlPool.length - 1) {
-        await page.close()
-        return s(allStocks)
-      }
-      return loopLoadPage(++i, s, j)
-    }
-  })
+module.exports = function buildModel(pageEnity) {
+  return new Promise((resolve) => excutes([], pageEnity, resolve, 0))
+}
+
+async function excutes (allStocks, pageEnity, resolve, loopTimes) {
+  const url = urlPool[loopTimes]
+  await pageEnity.goto(url)
+  const content = await pageEnity.content().catch()
+  if (content.length) { 
+    const rightContext = queryContent(content)
+    const typeMap = { 0: 'sh', 1: 'sz' } // sh: 上海交易所 sz: 深圳交易所
+    const stockList = spillStockList(rightContext, typeMap[i])
+    allStocks = allStocks.concat(stockList)
+  }
+  if (loopTimes === urlPool.length - 1) {
+    await pageEnity.close()
+    return resolve(allStocks)
+  }
+  return excutes(allStocks, pageEnity, resolve, ++loopTimes)
 }
 
 function queryContent(htmlStr) {

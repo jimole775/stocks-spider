@@ -9,14 +9,14 @@ const querystring = require('querystring')
 const recordKlines = require(`./record-klines`)
 const {
   readFileSync, BunchLinking, hasUninks,
-  recordUsedApi, hasFullRecordInbaseData,
+  recordUsedApi, hasRecordedApis,
   BunchThread
 } = require(global.utils)
 const allStocks = require(global.baseData).data
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 
-// const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
-// const recordPathDate = path.join(recordPath, global.finalDealDate)
+const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
+const recordPathDate = path.join(recordPath, global.finalDealDate)
 
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
@@ -33,19 +33,20 @@ async function excution(s, j) {
       .replace('[stockCode]', item.code)
   })
 
-  const unlinkedUrls = hasUninks(urls, formerRecordPathDate)
+  let unlinkedUrls = hasUninks(urls, recordPathDate)
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
   if (unlinkedUrls.length === 0) return s(true)
-
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
-  if (hasFullRecordInbaseData(allStocks, 'klineApi')) {
-    await requestApiInBunch(allStocks, unlinkedUrls)
-  } else {
-    // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
-    const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-    await recordUsedApi(doneApiMap, 'klineApi')
+  if (hasRecordedApis(allStocks, 'klineApi')) {
+    unlinkedUrls = await requestApiInBunch(allStocks, unlinkedUrls)
   }
+  
+  if (unlinkedUrls.length === 0) return s(true)
+  // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
+  const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
+  await recordUsedApi(doneApiMap, 'klineApi')
+    
   return s(true)
 }
 
@@ -76,7 +77,7 @@ async function requestApiInBunch (allStocks, unlinkedUrls) {
 
     bunch.finally(() => {
       console.log('kline requestApiInBunch end!')
-      return resolve()
+      return resolve(unlinkedUrls)
     })
   })
 }
