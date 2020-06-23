@@ -22,11 +22,11 @@ const recordPathDate = path.join(recordPath, global.finalDealDate)
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
 const formerRecordPathDate = path.join(formerRecordPath, global.finalDealDate)
 
-module.exports = async function sniffStockHome() {
+module.exports = function sniffStockHome() {
   return new Promise(excution).catch(err => err)
 }
 
-async function excution(s, j) {
+async function excution(resolve) {
   const urls = allStocks.map(item => {
     return urlModel.model.StockHome
       .replace('[marketName]', item.marketName)
@@ -35,19 +35,19 @@ async function excution(s, j) {
 
   let unlinkedUrls = hasUninks(urls, recordPathDate)
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
-  if (unlinkedUrls.length === 0) return s(true)
+  if (unlinkedUrls.length === 0) return resolve(true)
   // 如果所有的link都已经记录在baseData中，
   // 就直接读取，不用再去每个网页爬取，浪费流量
   if (hasRecordedApis(allStocks, 'klineApi')) {
     unlinkedUrls = await requestApiInBunch(allStocks, unlinkedUrls)
   }
   
-  if (unlinkedUrls.length === 0) return s(true)
+  if (unlinkedUrls.length === 0) return resolve(true)
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
   await recordUsedApi(doneApiMap, 'klineApi')
     
-  return s(true)
+  return resolve(true)
 }
 
 async function requestApiInBunch (allStocks, unlinkedUrls) {
@@ -82,25 +82,6 @@ async function requestApiInBunch (allStocks, unlinkedUrls) {
   })
 }
 
-// async function requestApiInBunch (allStocks) {
-//   return new Promise((resolve, reject) => {
-//     const bunch = new BunchThread()
-//     allStocks.forEach((stockItem) => {
-//       bunch.taskCalling(() => {
-//         return new Promise(async (s, j) => {
-//           const { stockCode, klineApi, FRKlineApi } = transApi(stockItem.klineApi)
-//           await recordKlines(stockCode, klineApi, FRKlineApi)
-//           return s()
-//         })
-//       })
-//     })
-//     bunch.finally(() => {
-//       console.log('kline requestApiInBunch end!')
-//       return resolve()
-//     })
-//   })
-// }
-
 async function sniffUrlFromWeb (unlinkedUrls) {
   const doneApiMap = {}
   const bunchLinking = new BunchLinking(unlinkedUrls)
@@ -115,7 +96,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       }
     },
     end: function () {
-      return hasUninks(unlinkedUrls, formerRecordPath)
+      return hasUninks(unlinkedUrls, recordPathDate)
     }
   }).emit()
   return Promise.resolve(doneApiMap)
@@ -126,7 +107,7 @@ function transApi (api) {
   const query = api.split('?')[1]
   const queryObj = querystring.decode(query)
   const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
-  queryObj.lmt = 99999 // lmt: '120',
+  queryObj.lmt = global.kline.page_size || 120 // lmt: '120',
   queryObj.fqt = 0 // fqt: '0'-不复权，'1'-前复权,
   const klineApi = `${host}?${querystring.encode(queryObj)}`
   queryObj.fqt = 1 // fqt: '0'-不复权，'1'-前复权,
