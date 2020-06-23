@@ -22,6 +22,11 @@ module.exports = async function () {
     price_range : 0.05 // v型k线的深度
   }
 
+  // kline模块配置项
+  global.kline = {
+    page_size: 120, // 每次采集多少个交易日的数据
+  }
+  
   // 路径别名
   global.srcRoot = __dirname
   global.baseData = `${__dirname}\\db\\warehouse\\base.json`
