@@ -63,7 +63,8 @@ function getDate () {
       return resolve(moment(curDate).format('YYYY-MM-DD'))
     } catch (error) {
       console.log('getdate: ', error)
-      // 为了防止link访问丢失，增加1秒间隔，减少无谓的请求
+      // 一般情况下，quest失败，不是网络异常，就是服务器异常，异常状态一般持续数秒或者数分钟，
+      // 为了防止无谓的请求，增加1秒间隔，多少能减少一下资源浪费
       return setTimeout(() => { getDate() }, 1000)
     }
   })
