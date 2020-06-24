@@ -9,9 +9,8 @@ const querystring = require('querystring')
 const allStocks = require(global.baseData).data
 const recordPeerDeal = require('./record-peer-deal')
 const {
-  readFileSync, BunchLinking, hasUninks,
-  recordUsedApi, hasRecordedApis,
-  BunchThread
+  readFileSync, BunchLinking, hasUnlinks,
+  recordUsedApi, requestApiInBunch
 } = require(global.utils)
 const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
@@ -29,62 +28,32 @@ async function excution (resolve, reject) {
       .replace('[marketCode]', item.marketCode)
   })
 
-  let unlinkedUrls = hasUninks(urls, recordDir)
+  let unlinkedUrls = hasUnlinks(urls, recordDir)
   console.log('daily deals unlink: ', unlinkedUrls.length)
-  // 每日交易详情会以日期为目录区分，
-  // 所以，如果当前目录的文件数如果饱和，没必要再进行抓取
+  
   if (unlinkedUrls.length === 0) return resolve(true)
 
-  // 如果所有的link都已经记录在baseData中，
-  // 就直接读取，不用再去每个网页爬取，浪费流量
-  const recordedStocks = hasRecordedApis(allStocks, 'dealApi')
-  if (recordedStocks && recordedStocks.length) {
-    unlinkedUrls = await requestApiInBunch(recordedStocks, unlinkedUrls)
-  }
-
-  if (unlinkedUrls.length === 0) return resolve(true)
-  // 如果 baseData 中没有足够的link，就跑 sniffUrlFromWeb
-  const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
-  await recordUsedApi(doneApiMap, 'dealApi')
-  return resolve(true)
-}
-
-async function requestApiInBunch (recordedStocks, unlinkedUrls) {
-  return new Promise((resolve, reject) => {
-    const unLinkStocks = []
-    recordedStocks.forEach((stockItem) => {
-      for (let i = 0; i < unlinkedUrls.length; i++) {
-        const url = unlinkedUrls[i]
-        if (url.includes(stockItem.code)) {
-          unLinkStocks.push(stockItem)
-          unlinkedUrls.splice(i, 1)
-          break
-        }
-      }
-    })
-    
-    const bunch = new BunchThread()
-    unLinkStocks.forEach((stockItem) => {
-      bunch.taskCalling(() => {
-        return new Promise(async (s, j) => {
-          await recordPeerDeal(stockItem.code, stockItem.dealApi)
-          return s()
-        })
-      })
-    })
-
-    bunch.finally(() => {
-      console.log('deal requestApiInBunch end!')
-      return resolve(unlinkedUrls)
-    })
+  // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
+  unlinkedUrls = await requestApiInBunch('dealApi', unlinkedUrls, async (stockItem) => {
+    await recordPeerDeal(stockItem.code, stockItem.dealApi)
+    return Promise.resolve()
   })
+
+  if (unlinkedUrls.length === 0) return resolve(true)
+
+  // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
+  const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
+
+  // 把api存起来
+  await recordUsedApi(doneApiMap, 'dealApi')
+  return resolve()
 }
 
 async function sniffUrlFromWeb (unlinkedUrls) {
   const doneApiMap = {}
   const bunchLinking = new BunchLinking(unlinkedUrls)
   await bunchLinking.on({
-      response: function (response) {
+      response: async function (response) {
         const api = response.url()
         if (response.status() === 200 && peerDealReg.test(api)) {
           const host = api.split('?')[0]
@@ -94,11 +63,11 @@ async function sniffUrlFromWeb (unlinkedUrls) {
           queryObj.pagesize = 99999
           const apiEncode = `${host}?${querystring.encode(queryObj)}`
           doneApiMap[stockCode] = apiEncode
-          return recordPeerDeal(stockCode, apiEncode)
+          return await recordPeerDeal(stockCode, apiEncode)
         }
       },
       end: function () {
-        return hasUninks(unlinkedUrls, recordDir)
+        return hasUnlinks(unlinkedUrls, recordDir)
       }
     }).emit()
   return Promise.resolve(doneApiMap)

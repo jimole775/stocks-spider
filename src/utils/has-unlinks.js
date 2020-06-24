@@ -5,7 +5,7 @@ const fs = require('fs')
  * @param {*} links  
  * @param {*} recordDir 
  */
-module.exports = function hasUninks(links, recordDir) {
+module.exports = function hasUnlinks(links, recordDir) {
   if (links.length === 0) return []
   // 目录找不到，就直接返回所有links
   if (!fs.existsSync(recordDir)) return links
