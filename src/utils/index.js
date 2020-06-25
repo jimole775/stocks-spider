@@ -10,7 +10,7 @@ module.exports = {
   // rangeEqual: assert.rangeEqual,
   // isEmptyArray: assert.isEmptyArray,
   // isEmptyObject: assert.isEmptyObject,
-  ...assert,
+  ...require('./assert'),
   Link: require('./link'),
   sleep: require('./sleep'),
   quest: require('./quest'), // superagent的封装

@@ -1,5 +1,4 @@
-
-const { quest } = require(`./utils`)
+const quest = require(`./utils/quest`)
 const moment = require('moment')
 module.exports = async function () {
 
@@ -10,7 +9,7 @@ module.exports = async function () {
   // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
   // 主要是在公用WIFI中，不造成网络的负担
   global.onBusyNetwork = global.crossEnv.netstat === 'busy'
-  global.sleepTimes = 5000 // 每一个访问的睡眠时长(ms)
+  global.sleepTimes = 3000 // 每一个访问的睡眠时长(ms)
   global.bunchLimit = global.onBusyNetwork ? 1 : 3
 
   // 从站点上获取最后一天的交易日期
@@ -24,14 +23,15 @@ module.exports = async function () {
 
   // kline模块配置项
   global.kline = {
-    page_size: 120, // 每次采集多少个交易日的数据
+    page_size: 20, // 每次采集多少个交易日的数据
   }
   
   // 路径别名
   global.srcRoot = __dirname
-  global.baseData = `${__dirname}\\db\\warehouse\\base.json`
+  global.urlModel = `${__dirname}\\url-model.yml`
+  global.baseData = `${__dirname}\\db\\base.json`
   global.db = `${__dirname}\\db`
-  global.utils = `${__dirname}\\utils`
+  global.utils = `${__dirname}\\utils\\index.js`
 
   return Promise.resolve(global)
 }

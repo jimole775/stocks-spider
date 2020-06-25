@@ -1,11 +1,20 @@
 const fs = require('fs')
+const readFileSync = require('./read-file-sync')
+const urlModel = readFileSync(global.urlModel)
+const allStocks = require(global.baseData).data
 /**
  * links 中，必须包含【股票代码】
  * recordDir 目录下的文件，必须确保能取到【股票代码】
  * @param {*} links  
  * @param {*} recordDir 
  */
-module.exports = function hasUnlinks(links, recordDir) {
+module.exports = function hasUnlinks(recordDir) {
+  const links = allStocks.map(item => {
+    return urlModel.model.StockHome
+      .replace('[marketName]', item.marketName)
+      .replace('[stockCode]', item.code)
+  })
+
   if (links.length === 0) return []
   // 目录找不到，就直接返回所有links
   if (!fs.existsSync(recordDir)) return links

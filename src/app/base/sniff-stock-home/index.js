@@ -11,8 +11,8 @@ const {
   readFileSync, BunchLinking, hasUnlinks,
   recordUsedApi, requestApiInBunch
 } = require(global.utils)
-const allStocks = require(global.baseData).data
-const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
+
+const urlModel = readFileSync(global.urlModel)
 
 const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 const recordPathDate = path.join(recordPath, global.finalDealDate)
@@ -22,13 +22,8 @@ module.exports = function sniffStockHome() {
 }
 
 async function excution(resolve) {
-  const urls = allStocks.map(item => {
-    return urlModel.model.StockHome
-      .replace('[marketName]', item.marketName)
-      .replace('[stockCode]', item.code)
-  })
 
-  let unlinkedUrls = hasUnlinks(urls, recordPathDate)
+  let unlinkedUrls = hasUnlinks(recordPathDate)
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
 
   if (unlinkedUrls.length === 0) return resolve(true)
@@ -56,7 +51,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
   const bunchLinking = new BunchLinking(unlinkedUrls)
   const dailyKlineReg = new RegExp(urlModel.api.dailyKlineReg, 'ig')
   await bunchLinking.on({
-    response: function (response) {
+    response: async function (response) {
       const api = response.url()
       if (response.status() === 200 && dailyKlineReg.test(api)) {
         const { stockCode, klineApi, FRKlineApi } = transApi(api)
@@ -65,7 +60,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       }
     },
     end: function () {
-      return hasUnlinks(unlinkedUrls, recordPathDate)
+      return hasUnlinks(recordPathDate)
     }
   }).emit()
   return Promise.resolve(doneApiMap)

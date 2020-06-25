@@ -6,13 +6,12 @@
  */
 const moment = require('moment')
 const querystring = require('querystring')
-const allStocks = require(global.baseData).data
 const recordPeerDeal = require('./record-peer-deal')
 const {
   readFileSync, BunchLinking, hasUnlinks,
   recordUsedApi, requestApiInBunch
 } = require(global.utils)
-const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
+const urlModel = readFileSync(global.urlModel)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const recordDir = `${global.db}/warehouse/peer-deals/${global.finalDealDate}`
 
@@ -22,13 +21,13 @@ module.exports = function sniffDailyDeals() {
 
 async function excution (resolve, reject) {
   // if (!canContinue()) return s(true)
-  const urls = allStocks.map(item => {
-    return urlModel.model.PeerDeal
-      .replace('[stockCode]', item.code)
-      .replace('[marketCode]', item.marketCode)
-  })
+  // const urls = allStocks.map(item => {
+  //   return urlModel.model.PeerDeal
+  //     .replace('[stockCode]', item.code)
+  //     .replace('[marketCode]', item.marketCode)
+  // })
 
-  let unlinkedUrls = hasUnlinks(urls, recordDir)
+  let unlinkedUrls = hasUnlinks(recordDir)
   console.log('daily deals unlink: ', unlinkedUrls.length)
   
   if (unlinkedUrls.length === 0) return resolve(true)
@@ -67,7 +66,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUnlinks(unlinkedUrls, recordDir)
+        return hasUnlinks(recordDir)
       }
     }).emit()
   return Promise.resolve(doneApiMap)
