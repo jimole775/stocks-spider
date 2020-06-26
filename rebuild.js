@@ -12,24 +12,26 @@ const srcDir = './src/db/warehouse/peer-deals'
 const targetDir = './src/db/warehouse/peer-deals-tmp'
 // 2020-06-24 => stocks => {"code":"000001","market":0,"name":"平安银行","decimal":2,"dktotal":6959,"klines": ["2020-05-27,13.05...",""]}
 // dates(2020-03-17~) => stocks => {"c":"000001","m":0,"n":"平安银行","ct":0,"cp":12760,"tc":4726, "data": []}
-const klineData = {}
+
 function getExtenData () {
+  const klineData = {}
   const stockFolders = readDirSync(assianDir)
   stockFolders.forEach((stock) => {
     const stocklinedata = readFileSync(path.join(assianDir, stock))
     // const { stockCode, name, market, klines } = stocklinedata
-    klineData[stocklinedata.stockCode] = stocklinedata
+    klineData[stocklinedata.code] = stocklinedata
     // klines.forEach((dailyDealPrices/*String*/) => {
     //   const [klinedate, open_p, ...others] = dailyDealPrices.split(',')
 
     // })
   })
+  return klineData
 }
 
 peerDeals()
 
 function peerDeals () {
-  getExtenData()
+  const klineData = getExtenData()
   const peerDeals_dateFolders = readDirSync(srcDir)
   for (let index = 0; index < peerDeals_dateFolders.length; index++) {
     const peerDeals_date = peerDeals_dateFolders[index]
@@ -39,13 +41,14 @@ function peerDeals () {
       const [stockCode] = peerDeals_stock.split('.')
       const thisStockKline = klineData[stockCode]
       const { code, market, name, klines } = thisStockKline
+      console.log(code)
       for (let j = 0; j < klines.length; j++) {
         const [klinedate, open_p, ...others] = klines[j].split(',')
         if (klinedate === peerDeals_date) {
           const model = {
             "c":stockCode,"m":market,"n":name,"ct":0,"cp":Math.round(open_p * 1000),"tc": deals.length, "data": deals
           }
-          writeFileSync(path.join(targetDir, dateFolder, stockCode + '.json'), model)
+          writeFileSync(path.join(targetDir, klinedate, stockCode + '.json'), model)
           thisStockKline.klines.splice(j, 1)
           break
         }
@@ -84,5 +87,3 @@ function backup (src, target) {
     // })
   // })
 }
-
-execution()
