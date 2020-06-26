@@ -20,12 +20,6 @@ module.exports = function sniffDailyDeals() {
 }
 
 async function excution (resolve, reject) {
-  // if (!canContinue()) return s(true)
-  // const urls = allStocks.map(item => {
-  //   return urlModel.model.PeerDeal
-  //     .replace('[stockCode]', item.code)
-  //     .replace('[marketCode]', item.marketCode)
-  // })
 
   let unlinkedUrls = hasUnlinks(recordDir)
   console.log('daily deals unlink: ', unlinkedUrls.length)
@@ -34,8 +28,12 @@ async function excution (resolve, reject) {
 
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('dealApi', unlinkedUrls, async (stockItem) => {
-    await recordPeerDeal(stockItem.code, stockItem.dealApi)
-    return Promise.resolve()
+    try {
+      await recordPeerDeal(stockItem.code, stockItem.dealApi)
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject()
+    }
   })
 
   if (unlinkedUrls.length === 0) return resolve(true)
@@ -55,8 +53,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       response: async function (response) {
         const api = response.url()
         if (response.status() === 200 && peerDealReg.test(api)) {
-          const host = api.split('?')[0]
-          const query = api.split('?')[1]
+          const [host, query] = api.split('?')
           const queryObj = querystring.decode(query)
           const stockCode = queryObj.code
           queryObj.pagesize = 99999

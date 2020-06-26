@@ -4,10 +4,10 @@ const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
 module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
-  return new Promise((resolve) => excutes(stockCode, klineApi, FRKlineApi, resolve, 0))
+  return new Promise((resolve, reject) => executes(stockCode, klineApi, FRKlineApi, resolve, reject, 0))
 }
 
-async function excutes (stockCode, klineApi, FRKlineApi, resolve, loopTimes) {
+async function executes (stockCode, klineApi, FRKlineApi, resolve, reject, loopTimes) {
   try {
     console.log('kline:', stockCode)
     const file = path.join(recordPath, global.finalDealDate, stockCode + '.json')
@@ -16,9 +16,9 @@ async function excutes (stockCode, klineApi, FRKlineApi, resolve, loopTimes) {
     // await handleRecord(FRFile, FRKlineApi)
     return resolve()
   } catch (error) {
-    if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
+    if (loopTimes > 30) return reject() // 超过30次都不能成功quest，就直接跳过
     console.error('record-klines error:', stockCode, error)
-    return setTimeout(() => excutes(stockCode, klineApi, FRKlineApi, resolve, ++loopTimes), 1000)
+    return setTimeout(() => executes(stockCode, klineApi, FRKlineApi, resolve, reject, ++loopTimes), 1000)
   }
 }
 

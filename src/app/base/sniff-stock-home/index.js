@@ -30,11 +30,16 @@ async function excution(resolve) {
 
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('klineApi', unlinkedUrls, async (stockItem) => {
-    const { stockCode, klineApi, FRKlineApi } = transApi(stockItem['klineApi'])
-    await recordKlines(stockCode, klineApi, FRKlineApi)
-    return Promise.resolve()
+    try {
+      const { stockCode, klineApi, FRKlineApi } = transApi(stockItem['klineApi'])
+      await recordKlines(stockCode, klineApi, FRKlineApi)
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject()
+    }
   })
   
+  console.log('remain klines unlinkedUrls:', unlinkedUrls.length)
   if (unlinkedUrls.length === 0) return resolve(true)
 
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
@@ -67,8 +72,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
 }
 
 function transApi (api) {
-  const host = api.split('?')[0]
-  const query = api.split('?')[1]
+  const [host, query] = api.split('?')
   const queryObj = querystring.decode(query)
   const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
   queryObj.lmt = global.kline.page_size || 120 // lmt: '120',

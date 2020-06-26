@@ -23,7 +23,7 @@ module.exports = async function () {
 
   // kline模块配置项
   global.kline = {
-    page_size: 20, // 每次采集多少个交易日的数据
+    page_size: 120, // 每次采集多少个交易日的数据
   }
   
   // 路径别名
@@ -41,8 +41,8 @@ function queryParam () {
   if (process.argv && process.argv.length) {
     process.argv.forEach((item) => {
       if (item && /^\-\-.+/.test(item)) {
-        const param = item.replace(/\-\-/, '').split('=')
-        res[param[0]] = param[1]
+        const [key, value] = item.replace(/\-\-/, '').split('=')
+        res[key] = value
       }
     })
   }

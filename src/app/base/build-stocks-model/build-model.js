@@ -63,8 +63,7 @@ function spillStockList(stocksTxt, tabType) {
   let stockModel = []
   while (loop--) {
     let item = stocksTxt[loop]
-    let stockCode = item.split(',')[0]
-    let stockName = item.split(',')[1]
+    let [stockCode, stockName] = item.split(',')
     // 9或者2开头的股票属于B股，死股，缺乏很多数据，没必要记录
     if (/^[29]/.test(stockCode)) continue
     if (stockCode && stockName) {

@@ -13,21 +13,29 @@ module.exports = function requestApiInBunch (apikey, unlinkedUrls, task) {
         }
       }
     })
-
+    
     // 如果没有一个api被记录的，就直接返回 unlinkedUrls
     if (unLinkStocks.length === 0) return resolve(unlinkedUrls)
 
     const bunch = new BunchThread()
     unLinkStocks.forEach((stockItem) => {
       bunch.taskCalling(() => {
-        return new Promise(async (resolve) => {
-          return resolve(await task(stockItem))
+        return new Promise(async (s, j) => {
+          try {
+            await task(stockItem)
+            return s()
+          } catch (error) {
+            // 如果报错了就把失败的url重新推回 unlinkedUrls
+            console.log(error, stockItem['code'])
+            unlinkedUrls.push(stockItem[apikey])
+            return j()
+          }
         })
       })
     })
 
     bunch.finally(() => {
-      console.log('kline requestApiInBunch end!')
+      console.log('requestApiInBunch end!')
       return resolve(unlinkedUrls)
     })
   })
