@@ -32,9 +32,9 @@
  */
 const fs = require('fs')
 const path = require('path')
-const dirRoot = `${global.srcRoot}/db/warehouse/peer-deals/`
-const targetRoot = `${global.srcRoot}/db/analyze/peer-deals/shadowlines/`
-const { rangeEqual, readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
+const dirRoot = `${global.db}/warehouse/peer-deals/`
+const targetRoot = `${global.db}/analyze/peer-deals/shadowlines/`
+const { rangeEqual, readFileSync, writeFileSync } = require(global.utils)
 module.exports = async function shadowlines() {
   const dateFolders = fs.readdirSync(dirRoot)
   for (const dateFolder of dateFolders) {
@@ -44,8 +44,7 @@ module.exports = async function shadowlines() {
       if (wareFiles.length === analyzeFiles.length) continue
     }
     for (const file of wareFiles) {
-      const filePath = path.join(dirRoot, dateFolder, file)
-      const fileData = await readFileSync(filePath)
+      const fileData = readFileSync(path.join(dirRoot, dateFolder, file))
       if (!fileData || !fileData.data) continue
       const analyzeData = calculate(fileData)
       await writeFileSync(path.join(targetRoot, dateFolder, file), analyzeData)
@@ -76,7 +75,6 @@ function calculate(fileData) {
     
     // 9点25分之前的数据都不算
     if (t < 92500) break
-  
     p = p / 1000 // 先把 p 转换成正常的价格
 
     // 存储收盘价
