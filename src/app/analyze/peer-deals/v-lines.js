@@ -12,7 +12,7 @@ const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 module.exports = async function vlines () {
   const unCalculateDates = getUnCalculateDates()
-  const qualityStockObj = await queryQualityStockObj(unCalculateDates)
+  const qualityStockObj = queryQualityStockObj(unCalculateDates)
   recordRightRange(qualityStockObj)
 }
 
@@ -48,10 +48,9 @@ function queryQualityStockObj (unCalculateDates = []) {
     for (let stockIndex = 0; stockIndex < stocks.length; stockIndex++) {
       const stock = stocks[stockIndex]
       const stockPeerAnilyze = readFileSync(path.join(read_shadowline_dir, date, stock))
-      const { overview: { diff_p }} = stockPeerAnilyze
-
+      const { overview: { waves_percent }} = stockPeerAnilyze
       // 直接过滤掉 振幅低于 3% 的票
-      if (diff_p && Number.parseFloat(diff_p) >= 3) {
+      if (waves_percent > 0.03) {
         if (!qualitySTockObj[date]) {
           qualitySTockObj[date] = [stock]
         } else {
@@ -60,11 +59,12 @@ function queryQualityStockObj (unCalculateDates = []) {
       }
     }
   }
-  return Promise.resolve(qualitySTockObj)
+  return qualitySTockObj
 }
 
 function recordRightRange (qualityStockObj) {
   for (const date in qualityStockObj) {
+    console.log(date)
     const stocks = qualityStockObj[date]
     for (let index = 0; index < stocks.length; index++) {
       const stock = stocks[index]
@@ -112,7 +112,7 @@ function calculateVline (date, stock) {
     const dealObj = deals[index]
     
     // 9点25分之前的数据都不算
-    if (dealObj.t < 92500) break
+    if (dealObj.t < 92500) continue
 
     // 转换数据格式，方便计算
     dealObj.t = timeFormat(date, dealObj.t)
@@ -213,8 +213,8 @@ function sumRanges (rangeCans) {
   return {
     heavies, // 买入总额
     timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
-    buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
-    sal_p_v: (sum_sal_p / sum_sal_v).toFixed(2), // 卖出均价
+    buy_p_v: (sum_buy_p / sum_buy_v / 100).toFixed(2), // 买入均价
+    sal_p_v: (sum_sal_p / sum_sal_v / 100).toFixed(2), // 卖出均价
     sum_buy_p: sum_buy_p, // 买入总额
     sum_buy_v: sum_buy_v, // 买入手数
     sum_sal_p: sum_sal_p, // 卖出总额

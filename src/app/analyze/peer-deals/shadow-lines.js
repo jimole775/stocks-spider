@@ -38,6 +38,7 @@ const { rangeEqual, readFileSync, writeFileSync } = require(global.utils)
 module.exports = async function shadowlines() {
   const dateFolders = fs.readdirSync(dirRoot)
   for (const dateFolder of dateFolders) {
+    console.log(dateFolder)
     const wareFiles = fs.readdirSync(path.join(dirRoot, dateFolder))
     if (fs.existsSync(path.join(targetRoot, dateFolder))) {
       const analyzeFiles = fs.readdirSync(path.join(targetRoot, dateFolder))
@@ -72,9 +73,8 @@ function calculate(fileData) {
   let isCrossShadow = false // 十字星
 
   for (let { p, t, v, bs } of fileData.data) {
-    
     // 9点25分之前的数据都不算
-    if (t < 92500) break
+    if (t < 92500) continue
     p = p / 1000 // 先把 p 转换成正常的价格
 
     // 存储收盘价
@@ -90,7 +90,7 @@ function calculate(fileData) {
       sal_sum_v += v // 总交易量计算
       sal_sum_p += v * p * 100 // 总价计算
 
-      recordPP(sal_sum_pp, v, p)
+      sal_sum_pp = recordPP(sal_sum_pp, v, p)
     }
 
     if (bs === 2) {
@@ -98,15 +98,17 @@ function calculate(fileData) {
       buy_sum_v += v // 总交易量计算
       buy_sum_p += v * p * 100 // 总价计算
 
-      recordPP(buy_sum_pp, v, p)
+      buy_sum_pp = recordPP(buy_sum_pp, v, p)
     }
+    
   }
 
-  buy_sum_p_v = (buy_sum_p / buy_sum_v / 100).toFixed(2)
-  sal_sum_p_v = (sal_sum_p / sal_sum_v / 100).toFixed(2)
+  // 求平均一股的价格
+  buy_sum_p_v = (buy_sum_p / (buy_sum_v * 100)).toFixed(2)
+  sal_sum_p_v = (sal_sum_p / (sal_sum_v * 100)).toFixed(2)
 
   // 振幅差价
-  waves_percent = ((max_pice - min_pice) / opn_pice * 100).toFixed(2)
+  waves_percent = ((max_pice - min_pice) / opn_pice).toFixed(2)
 
   // overview = analyzing(min_pice, max_pice, opn_pice, end_pice, sum_v, sum_p, sum_p_v, waves_percent)
   upShadowSize = calculateUpShadow(opn_pice, end_pice, min_pice)
@@ -116,6 +118,10 @@ function calculate(fileData) {
     buy_sum_pp,
     sal_sum_pp,
     overview: {
+      min_pice,
+      max_pice,
+      opn_pice,
+      end_pice,
       buy_sum_v,
       buy_sum_p,
       sal_sum_v,
@@ -176,4 +182,5 @@ function recordPP(pp, v, p) {
     // Math.round 主要处理js的运算误差
     pp[p] += Math.round(v * p * 100)
   }
+  return pp
 }
