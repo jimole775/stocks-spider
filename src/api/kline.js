@@ -1,3 +1,3 @@
-module.exports = function kline (ctx) {
-
+module.exports = function kline (req, res) {
+  res.send('kline!!!!')
 }
