@@ -12,8 +12,9 @@ const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 module.exports = async function vlines () {
   const unCalculateDates = getUnCalculateDates()
-  const qualityStockObj = queryQualityStockObj(unCalculateDates)
-  recordRightRange(qualityStockObj)
+  const qualityStocksInDate = queryQualityStockObj(unCalculateDates)
+  console.log('recordRightRange')
+  recordRightRange(qualityStocksInDate)
 }
 
 // 由于计算顺序是从前到后，
@@ -38,7 +39,7 @@ function getUnCalculateDates () {
 
 // 根据shadowlines的记录，振幅小于 3 个点的都过滤掉
 function queryQualityStockObj (unCalculateDates = []) {
-  const qualitySTockObj = {
+  const qualityStocksInDate = {
     // 'date': ['stocks']
   }
   const dateFolders = unCalculateDates
@@ -48,27 +49,37 @@ function queryQualityStockObj (unCalculateDates = []) {
     for (let stockIndex = 0; stockIndex < stocks.length; stockIndex++) {
       const stock = stocks[stockIndex]
       const stockPeerAnilyze = readFileSync(path.join(read_shadowline_dir, date, stock))
-      const { overview: { waves_percent }} = stockPeerAnilyze
+      const { overview } = stockPeerAnilyze
       // 直接过滤掉 振幅低于 3% 的票
-      if (waves_percent > 0.03) {
-        if (!qualitySTockObj[date]) {
-          qualitySTockObj[date] = [stock]
+      if (overview.waves_percent > 0.03) {
+        // 把 overview 并到peerdeal中，方便计算的时候调取已经算好的数据
+        if (!qualityStocksInDate[date]) {
+          qualityStocksInDate[date] = [{
+            stock: stock,
+            opn_pice: overview.opn_pice,
+            min_pice: overview.min_pice,
+          }]
         } else {
-          qualitySTockObj[date].push(stock)
+          qualityStocksInDate[date].push({
+            stock: stock,
+            opn_pice: overview.opn_pice,
+            min_pice: overview.min_pice,
+          })
         }
       }
     }
   }
-  return qualitySTockObj
+  return qualityStocksInDate
 }
 
-function recordRightRange (qualityStockObj) {
-  for (const date in qualityStockObj) {
+function recordRightRange (qualityStocksInDate) {
+  for (const date in qualityStocksInDate) {
     console.log(date)
-    const stocks = qualityStockObj[date]
-    for (let index = 0; index < stocks.length; index++) {
-      const stock = stocks[index]
-      const res = calculateVline(date, stock)
+    const stockObj = qualityStocksInDate[date]
+    for (let index = 0; index < stockObj.length; index++) {
+      const { stock, opn_pice, min_pice } = stockObj[index]
+      const dealData = readFileSync(path.join(read_peerdeal_dir, date, stock))
+      const res = calculateVline(date, opn_pice, min_pice, dealData.data)
       if (res && res.length) writeFileSync(path.join(save_vlines_dir, date, stock), res)
     }
   }
@@ -92,77 +103,161 @@ function recordRightRange (qualityStockObj) {
  * },...]
  *
  */
-function calculateVline (date, stock) {
-  const res = []
-  const dealData = readFileSync(path.join(read_peerdeal_dir, date, stock))
-  const deals = dealData.data
-  let rangeCans = []
-  let startSite = null
-  let endSite = null
-  let isLowDeep = false
-  let isCoverUp = false
-  let open_p = dealData.cp / 1000
+// function calculateVline (date, stock) {
+//   const res = []
+//   const dealData = readFileSync(path.join(read_peerdeal_dir, date, stock))
+//   const deals = dealData.data
+//   let rangeCans = []
+//   let startSite = null
+//   let endSite = null
+//   let isLowDeep = false
+//   let isCoverUp = false
+//   let open_p = dealData.cp / 1000
+//   for (let index = 0; index < deals.length; index++) {
+//     // {
+//     //   "t": 91509,
+//     //   "p": 34870, 
+//     //   "v": 109,
+//     //   "bs": 4
+//     // },
+//     const dealObj = deals[index]
+    
+//     // 9点25分之前的数据都不算
+//     if (dealObj.t < 92500) continue
+
+//     // 转换数据格式，方便计算
+//     dealObj.t = timeFormat(date, dealObj.t)
+//     dealObj.p = dealObj.p / 1000
+//     // 初始先给 startSite 赋值
+//     if (!startSite && !endSite) {
+//       startSite = dealObj
+//     }
+//     // 判断 time_dvd 时间内的交易
+//     if (new Date(dealObj.t) - new Date(startSite.t) <= time_dvd) {
+//       rangeCans.push(dealObj)
+//       endSite = dealObj
+
+//       if (!isLowDeep) {
+//         // 15分钟内，如果价差大于 -3%(开盘价 * 0.03)，那么就可以判定为V型线开始
+//         if (endSite.p - startSite.p <= -(open_p * price_range)) {
+//           console.log(date, stock, '下潜 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * price_range))
+//           isLowDeep = true
+//         }
+//       }
+      
+//       if (isLowDeep && !isCoverUp) {
+//         // 如果价差开始回升，小于 -1% 或者 大于 开始下跌的价格，就说明形成了V型线
+//         if (endSite.p - startSite.p >= -(open_p * 0.01) || endSite.p > startSite.p) {
+//           console.log(date, stock, '回升 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * 0.01))
+//           isCoverUp = true
+//           // 成功获取起点和终点
+//           // 进行时间点的记录
+//           res.push(sumRanges(rangeCans))
+
+//           // 重新赋值，进入下一个轮询
+//           {
+//             rangeCans = []
+//             startSite = null
+//             isLowDeep = null
+//             isCoverUp = null
+//             endSite = null
+//           }
+//         }
+//       }
+//     } else {
+//       // 如果超过15分钟，重新给 startSite 赋值，进入下一个轮询
+//       rangeCans = []
+//       startSite = null
+//       isLowDeep = null
+//       isCoverUp = null
+//       endSite = null
+//     }
+//   }
+//   return res
+// }
+
+// {
+//   "t": 91509,
+//   "p": 34870, 
+//   "v": 109,
+//   "bs": 4
+// },
+function calculateVline (date, opn_pice, min_pice, deals) {
+  const res = {}
+  const open_p = opn_pice
+  const deep_p = min_pice
+
+  let lt_cans = []
+  let rt_cans = []
+
+  let lt_site = null
+  let rt_site = null
+  let deep_site = null
+
+  let deep_indx = 0
   for (let index = 0; index < deals.length; index++) {
-    // {
-    //   "t": 91509,
-    //   "p": 34870, 
-    //   "v": 109,
-    //   "bs": 4
-    // },
-    const dealObj = deals[index]
+    const dealItem = deals[index]
     
     // 9点25分之前的数据都不算
-    if (dealObj.t < 92500) continue
+    if (dealItem.t < 92500) continue
 
     // 转换数据格式，方便计算
-    dealObj.t = timeFormat(date, dealObj.t)
-    dealObj.p = dealObj.p / 1000
-    // 初始先给 startSite 赋值
-    if (!startSite && !endSite) {
-      startSite = dealObj
-    }
-    // 判断 time_dvd 时间内的交易
-    if (new Date(dealObj.t) - new Date(startSite.t) <= time_dvd) {
-      rangeCans.push(dealObj)
-      endSite = dealObj
-
-      if (!isLowDeep) {
-        // 15分钟内，如果价差大于 -3%(开盘价 * 0.03)，那么就可以判定为V型线开始
-        if (endSite.p - startSite.p <= -(open_p * price_range)) {
-          console.log(date, stock, '下潜 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * price_range))
-          isLowDeep = true
-        }
-      }
-      
-      if (isLowDeep && !isCoverUp) {
-        // 如果价差开始回升，小于 -1% 或者 大于 开始下跌的价格，就说明形成了V型线
-        if (endSite.p - startSite.p >= -(open_p * 0.01) || endSite.p > startSite.p) {
-          console.log(date, stock, '回升 => ', '开始：', startSite.p, '结束：', endSite.p, '认定位置：', -(open_p * 0.01))
-          isCoverUp = true
-          // 成功获取起点和终点
-          // 进行时间点的记录
-          res.push(sumRanges(rangeCans))
-
-          // 重新赋值，进入下一个轮询
-          {
-            rangeCans = []
-            startSite = null
-            isLowDeep = null
-            isCoverUp = null
-            endSite = null
-          }
-        }
-      }
-    } else {
-      // 如果超过15分钟，重新给 startSite 赋值，进入下一个轮询
-      rangeCans = []
-      startSite = null
-      isLowDeep = null
-      isCoverUp = null
-      endSite = null
+    dealItem.t = timeFormat(date, dealItem.t)
+    dealItem.p = dealItem.p / 1000
+    if (dealItem.p === deep_p) {
+      deep_indx = index
+      deep_site = dealItem
+      break
     }
   }
-  return res
+
+  console.log('deep_site:', deep_site)
+  if (!deep_site) return res
+
+  // lt_site
+  for (let j = deep_indx; j > 0; j--) {
+    const lt_dealItem = deals[j]
+
+    // 9点25分之前的数据都不算
+    if (lt_dealItem.t < 92500) continue
+
+    if (new Date(deep_site.t) - new Date(lt_dealItem.t) <= time_dvd) {
+      lt_cans.unshift(lt_dealItem)
+      if (lt_dealItem.p - deep_site.p >= (open_p * price_range)) {
+        lt_site = lt_dealItem
+        break
+      }
+    } else {
+      break
+    }
+  }
+
+  console.log('lt_site:', lt_site)
+  if (!lt_site) return res
+
+  // rt_site
+  for (let k = deep_indx; k < deals.length; k++) {
+
+    const rt_dealItem = deals[k]
+
+    // 9点25分之前的数据都不算
+    if (rt_dealItem.t < 92500) continue
+
+    if (new Date(rt_dealItem.t) - new Date(deep_site.t) <= time_dvd) {
+      rt_cans.push(rt_dealItem)
+      if (rt_dealItem.p - deep_site.p >= (open_p * price_range)) {
+        rt_site = rt_dealItem
+        break
+      }
+    } else {
+      break
+    }
+  }
+
+  console.log('rt_site:', rt_site)
+  if (!rt_site) return res
+
+  return sumRanges(lt_cans.concat(rt_cans))
 }
 
 function sumRanges (rangeCans) {
