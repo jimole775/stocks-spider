@@ -201,10 +201,10 @@ function calculateVline (date, opn_pice, min_pice, deals) {
     // 9点25分之前的数据都不算
     if (dealItem.t < 92500) continue
 
-    // 转换数据格式，方便计算
-    dealItem.t = timeFormat(date, dealItem.t)
-    dealItem.p = dealItem.p / 1000
-    if (dealItem.p === deep_p) {
+    const curItemPrice = dealItem.p / 1000
+    if (curItemPrice === deep_p) {
+      deep_site.t = timeFormat(date, deep_site.t)
+      deep_site.p = deep_site.p / 1000
       deep_indx = index
       deep_site = dealItem
       break
@@ -221,6 +221,9 @@ function calculateVline (date, opn_pice, min_pice, deals) {
     // 9点25分之前的数据都不算
     if (lt_dealItem.t < 92500) continue
 
+    // 转换数据格式，方便计算
+    lt_dealItem.t = timeFormat(date, lt_dealItem.t)
+    lt_dealItem.p = lt_dealItem.p / 1000
     if (new Date(deep_site.t) - new Date(lt_dealItem.t) <= time_dvd) {
       lt_cans.unshift(lt_dealItem)
       if (lt_dealItem.p - deep_site.p >= (open_p * price_range)) {
@@ -243,6 +246,9 @@ function calculateVline (date, opn_pice, min_pice, deals) {
     // 9点25分之前的数据都不算
     if (rt_dealItem.t < 92500) continue
 
+    // 转换数据格式，方便计算
+    rt_dealItem.t = timeFormat(date, rt_dealItem.t)
+    rt_dealItem.p = rt_dealItem.p / 1000
     if (new Date(rt_dealItem.t) - new Date(deep_site.t) <= time_dvd) {
       rt_cans.push(rt_dealItem)
       if (rt_dealItem.p - deep_site.p >= (open_p * price_range)) {
