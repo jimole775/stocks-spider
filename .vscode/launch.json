@@ -12,7 +12,7 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\src\\main.js",
-      "args":["--mode=shadowline"]
+      "args":["--mode=vline"]
       // "program": "${workspaceFolder}\\test.js"
     }
   ]
