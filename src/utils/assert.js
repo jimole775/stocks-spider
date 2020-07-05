@@ -8,7 +8,7 @@ module.exports = {
   },
 
   isObject(likeObject) {
-    return Object.prototype.toString.call(likeObject) === '[object Object]'            
+    return Object.prototype.toString.call(likeObject) === '[object Object]'
   },
 
   isFunction(likeFunction) {
@@ -20,7 +20,7 @@ module.exports = {
   },
 
   isEmptyObject(likeObject) {
-    return isObject(likeObject) && Object.keys(likeObject).length === 0    
+    return Object.prototype.toString.call(likeObject) === '[object Object]' && Object.keys(likeObject).length === 0    
   },
 
   isString(likeString) {
