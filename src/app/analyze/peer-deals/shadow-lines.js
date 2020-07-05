@@ -30,37 +30,27 @@
     }
   }
  */
-const fs = require('fs')
 const path = require('path')
 const dirRoot = `${global.db}/warehouse/peer-deals/`
 const targetRoot = `${global.db}/analyze/peer-deals/shadowlines/`
-const { rangeEqual, readFileSync, writeFileSync } = require(global.utils)
+const { rangeEqual, writeFileSync, readDirSync, connectStock } = require(global.utils)
 module.exports = async function shadowlines() {
-  const dateFolders = fs.readdirSync(dirRoot)
-  for (const dateFolder of dateFolders) {
-    console.log(dateFolder)
-    const wareFiles = fs.readdirSync(path.join(dirRoot, dateFolder))
-    if (fs.existsSync(path.join(targetRoot, dateFolder))) {
-      const analyzeFiles = fs.readdirSync(path.join(targetRoot, dateFolder))
-      if (wareFiles.length === analyzeFiles.length) continue
-    }
-    for (const file of wareFiles) {
-      const fileData = readFileSync(path.join(dirRoot, dateFolder, file))
-      if (!fileData || !fileData.data) continue
-      const analyzeData = calculate(fileData)
-      await writeFileSync(path.join(targetRoot, dateFolder, file), analyzeData)
-    }
-  }
+  connectStock(dirRoot, readDirSync(targetRoot), (fileData, date, stock) => {
+    if (!fileData || !fileData.data) return false
+    const analyzeData = calculate(fileData)
+    writeFileSync(path.join(targetRoot, date, stock + '.json'), analyzeData)
+  })
+
   return Promise.resolve(true)
 }
 
 function calculate(fileData) {
+  const opn_pice = fileData.cp / 1000 // 开盘价
+  const end_pice = fileData.ep / 1000 // 收盘价
+  const min_pice = fileData.dp / 1000 // 最低价
+  const max_pice = fileData.hp / 1000 // 最高价
   let buy_sum_pp = {} // 存储每个价格的买入成交额
   let sal_sum_pp = {} // 存储每个价格的卖出成交额
-  let opn_pice = fileData.cp / 1000 // 开盘价
-  let end_pice = 0 // 收盘价
-  let min_pice = 9999 // 最低价
-  let max_pice = 0 // 最高价
   let buy_sum_v = 0 // 买入手数
   let buy_sum_p = 0 // 买入总额
   let sal_sum_v = 0 // 卖入手数
@@ -76,14 +66,6 @@ function calculate(fileData) {
     // 9点25分之前的数据都不算
     if (t < 92500) continue
     p = p / 1000 // 先把 p 转换成正常的价格
-
-    // 存储收盘价
-    if(/^1500/.test(t)) {
-      end_pice = p
-    }
-
-    min_pice = min_pice > p ? p : min_pice
-    max_pice = max_pice < p ? p : max_pice
 
     if (bs === 1) {
 

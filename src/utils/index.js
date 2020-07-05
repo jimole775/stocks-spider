@@ -14,7 +14,8 @@ module.exports = {
   Link: require('./link'),
   sleep: require('./sleep'),
   quest: require('./quest'), // superagent的封装
-  unique: require('./unique'), // 去重,
+  unique: require('./unique'), // 去重
+  diffrence: require('./diffrence'), // 比对
   initPage: require('./init-page'),
   buildPath: require('./build-path'),
   removeDir: require('./remove-dir'),
@@ -23,6 +24,7 @@ module.exports = {
   BunchThread: require('./bunch-thread'),
   moneyFormat: require('./money-format'),
   readDirSync: require('./read-dir-sync'),
+  connectStock: require('./connect-stock'),
   BunchLinking: require('./bunch-linking'),
   readFileSync: require('./read-file-sync'),
   writeFileSync: require('./write-file-sync'),

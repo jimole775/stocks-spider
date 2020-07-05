@@ -13,9 +13,8 @@ const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 module.exports = async function vlines () {
   const unCalculateDates = getUnCalculateDates()
   console.log(unCalculateDates)
-  const qualityStocksInDate = queryQualityStockObj(unCalculateDates)
-  console.log('recordRightRange')
-  recordRightRange(qualityStocksInDate)
+  // const qualityStocksInDate = queryQualityStockObj(unCalculateDates)
+  recordRightRange(unCalculateDates)
 }
 
 // 由于计算顺序是从前到后，
@@ -38,49 +37,15 @@ function getUnCalculateDates () {
   }
 }
 
-// 根据shadowlines的记录，振幅小于 3 个点的都过滤掉
-function queryQualityStockObj (unCalculateDates = []) {
-  const qualityStocksInDate = {
-    // 'date': ['stocks']
-  }
-  const dateFolders = unCalculateDates
-  for (let folderIndex = 0; folderIndex < dateFolders.length; folderIndex++) {
-    const date = dateFolders[folderIndex]
-    const stocks = readDirSync(path.join(read_shadowline_dir, date))
-    for (let stockIndex = 0; stockIndex < stocks.length; stockIndex++) {
-      const stock = stocks[stockIndex]
-      const stockPeerAnilyze = readFileSync(path.join(read_shadowline_dir, date, stock))
-      const { overview } = stockPeerAnilyze
-      // 直接过滤掉 振幅低于 4% 的票
-      if (overview.waves_percent > price_range + 0.01) {
-        // 把 overview 并到peerdeal中，方便计算的时候调取已经算好的数据
-        if (!qualityStocksInDate[date]) {
-          qualityStocksInDate[date] = [{
-            stock: stock,
-            opn_pice: overview.opn_pice,
-            min_pice: overview.min_pice,
-          }]
-        } else {
-          qualityStocksInDate[date].push({
-            stock: stock,
-            opn_pice: overview.opn_pice,
-            min_pice: overview.min_pice,
-          })
-        }
-      }
-    }
-  }
-  return qualityStocksInDate
-}
-
-function recordRightRange (qualityStocksInDate) {
-  for (const date in qualityStocksInDate) {
+function recordRightRange (unCalculateDates) {
+  for (let i = 0; i < unCalculateDates.length; i += 1) {
+    const date = unCalculateDates[i]
     console.log(date)
-    const stockObj = qualityStocksInDate[date]
-    for (let index = 0; index < stockObj.length; index++) {
-      const { stock, opn_pice, min_pice } = stockObj[index]
+    const stocks = readDirSync(path.join(read_peerdeal_dir, date))
+    for (let j = 0; j < stocks.length; j += 1) {
+      const stock = stocks[j]
       const dealData = readFileSync(path.join(read_peerdeal_dir, date, stock))
-      const res = calculateVline(date, stock, opn_pice, min_pice, dealData.data)
+      const res = calculateVline(date, stock, dealData)
       if (Object.keys(res).length) writeFileSync(path.join(save_vlines_dir, date, stock), res)
     }
   }
@@ -110,14 +75,14 @@ function recordRightRange (qualityStocksInDate) {
 //   "v": 109,
 //   "bs": 4
 // },
-function calculateVline (date, stock, opn_pice, min_pice, deals) {
+function calculateVline (date, stock, dealData) {
   const res = {}
-  const open_p = opn_pice
-  const deep_p = min_pice
-  const divd_p = open_p * price_range * 1000
+  const open_p = dealData.cp
+  const deep_p = dealData.dp
+  const deals = dealData.data
+  const divd_p = open_p * price_range
   const lt_cans = []
   const rt_cans = []
-
   let lt_site = null
   let rt_site = null
   let deep_site = null
@@ -129,8 +94,7 @@ function calculateVline (date, stock, opn_pice, min_pice, deals) {
     // 9点25分之前的数据都不算
     if (dealItem.t < 92500) continue
 
-    const curItemPrice = dealItem.p / 1000
-    if (curItemPrice === deep_p) {
+    if (dealItem.p === deep_p) {
       deep_indx = index
       deep_site = dealItem
       break
