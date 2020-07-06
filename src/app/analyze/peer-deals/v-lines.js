@@ -17,7 +17,9 @@ module.exports = async function vlines () {
   recordedDates.pop()
   connectStock(read_peerdeal_dir, recordedDates, (dealData, date, stock)=> {
     const result = calculateVline(date, stock, dealData)
-    if (!isEmptyObject(result)) writeFileSync(path.join(save_vlines_dir, date, stock + '.json'), result)
+    if (!isEmptyObject(result)) {
+      writeFileSync(path.join(save_vlines_dir, date, stock + '.json'), result)
+    }
   })
 }
 
@@ -114,7 +116,7 @@ function calculateVline (date, stock, dealData) {
     }
   }
   if (!rt_site) return res
-  console.log(stock, '下潜：', lt_site, ' 回升：', rt_site)
+  console.log(date, stock, '下潜：', lt_site, ' 回升：', rt_site)
 
   return sumRanges(lt_cans.concat(rt_cans))
 }

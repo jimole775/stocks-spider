@@ -24,11 +24,26 @@ async function excutes (stockCode, api, resolve, loopTimes) {
     const dirtyData = await quest(adjustToMax) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
     const file = path.join(recordPath, global.finalDealDate, `${stockCode}.json`)
-    await writeFileSync(file, pureData.data ? pureData.data : {})
+    await writeFileSync(file, pureData.data ? recorDetail(pureData.data) : {})
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
     console.error('record-peer-deal error:', stockCode, error)
     return setTimeout(() => excutes(stockCode, api, resolve, ++loopTimes), 1000)
   }
+}
+
+function recorDetail (data) {
+  let hp = 0
+  let ep = 0
+  let dp = 9999999
+  data.data && data.data.forEach((deal) => {
+    if (deal.p > hp) hp = deal.p
+    if (deal.p < dp) dp = deal.p
+    ep = deal.p
+  })
+  data.hp = hp
+  data.dp = dp
+  data.ep = ep
+  return data
 }
