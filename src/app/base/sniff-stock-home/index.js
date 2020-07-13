@@ -14,8 +14,9 @@ const {
 
 const urlModel = readFileSync(global.urlModel)
 
-const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
-const recordPathDate = path.join(recordPath, global.finalDealDate)
+// const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
+// const recordPathDate = path.join(recordPath, global.finalDealDate)
+const fileMode = `/warehouse/daily-klines/${global.finalDealDate}.json`
 
 module.exports = function sniffStockHome() {
   return new Promise(excution).catch(err => err)
@@ -23,10 +24,10 @@ module.exports = function sniffStockHome() {
 
 async function excution(resolve) {
 
-  let unlinkedUrls = hasUnlinks(recordPathDate)
+  let unlinkedUrls = hasUnlinks(fileMode)
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
 
-  if (unlinkedUrls.length === 0) return resolve(true)
+  if (unlinkedUrls.length === 0) return resolve(0)
 
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('klineApi', unlinkedUrls, async (stockItem) => {
@@ -40,7 +41,7 @@ async function excution(resolve) {
   })
   
   console.log('remain klines unlinkedUrls:', unlinkedUrls.length)
-  if (unlinkedUrls.length === 0) return resolve(true)
+  if (unlinkedUrls.length === 0) return resolve(0)
 
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
@@ -65,7 +66,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       }
     },
     end: function () {
-      return hasUnlinks(recordPathDate)
+      return hasUnlinks(fileMode)
     }
   }).emit()
   return Promise.resolve(doneApiMap)

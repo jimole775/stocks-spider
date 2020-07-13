@@ -31,16 +31,19 @@
   }
  */
 const path = require('path')
-const dirRoot = `${global.db}/warehouse/peer-deals/`
-const targetRoot = `${global.db}/analyze/peer-deals/shadowlines/`
-const { rangeEqual, writeFileSync, readDirSync, connectStock } = require(global.utils)
+const dirRoot = `/warehouse/peer-deals/`
+const targetRoot = `/analyze/peer-deals/shadowlines/`
+const { rangeEqual, writeFileSync, readDirSync, connectStock, unrecordFiles } = require(global.utils)
 module.exports = async function shadowlines() {
-  connectStock(dirRoot, readDirSync(targetRoot), (fileData, date, stock) => {
+  // const ignoreDateFiles = readDirSync(path.join(global.db, '000001', targetRoot))
+  // console.log(ignoreDateFiles)
+  // 花 1分钟 时间，把已经存过的过滤出来
+  const ignoreDateFiles = unrecordFiles(targetRoot)
+  connectStock(dirRoot, ignoreDateFiles, (fileData, stock, date) => {
     if (!fileData || !fileData.data) return false
     const analyzeData = calculate(fileData)
-    writeFileSync(path.join(targetRoot, date, stock + '.json'), analyzeData)
+    writeFileSync(path.join(global.db, stock, targetRoot, date + '.json'), analyzeData)
   })
-
   return Promise.resolve(true)
 }
 
@@ -166,3 +169,4 @@ function recordPP(pp, v, p) {
   }
   return pp
 }
+

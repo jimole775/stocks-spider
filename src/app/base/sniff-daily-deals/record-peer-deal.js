@@ -11,7 +11,7 @@
  */
 const path = require('path')
 const { writeFileSync, quest } = require(global.utils)
-const recordPath = `${global.srcRoot}/db/warehouse/peer-deals/`
+const fileModel = `/warehouse/peer-deals/${global.finalDealDate}.json`
 module.exports = async function recordPeerDeal(stockCode, api) {
   return new Promise((resolve) => excutes(stockCode, api, resolve, 0))
 }
@@ -23,8 +23,7 @@ async function excutes (stockCode, api, resolve, loopTimes) {
     const adjustToMax = api.replace(/^(http.*?)\?pagesize\=\d*?\&(.*?)$/, '$1?pagesize=99999&$2')
     const dirtyData = await quest(adjustToMax) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-    const file = path.join(recordPath, global.finalDealDate, `${stockCode}.json`)
-    await writeFileSync(file, pureData.data ? recorDetail(pureData.data) : {})
+    await writeFileSync(path.join(global.db, stockCode, fileModel), pureData.data ? recorDetail(pureData.data) : {})
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过

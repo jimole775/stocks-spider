@@ -27,6 +27,7 @@ module.exports = {
   connectStock: require('./connect-stock'),
   BunchLinking: require('./bunch-linking'),
   readFileSync: require('./read-file-sync'),
+  unrecordFiles: require('./unrecord-files'),
   writeFileSync: require('./write-file-sync'),
   recordUsedApi: require('./record-used-api'),
   hasRefreshLinks: require('./has-refresh-links'),

@@ -26,12 +26,14 @@ module.exports = async function () {
     page_size: 120, // 每次采集多少个交易日的数据
   }
   
-  // 路径别名
+  // 资源路径别名
   global.srcRoot = __dirname
   global.urlModel = `${__dirname}\\url-model.yml`
-  global.baseData = `${__dirname}\\db\\base.json`
-  global.db = `${__dirname}\\db`
   global.utils = `${__dirname}\\utils\\index.js`
+
+  // 数据库别名
+  global.db = `F:\\my_db\\stocks\\schedules`
+  global.baseData = `F:\\my_db\\stocks\\base.json`
 
   return Promise.resolve(global)
 }

@@ -6,7 +6,7 @@
  */
 const puppeteer = require('puppeteer')
 const buildModel = require('./build-model')
-const { readFileSync, writeFileSync } = require(`${global.srcRoot}/utils`)
+const { readFileSync, writeFileSync } = require(global.utils)
 module.exports = function buildStocksModel() {
   return new Promise(excutes)
 }

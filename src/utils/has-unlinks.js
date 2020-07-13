@@ -8,36 +8,15 @@ const allStocks = require(global.baseData).data
  * @param {*} links  
  * @param {*} recordDir 
  */
-module.exports = function hasUnlinks(recordDir) {
-  const links = allStocks.map(item => {
-    return urlModel.model.StockHome
-      .replace('[marketName]', item.marketName)
-      .replace('[stockCode]', item.code)
-  })
 
-  if (links.length === 0) return []
-  // 目录找不到，就直接返回所有links
-  if (!fs.existsSync(recordDir)) return links
-
+module.exports = function hasUnlinks(fileMode) {
   const unlinks = []
-  const files = fs.readdirSync(recordDir)
-  if (files.length !== links.length) {
-    let l = links.length
-    while (l--) {
-      const linkItem = links[l]
-      let k = files.length
-      let isAlready = false
-      while (k--) {
-        const stockCode = files[k].replace(/^.*\D?(\d{6})\D?.*$/, '$1')
-        const reg = new RegExp(`\^${stockCode}\$|\^${stockCode}\\D*|\\D*${stockCode}\$|(\\D${stockCode}\\D)`, 'g')
-        if (reg.test(linkItem)) {
-          files.splice(k, 1)
-          isAlready = true
-          break
-        }
-      }
-      if (isAlready === false) unlinks.push(linkItem)
+  allStocks.forEach((stockItem) => {
+    if(!fs.existsSync(path.join(global.db, stockItem.code, fileMode))) {
+      unlinks.push(urlModel.model.StockHome
+        .replace('[marketName]', item.marketName)
+        .replace('[stockCode]', item.code))
     }
-  }
+  })
   return unlinks
 }

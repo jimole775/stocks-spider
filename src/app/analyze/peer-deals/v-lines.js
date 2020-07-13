@@ -4,21 +4,20 @@
  * 数据路径存储：./src/db/analyze/peer-deals/v-lines
  */
 const path = require('path')
-const { writeFileSync, readDirSync, connectStock, isEmptyObject } = require(global.utils)
-const save_vlines_dir = `${global.db}/analyze/peer-deals/vlines/`
-const read_peerdeal_dir = `${global.db}/warehouse/peer-deals/`
+const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
+const save_vlines_dir = `/analyze/peer-deals/vlines/`
+const read_peerdeal_dir = `/warehouse/peer-deals/`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 module.exports = async function vlines () {
   // 有可能最后一个date目录的票子还没统计完，
   // 所以，不管如何，把他压到unRecords里面，
   // 保证万无一失
-  const recordedDates = readDirSync(save_vlines_dir)
-  recordedDates.pop()
-  connectStock(read_peerdeal_dir, recordedDates, (dealData, date, stock)=> {
+  const recordedDates = unrecordFiles(save_vlines_dir)
+  connectStock(read_peerdeal_dir, recordedDates, (dealData, stock, date)=> {
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
-      writeFileSync(path.join(save_vlines_dir, date, stock + '.json'), result)
+      writeFileSync(path.join(global.db, stock, save_vlines_dir, date + '.json'), result)
     }
   })
 }

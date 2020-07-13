@@ -11,9 +11,10 @@ const {
   readFileSync, BunchLinking, hasUnlinks,
   recordUsedApi, requestApiInBunch
 } = require(global.utils)
+
 const urlModel = readFileSync(global.urlModel)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
-const recordDir = `${global.db}/warehouse/peer-deals/${global.finalDealDate}`
+const fileMode = `/warehouse/peer-deals/${global.finalDealDate}.json`
 
 module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
@@ -21,10 +22,10 @@ module.exports = function sniffDailyDeals() {
 
 async function excution (resolve, reject) {
 
-  let unlinkedUrls = hasUnlinks(recordDir)
+  let unlinkedUrls = hasUnlinks(fileMode)
   console.log('daily deals unlink: ', unlinkedUrls.length)
   
-  if (unlinkedUrls.length === 0) return resolve(true)
+  if (unlinkedUrls.length === 0) return resolve(0)
 
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('dealApi', unlinkedUrls, async (stockItem) => {
@@ -36,7 +37,7 @@ async function excution (resolve, reject) {
     }
   })
 
-  if (unlinkedUrls.length === 0) return resolve(true)
+  if (unlinkedUrls.length === 0) return resolve(0)
 
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
@@ -63,7 +64,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUnlinks(recordDir)
+        return hasUnlinks(fileMode)
       }
     }).emit()
   return Promise.resolve(doneApiMap)

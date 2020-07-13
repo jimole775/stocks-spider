@@ -1,8 +1,8 @@
 const path = require(`path`)
 const { quest, writeFileSync } = require(global.utils)
-const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
-const formerRecordPath = `${global.srcRoot}/db/warehouse/former-daily-klines/`
+const fileMode = `/warehouse/daily-klines/${global.finalDealDate}.json`
+const former_fileMode = `/warehouse/former-daily-klines/${global.finalDealDate}.json`
 module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
   return new Promise((resolve, reject) => executes(stockCode, klineApi, FRKlineApi, resolve, reject, 0))
 }
@@ -10,10 +10,10 @@ module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
 async function executes (stockCode, klineApi, FRKlineApi, resolve, reject, loopTimes) {
   try {
     console.log('kline:', stockCode)
-    const file = path.join(recordPath, global.finalDealDate, stockCode + '.json')
-    const FRFile = path.join(formerRecordPath, global.finalDealDate, stockCode + '.json')
+    const file = path.join(global.db, stockCode, fileMode)
+    const FRFile = path.join(global.db, stockCode, former_fileMode)
     await handleRecord(file, klineApi)
-    // await handleRecord(FRFile, FRKlineApi)
+    await handleRecord(FRFile, FRKlineApi)
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return reject() // 超过30次都不能成功quest，就直接跳过
