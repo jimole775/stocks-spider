@@ -13,7 +13,8 @@
     "busy:kline": "node src/main.js --module=kline --netstat=busy",
     "busy:shadowline": "node src/main.js --module=shadowline --netstat=busy",
     "busy:deal": "node src/main.js --module=deal --netstat=busy",
-    "busy:vline": "node src/main.js --module=vline --netstat=busy"
+    "busy:vline": "node src/main.js --module=vline --netstat=busy",
+    "serve": "node src/api/main --port=9527"
   },
   "author": "Rongxis",
   "license": "ISC",
@@ -28,6 +29,7 @@
     "@babel/runtime": "^7.5.5",
     "babel-loader": "^8.0.6",
     "babelify": "^10.0.0",
+    "body-parser": "^1.19.0",
     "browserify": "^16.3.0",
     "concurrently": "^4.1.1",
     "express": "^4.17.1",

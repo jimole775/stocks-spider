@@ -1,11 +1,11 @@
 /**
  * 短时间(1min-15min)下潜（3%以上）并回升的票(1%-3%幅度的误差)
  * 回升时间取 1min， 3min， 5min... 时间段做测试，筛选一个比较可靠的区间
- * 数据路径存储：./src/db/analyze/peer-deals/v-lines
+ * 数据路径存储：
  */
 const path = require('path')
 const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
-const save_vlines_dir = `/analyze/peer-deals/vlines/`
+const save_vlines_dir = `vlines`
 const read_peerdeal_dir = `/warehouse/peer-deals/`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
@@ -17,7 +17,7 @@ module.exports = async function vlines () {
   connectStock(read_peerdeal_dir, recordedDates, (dealData, stock, date)=> {
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
-      writeFileSync(path.join(global.db, stock, save_vlines_dir, date + '.json'), result)
+      writeFileSync(path.join(global.db_api, save_vlines_dir, date, stock + '.json'), result)
     }
   })
 }

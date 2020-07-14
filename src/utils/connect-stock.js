@@ -3,7 +3,7 @@ const readDirSync = require('./read-dir-sync')
 const readFileSync = require('./read-file-sync')
 const diffrence = require('./diffrence')
 const assert = require('./assert')
-const dbPath = global.db
+const dbPath = global.db_stocks
 /**
  * 读取指定存储目录的stock
  * @param { Array } dict

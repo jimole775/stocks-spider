@@ -1,5 +1,5 @@
-const dbPath = global.db
 const path = require('path')
+const dbPath = global.db_stocks
 const allStocks = require(global.baseData).data
 const readDirSync = require('./read-dir-sync')
 module.exports = function unrecordFiles (targetDir) {

@@ -10,8 +10,8 @@ module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
 async function executes (stockCode, klineApi, FRKlineApi, resolve, reject, loopTimes) {
   try {
     console.log('kline:', stockCode)
-    const file = path.join(global.db, stockCode, fileMode)
-    const FRFile = path.join(global.db, stockCode, former_fileMode)
+    const file = path.join(global.db_stocks, stockCode, fileMode)
+    const FRFile = path.join(global.db_stocks, stockCode, former_fileMode)
     await handleRecord(file, klineApi)
     await handleRecord(FRFile, FRKlineApi)
     return resolve()

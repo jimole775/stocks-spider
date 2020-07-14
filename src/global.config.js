@@ -1,9 +1,10 @@
 const quest = require(`./utils/quest`)
+const cmdParam = require(`./utils/cmd-param`)
 const moment = require('moment')
 module.exports = async function () {
 
   // 命令行参数
-  global.crossEnv = queryParam()
+  global.crossEnv = cmdParam()
   global.module = global.crossEnv.module
 
   // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
@@ -32,23 +33,12 @@ module.exports = async function () {
   global.utils = `${__dirname}\\utils\\index.js`
 
   // 数据库别名
-  global.db = `F:\\my_db\\stocks\\schedules`
-  global.baseData = `F:\\my_db\\stocks\\base.json`
+  global.db_home = `G:\\my_db\\stocks-spider`
+  global.db_api = `G:\\my_db\\stocks-spider\\api`
+  global.db_stocks = `G:\\my_db\\stocks-spider\\stocks`
+  global.baseData = `G:\\my_db\\stocks-spider\\base.json`
 
   return Promise.resolve(global)
-}
-
-function queryParam () {
-  const res = {}
-  if (process.argv && process.argv.length) {
-    process.argv.forEach((item) => {
-      if (item && /^\-\-.+/.test(item)) {
-        const [key, value] = item.replace(/\-\-/, '').split('=')
-        res[key] = value
-      }
-    })
-  }
-  return res
 }
 
 function getDate () {

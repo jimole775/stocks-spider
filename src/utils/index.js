@@ -17,6 +17,7 @@ module.exports = {
   unique: require('./unique'), // 去重
   diffrence: require('./diffrence'), // 比对
   initPage: require('./init-page'),
+  cmdParam: require('./cmd-param'),
   buildPath: require('./build-path'),
   removeDir: require('./remove-dir'),
   hasUnlinks: require('./has-unlinks'),

@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 const readFileSync = require('./read-file-sync')
 const urlModel = readFileSync(global.urlModel)
 const allStocks = require(global.baseData).data
@@ -12,10 +13,10 @@ const allStocks = require(global.baseData).data
 module.exports = function hasUnlinks(fileMode) {
   const unlinks = []
   allStocks.forEach((stockItem) => {
-    if(!fs.existsSync(path.join(global.db, stockItem.code, fileMode))) {
+    if(!fs.existsSync(path.join(global.db_stocks, stockItem.code, fileMode))) {
       unlinks.push(urlModel.model.StockHome
-        .replace('[marketName]', item.marketName)
-        .replace('[stockCode]', item.code))
+        .replace('[marketName]', stockItem.marketName)
+        .replace('[stockCode]', stockItem.code))
     }
   })
   return unlinks
