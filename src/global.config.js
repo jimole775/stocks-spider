@@ -18,8 +18,8 @@ module.exports = async function () {
 
   // vline模块配置项
   global.vline = {
-    time_dvd : 15 * 60 * 1000, // v型k线的形成时间
-    price_range : 0.05, // v型k线的深度
+    time_dvd: 15 * 60 * 1000, // v型k线的形成时间
+    price_range: 0.05, // v型k线的深度
     haevy_standard: 10 * 10000 // 大单的标准
   }
 
