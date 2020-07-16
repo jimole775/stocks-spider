@@ -48,8 +48,10 @@ module.exports = async function vlines () {
 //   "bs": 4
 // },
 function calculateVline (date, stock, dealData) {
-  const res = {}
+  const name = dealData.n
   const open_p = dealData.cp
+  const close_p = dealData.ep
+  const high_p = dealData.hp
   const deep_p = dealData.dp
   const deals = dealData.data
   const divd_p = open_p * price_range
@@ -73,7 +75,7 @@ function calculateVline (date, stock, dealData) {
     }
   }
 
-  if (!deep_site) return res
+  if (!deep_site) return {}
 
   // lt_site
   for (let j = deep_indx; j > 0; j--) {
@@ -94,7 +96,7 @@ function calculateVline (date, stock, dealData) {
     }
   }
 
-  if (!lt_site) return res
+  if (!lt_site) return {}
   // rt_site
   for (let k = deep_indx; k < deals.length; k++) {
 
@@ -115,10 +117,18 @@ function calculateVline (date, stock, dealData) {
       break
     }
   }
-  if (!rt_site) return res
+  if (!rt_site) return {}
   console.log(date, stock, '下潜：', lt_site, ' 回升：', rt_site)
-
-  return sumRanges(lt_cans.concat(rt_cans))
+  const res = sumRanges(lt_cans.concat(rt_cans))
+  res.start_p = lt_site.p
+  res.deep_p = deep_site.p
+  res.end_p = rt_site.p
+  res.deep_size = (lt_site.p - deep_site.p) / open_p
+  res.open_p = open_p
+  res.close_p = close_p
+  res.high_p = high_p
+  res.name = name
+  return res
 }
 
 function sumRanges (rangeCans) {
