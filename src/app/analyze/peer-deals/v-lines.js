@@ -9,6 +9,7 @@ const save_vlines_dir = `vlines`
 const read_peerdeal_dir = `/warehouse/peer-deals/`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
+const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vlines () {
   // 有可能最后一个date目录的票子还没统计完，
   // 所以，不管如何，把他压到unRecords里面，
@@ -138,7 +139,7 @@ function sumRanges (rangeCans) {
     const canItem = rangeCans[index]
     const sum_p = (canItem.p / 1000) * (canItem.v * 100)
     // 每单金额超过10W，就当作大单记录
-    if (sum_p >= 100000) {
+    if (sum_p >= haevy_standard) {
       heavies.push(canItem)
     }
 
