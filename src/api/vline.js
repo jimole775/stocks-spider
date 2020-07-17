@@ -36,6 +36,8 @@ module.exports = function kline (req, res) {
           item.vstart = timeFormat(item.timeRange.split('~')[0])
           item.vend = timeFormat(item.timeRange.split('~')[1])
           item.code = code.split('.').shift()
+          // 删除无用且量大的字段
+          delete item.heavies
           resData.data.push(item)
         }
       })
