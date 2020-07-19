@@ -6,7 +6,7 @@
 const path = require('path')
 const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
 const save_vlines_dir = `vlines`
-const read_peerdeal_dir = `/warehouse/peer-deals/`
+const read_peerdeal_dir = `peer-deals`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准

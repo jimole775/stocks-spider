@@ -11,7 +11,7 @@
  */
 const path = require('path')
 const { writeFileSync, quest } = require(global.utils)
-const fileModel = `/warehouse/peer-deals/${global.finalDealDate}.json`
+const fileModel = `peer-deals/${global.finalDealDate}.json`
 module.exports = async function recordPeerDeal(stockCode, api) {
   return new Promise((resolve) => excutes(stockCode, api, resolve, 0))
 }

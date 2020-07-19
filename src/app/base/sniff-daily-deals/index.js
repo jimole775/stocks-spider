@@ -14,7 +14,7 @@ const {
 
 const urlModel = readFileSync(global.urlModel)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
-const fileMode = `/warehouse/peer-deals/${global.finalDealDate}.json`
+const fileMode = `peer-deals/${global.finalDealDate}.json`
 
 module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)

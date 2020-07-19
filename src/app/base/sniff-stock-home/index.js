@@ -14,9 +14,9 @@ const {
 
 const urlModel = readFileSync(global.urlModel)
 
-// const recordPath = `${global.srcRoot}/db/warehouse/daily-klines/`
+// const recordPath = `${global.srcRoot}/db/daily-klines/`
 // const recordPathDate = path.join(recordPath, global.finalDealDate)
-const fileMode = `/warehouse/daily-klines/${global.finalDealDate}.json`
+const fileMode = `/daily-klines/${global.finalDealDate}.json`
 
 module.exports = function sniffStockHome() {
   return new Promise(excution).catch(err => err)

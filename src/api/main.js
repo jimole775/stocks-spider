@@ -4,6 +4,7 @@ const express = require('express')
 const app = new express()
 const kline = require('./kline')
 const vline = require('./vline')
+const deals = require('./deals')
 const bodyParser = require('body-parser')
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -16,4 +17,5 @@ app.get('/', (req, res) => {
 })
 app.post('/api/kline', kline)
 app.post('/api/vline', vline)
+app.post('/api/deals', deals)
 app.listen(cmdParam('port'))

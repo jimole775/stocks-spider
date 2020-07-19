@@ -31,7 +31,7 @@
   }
  */
 const path = require('path')
-const dirRoot = `/warehouse/peer-deals/`
+const dirRoot = `peer-deals`
 const targetRoot = `/analyze/peer-deals/shadowlines/`
 const { rangeEqual, writeFileSync, readDirSync, connectStock, unrecordFiles } = require(global.utils)
 module.exports = async function shadowlines() {

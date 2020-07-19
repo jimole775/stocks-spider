@@ -1,8 +1,8 @@
 const path = require(`path`)
 const { quest, writeFileSync } = require(global.utils)
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
-const fileMode = `/warehouse/daily-klines/${global.finalDealDate}.json`
-const former_fileMode = `/warehouse/former-daily-klines/${global.finalDealDate}.json`
+const fileMode = `/daily-klines/${global.finalDealDate}.json`
+const former_fileMode = `/former-daily-klines/${global.finalDealDate}.json`
 module.exports = async function recordKlines (stockCode, klineApi, FRKlineApi) {
   return new Promise((resolve, reject) => executes(stockCode, klineApi, FRKlineApi, resolve, reject, 0))
 }

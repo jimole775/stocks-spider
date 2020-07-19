@@ -4,7 +4,7 @@ const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const vline_db_base = path.join(global.db_api, 'vlines')
 module.exports = function kline (req, res) {
   const resData = {
-    code: 200,
+    code: 20000,
     message: 'success',
     data: [],
     total: 0
@@ -24,7 +24,7 @@ module.exports = function kline (req, res) {
 
         loop += 1
         // 匹配 分页 查询
-        if (loop > start && loop < (start + pageSize)) {
+        if (loop > start && loop < (start + pageSize + 1)) {
           const item = readFileSync(path.join(vline_db_base, date, code))
           
           // 匹配 name 查询
@@ -45,7 +45,7 @@ module.exports = function kline (req, res) {
     resData.total = loop
     res.send(resData)
   } catch (error) {
-    resData.code = 5001
+    resData.code = 50000
     resData.message = error
     console.log(error)
     res.send(resData)
