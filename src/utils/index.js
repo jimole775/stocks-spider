@@ -31,6 +31,7 @@ module.exports = {
   unrecordFiles: require('./unrecord-files'),
   writeFileSync: require('./write-file-sync'),
   recordUsedApi: require('./record-used-api'),
+  klineApiFactory: require('./kline-api-factory'),
   hasRefreshLinks: require('./has-refresh-links'),
   removeSiblingDir: require('./remove-sibling-dir'),
   getPathSeparator: require('./get-path-separator'), // 获取路径分隔符

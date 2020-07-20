@@ -10,6 +10,8 @@ module.exports = function deals (req, res) {
     total: 0,
     bigDealIn: 0,
     bigDealOut: 0,
+    tinyDealIn: 0,
+    tinyDealOut: 0
   }
   const failModel = {
     code: 40000,
@@ -18,11 +20,12 @@ module.exports = function deals (req, res) {
     total: 0,
     bigDealIn: 0,
     bigDealOut: 0,
+    tinyDealIn: 0,
+    tinyDealOut: 0
   }
   try {
     const { pageNumber, pageSize, gradient, type, date: queryDate, code: queryCode, name: queryName, dateRange: queryDateRange } = req.body
     // queryCode 和 queryDate 为必填
-    console.log(queryCode, queryDate)
     if (!queryCode || !queryDate) {
       failModel.message = '日期和股票代码是查询必填项！'
       return res.send(failModel)
@@ -34,19 +37,22 @@ module.exports = function deals (req, res) {
     let loop = 0
     let bigDealIn = 0 // 超过5万
     let bigDealOut = 0 // 超过5万
-    const consult = 50000 
+    let tinyDealIn = 0
+    let tinyDealOut= 0
     dealRecord.data.forEach((dealItem) => {
       const sum = (dealItem.p / 1000) * dealItem.v * 100
-      if (sum >= consult) {
-        if (dealItem.bs === 2) bigDealIn += sum
-        if (dealItem.bs === 1) bigDealOut += sum
-      } 
       // 查询大单
-      if (gradient && sum < gradient) return false
+      if (gradient && sum < gradient) {
+        if (dealItem.bs === 2) tinyDealIn += sum
+        if (dealItem.bs === 1) tinyDealOut += sum
+        return false
+      }
+
+      if (dealItem.bs === 2) bigDealIn += sum
+      if (dealItem.bs === 1) bigDealOut += sum
 
       // 查询类型
       if (type && Number.parseInt(type) !== Number.parseInt(dealItem.bs)) return false
-
 
       loop = loop + 1
       // 匹配 分页 查询
@@ -58,6 +64,8 @@ module.exports = function deals (req, res) {
     })
     successModel.bigDealIn = bigDealIn
     successModel.bigDealOut = bigDealOut
+    successModel.tinyDealIn = tinyDealIn
+    successModel.tinyDealOut = tinyDealOut
     successModel.total = loop
     res.send(successModel)
   } catch (error) {
