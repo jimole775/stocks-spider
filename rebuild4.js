@@ -4,7 +4,6 @@ const readDirSync = require('./src/utils/read-dir-sync')
 const buildPath = require('./src/utils/build-path')
 const readdir = 'G:\\my_db\\stocks-spider\\stocks'
 const writedir = 'G:\\my_db\\stocks-spider\\stocks_new'
-const dirtydir = 'warehouse'
 const targetdir = 'peer-deals'
 const ignoreDates = [
   '2020-03-17', '2020-03-18', '2020-03-19',
@@ -30,12 +29,11 @@ const ignoreDates = [
 const stocks = readDirSync(readdir)
 for (let index = 0; index < stocks.length; index++) {
   const stock = stocks[index]
-  const dates = readDirSync(path.join(readdir, stock, dirtydir, targetdir))
-  console.log(dates)
+  const dates = readDirSync(path.join(readdir, stock, targetdir))
+  buildPath(path.join(writedir, stock, targetdir))
   for (let j = 0; j < dates.length; j++) {
     const date = dates[j]
-    buildPath(path.join(writedir, stock, targetdir))
-    fs.copyFileSync(path.join(readdir, stock, dirtydir, targetdir, date), path.join(writedir, stock, targetdir, date))
+    fs.copyFileSync(path.join(readdir, stock, targetdir, date), path.join(writedir, stock, targetdir, date))
   }
 }
 // connect(readdir, ignoreDates, (data, date, stock) => {

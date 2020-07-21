@@ -6,6 +6,7 @@ const assert = require('./assert')
 const dbPath = global.db_stocks
 /**
  * 读取指定存储目录的stock
+ * 当前仅支持目录结构 `${global.db_stocks}/${stock}/${targetDir}/${date}`
  * @param { Array } dict
  * @param { Array|String } ignoreDateFiles
  * @param { Function } callback
