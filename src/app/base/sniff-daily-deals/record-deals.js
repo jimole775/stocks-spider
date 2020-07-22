@@ -11,7 +11,7 @@
  */
 const path = require('path')
 const { writeFileSync, quest } = require(global.utils)
-const fileModel = `peer-deals/${global.finalDealDate}.json`
+const fileModel = `deals/${global.finalDealDate}.json`
 module.exports = async function recordPeerDeal(stockCode, api) {
   return new Promise((resolve) => excutes(stockCode, api, resolve, 0))
 }
@@ -27,7 +27,7 @@ async function excutes (stockCode, api, resolve, loopTimes) {
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
-    console.error('record-peer-deal error:', stockCode, error)
+    console.error('record-deals error:', stockCode, error)
     return setTimeout(() => excutes(stockCode, api, resolve, ++loopTimes), 1000)
   }
 }

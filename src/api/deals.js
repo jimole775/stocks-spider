@@ -31,9 +31,9 @@ module.exports = function deals (req, res) {
       return res.send(failModel)
     }
     const date = moment(queryDate).format('YYYY-MM-DD')
-    console.log(path.join(global.db_stocks, queryCode, 'peer-deals', date + '.json'))
+    console.log(path.join(global.db_stocks, queryCode, 'deals', date + '.json'))
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
-    const dealRecord = readFileSync(path.join(global.db_stocks, queryCode, 'peer-deals', date + '.json'))
+    const dealRecord = readFileSync(path.join(global.db_stocks, queryCode, 'deals', date + '.json'))
     let loop = 0
     let bigDealIn = 0 // 超过5万
     let bigDealOut = 0 // 超过5万

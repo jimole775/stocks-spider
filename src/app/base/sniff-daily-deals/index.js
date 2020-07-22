@@ -6,7 +6,7 @@
  */
 const moment = require('moment')
 const querystring = require('querystring')
-const recordPeerDeal = require('./record-peer-deal')
+const recordPeerDeal = require('./record-deals')
 const {
   readFileSync, BunchLinking, hasUnlinks,
   recordUsedApi, requestApiInBunch
@@ -14,7 +14,7 @@ const {
 
 const urlModel = readFileSync(global.urlModel)
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
-const fileMode = `peer-deals/${global.finalDealDate}.json`
+const fileMode = `deals/${global.finalDealDate}.json`
 
 module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)

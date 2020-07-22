@@ -2,7 +2,7 @@ const connect = require('./src/utils/connect-stock')
 const fs = require('fs')
 const path = require('path')
 const writeFileSync = require('./src/utils/write-file-sync')
-const readdir = 'src/db/warehouse/peer-deals'
+const readdir = 'src/db/warehouse/deals'
 const writedir = 'src/db-new/'
 const ignoreDates = [
   '2020-03-17', '2020-03-18', '2020-03-19',
@@ -26,7 +26,7 @@ const ignoreDates = [
   '2020-06-08'
 ]
 connect(readdir, ignoreDates, (data, date, stock) => {
-  const target = path.join(writedir, stock, 'warehouse', 'peer-deals', date + '.json')
+  const target = path.join(writedir, stock, 'warehouse', 'deals', date + '.json')
   if (!fs.existsSync(target)) {
     console.log(date, stock)
     writeFileSync(target, data)

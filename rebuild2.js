@@ -1,8 +1,8 @@
 const connect = require('./src/utils/connect-stock')
 const path = require('path')
 const writeFileSync = require('./src/utils/write-file-sync')
-const readdir = 'src/db/warehouse/peer-deals'
-const writedir = 'src/db/warehouse/peer-deals-new'
+const readdir = 'src/db/warehouse/deals'
+const writedir = 'src/db/warehouse/deals-new'
 connect(readdir, (data, date, stock) => {
   let hp = 0
   let ep = 0

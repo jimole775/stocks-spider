@@ -1,7 +1,7 @@
 /** todo 增加一个维度，买入和卖出
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
- * 数据路径：F:\MyPro\stocks\src\db\analyze\peer-deals\shadowlines
+ * 数据路径：F:\MyPro\stocks\src\db\analyze\deals\shadowline
  * return: 
  * {
     "sal_sum_pp": {
@@ -31,10 +31,10 @@
   }
  */
 const path = require('path')
-const dirRoot = `peer-deals`
-const targetRoot = `/analyze/peer-deals/shadowlines/`
+const dirRoot = `deals`
+const targetRoot = `/analyze/deals/shadowline/`
 const { rangeEqual, writeFileSync, readDirSync, connectStock, unrecordFiles } = require(global.utils)
-module.exports = async function shadowlines() {
+module.exports = async function shadowline() {
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
   connectStock(dirRoot, ignoreDateFiles, (fileData, stock, date) => {

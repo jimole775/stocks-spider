@@ -1,24 +1,19 @@
 /**
- * 短时间(1min-15min)下潜（3%以上）并回升的票(1%-3%幅度的误差)
- * 回升时间取 1min， 3min， 5min... 时间段做测试，筛选一个比较可靠的区间
- * 数据路径存储：
+ * 直上直下的分时形态判断
+ * 初步肯定，这是有庄家的征兆
  */
 const path = require('path')
 const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
-const save_vlines_dir = `vlines`
-const read_peerdeal_dir = `peer-deals`
-const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
-const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
+const strokeline_dir = `strokeline`
+const deals_dir = `deals`
+const price_range = 0.02 // 默认为2%价格间隔
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
-module.exports = async function vlines () {
-  // 有可能最后一个date目录的票子还没统计完，
-  // 所以，不管如何，把他压到unRecords里面，
-  // 保证万无一失
-  const recordedDates = unrecordFiles(save_vlines_dir)
-  connectStock(read_peerdeal_dir, recordedDates, (dealData, stock, date)=> {
-    const result = calculateVline(date, stock, dealData)
+module.exports = async function vline () {
+  const recordedDates = unrecordFiles(strokeline_dir)
+  connectStock(deals_dir, recordedDates, (dealData, stock, date)=> {
+    const result = calculateStorkeline(date, stock, dealData)
     if (!isEmptyObject(result)) {
-      writeFileSync(path.join(global.db_api, save_vlines_dir, date, stock + '.json'), result)
+      writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
     }
   })
 }
@@ -27,18 +22,22 @@ module.exports = async function vlines () {
  * 
  * @param {*} date 
  * @param {*} stock 
- * return [{
- *  heavies, // 买入总额
- *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额
- *  buy_p_v: (sum_buy_p / sum_buy_v).toFixed(2), // 买入均价
- *  sal_p_v: (sum_sal_p / sum_sal_v).toFixed(2), // 卖出均价
- *  sum_buy_p: (sum_buy_p).toFixed(2), // 买入总额
- *  sum_buy_v: (sum_buy_v).toFixed(2), // 买入总手数
- *  sum_sal_p: (sum_sal_p).toFixed(2), // 卖出总额
- *  sum_sal_v: (sum_sal_v).toFixed(2), // 卖出总手数
- *  heavy_buy: (heavy_buy).toFixed(2), // 大单买入额
- *  heavy_sal: (heavy_sal).toFixed(2)  // 大单卖出额
- * },...]
+ * return {
+ *  strokes: [{
+ *    lineSize: +- x,
+ *    cost: +- xxx,
+ *    timeRange: xxx ~ xxx,
+ *    isRollback: boolean,
+ *    rollbackTime: xxx,
+ *    rollbackCost: +-xxx,
+ *  }],
+ *  open_pice: 5.05, // 开盘价
+ *  clos_pice: 5.09, // 收盘价
+ *  min_pice: 4.83, // 最低价
+ *  max_pice: 5.16, // 最高价
+ *  name: xxx,
+ *  code: xxx,
+ * }
  *
  */
 // {
@@ -47,21 +46,24 @@ module.exports = async function vlines () {
 //   "v": 109,
 //   "bs": 4
 // },
-function calculateVline (date, stock, dealData) {
+function calculateStorkeline (date, stock, dealData) {
   const name = dealData.n
   const open_p = dealData.cp
   const close_p = dealData.ep
   const high_p = dealData.hp
   const deep_p = dealData.dp
   const deals = dealData.data
-  const divd_p = open_p * price_range
-  const lt_cans = []
-  const rt_cans = []
-  let lt_site = null
-  let rt_site = null
-  let deep_site = null
 
-  let deep_indx = 0
+  const divd_p = open_p * price_range
+  // const lt_cans = []
+  // const rt_cans = []
+  // let lt_site = null
+  // let rt_site = null
+  // let deep_site = null
+
+  // let deep_indx = 0
+  // 价格的涨幅再2个点以上，但是时间间隔不能超过1分钟，
+  // 并且需要记录，主动购买多少
   for (let index = 0; index < deals.length; index++) {
     const dealItem = deals[index]
     
@@ -75,49 +77,49 @@ function calculateVline (date, stock, dealData) {
     }
   }
 
-  if (!deep_site) return {}
+  // if (!deep_site) return {}
 
-  // lt_site
-  for (let j = deep_indx; j > 0; j--) {
-    const lt_dealItem = deals[j]
+  // // lt_site
+  // for (let j = deep_indx; j > 0; j--) {
+  //   const lt_dealItem = deals[j]
 
-    // 9点25分之前的数据都不算
-    if (lt_dealItem.t < 92500) continue
-    const deep_time = new Date(timeFormat(date, deep_site.t))
-    const left_time = new Date(timeFormat(date, lt_dealItem.t))
-    if (deep_time - left_time <= time_dvd) {
-      lt_cans.push(lt_dealItem)
-      if (lt_dealItem.p - deep_site.p >= divd_p) {
-        lt_site = lt_dealItem
-        break
-      }
-    } else {
-      break
-    }
-  }
+  //   // 9点25分之前的数据都不算
+  //   if (lt_dealItem.t < 92500) continue
+  //   const deep_time = new Date(timeFormat(date, deep_site.t))
+  //   const left_time = new Date(timeFormat(date, lt_dealItem.t))
+  //   if (deep_time - left_time <= time_dvd) {
+  //     lt_cans.push(lt_dealItem)
+  //     if (lt_dealItem.p - deep_site.p >= divd_p) {
+  //       lt_site = lt_dealItem
+  //       break
+  //     }
+  //   } else {
+  //     break
+  //   }
+  // }
 
-  if (!lt_site) return {}
-  // rt_site
-  for (let k = deep_indx; k < deals.length; k++) {
+  // if (!lt_site) return {}
+  // // rt_site
+  // for (let k = deep_indx; k < deals.length; k++) {
 
-    const rt_dealItem = deals[k]
+  //   const rt_dealItem = deals[k]
 
-    // 9点25分之前的数据都不算
-    if (rt_dealItem.t < 92500) continue
+  //   // 9点25分之前的数据都不算
+  //   if (rt_dealItem.t < 92500) continue
 
-    const deep_time = new Date(timeFormat(date, deep_site.t))
-    const rigt_time = new Date(timeFormat(date, rt_dealItem.t))
-    if (rigt_time - deep_time <= time_dvd) {
-      rt_cans.push(rt_dealItem)
-      if (rt_dealItem.p - deep_site.p >= divd_p) {
-        rt_site = rt_dealItem
-        break
-      }
-    } else {
-      break
-    }
-  }
-  if (!rt_site) return {}
+  //   const deep_time = new Date(timeFormat(date, deep_site.t))
+  //   const rigt_time = new Date(timeFormat(date, rt_dealItem.t))
+  //   if (rigt_time - deep_time <= time_dvd) {
+  //     rt_cans.push(rt_dealItem)
+  //     if (rt_dealItem.p - deep_site.p >= divd_p) {
+  //       rt_site = rt_dealItem
+  //       break
+  //     }
+  //   } else {
+  //     break
+  //   }
+  // }
+  // if (!rt_site) return {}
   console.log(date, stock, '下潜：', lt_site, ' 回升：', rt_site)
   const res = sumRanges(lt_cans.concat(rt_cans))
   res.start_p = lt_site.p

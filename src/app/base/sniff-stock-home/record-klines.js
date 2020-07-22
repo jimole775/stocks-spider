@@ -1,9 +1,9 @@
 const path = require(`path`)
 const { quest, writeFileSync, klineApiFactory } = require(global.utils)
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
-const fileMode = `/daily-klines/${global.finalDealDate}.json`
-const fileMode_week = `/week-klines/${global.finalDealDate}.json`
-const fileMode_month = `/month-klines/${global.finalDealDate}.json`
+const fileMode = `klines/daily/${global.finalDealDate}.json`
+const fileMode_week = `klines/week/${global.finalDealDate}.json`
+const fileMode_month = `klines/month/${global.finalDealDate}.json`
 // const former_fileMode = `/former-daily-klines/${global.finalDealDate}.json`
 module.exports = async function recordKlines (klineApi) {
   return new Promise((resolve, reject) => executes(klineApi, resolve, reject, 0))

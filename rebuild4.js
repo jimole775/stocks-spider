@@ -30,14 +30,14 @@ const stocks = readDirSync(readdir)
 for (let index = 0; index < stocks.length; index++) {
   const stock = stocks[index]
   const dates = readDirSync(path.join(readdir, stock, targetdir))
-  buildPath(path.join(writedir, stock, targetdir))
+  buildPath(path.join(writedir, stock, 'deals'))
   for (let j = 0; j < dates.length; j++) {
     const date = dates[j]
-    fs.copyFileSync(path.join(readdir, stock, targetdir, date), path.join(writedir, stock, targetdir, date))
+    fs.copyFileSync(path.join(readdir, stock, targetdir, date), path.join(writedir, stock, 'deals', date))
   }
 }
 // connect(readdir, ignoreDates, (data, date, stock) => {
-//   const target = path.join(writedir, stock, 'peer-deals', date + '.json')
+//   const target = path.join(writedir, stock, 'deals', date + '.json')
 //   if (!fs.existsSync(target)) {
 //     console.log(date, stock)
 //     writeFileSync(target, data)

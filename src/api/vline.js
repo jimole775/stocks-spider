@@ -1,7 +1,7 @@
 const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
-const vline_db_base = path.join(global.db_api, 'vlines')
+const vline_db_base = path.join(global.db_api, 'vline')
 module.exports = function kline (req, res) {
   const resData = {
     code: 20000,

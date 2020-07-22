@@ -8,8 +8,8 @@ const writeFileSync = require('./src/utils/write-file-sync')
 // const { readDirSync, readFileSync, writeFileSync } = require('./src/utils')
 // 取出 json 数据中的 date 数据，当作当前数据的文件名
 const assianDir = './src/db/warehouse/daily-klines/2020-06-24'
-const srcDir = './src/db/warehouse/peer-deals'
-const targetDir = './src/db/warehouse/peer-deals-tmp'
+const srcDir = './src/db/warehouse/deals'
+const targetDir = './src/db/warehouse/deals-tmp'
 // 2020-06-24 => stocks => {"code":"000001","market":0,"name":"平安银行","decimal":2,"dktotal":6959,"klines": ["2020-05-27,13.05...",""]}
 // dates(2020-03-17~) => stocks => {"c":"000001","m":0,"n":"平安银行","ct":0,"cp":12760,"tc":4726, "data": []}
 
