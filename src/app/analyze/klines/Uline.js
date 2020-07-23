@@ -57,21 +57,23 @@ const seriesDaiesDvd = 4
   // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
   let leftDailyItem = null
   let rightDailyItem = null
-  let [leftDate, leftOpenPrice, leftClosePrice] = fileData.klines[leftpoint]
-  let [rightDate, rightOpenPrice, rightClosePrice] = fileData.klines[rightpoint]
-  for (let j = leftpoint; j >= leftpoint - 5; j -= 1) {
+  let [leftDate, leftOpenPrice, leftClosePrice] = fileData.klines[leftpoint].split(',')
+  let [rightDate, rightOpenPrice, rightClosePrice] = fileData.klines[rightpoint].split(',')
+  for (let j = leftpoint; j > leftpoint - 5; j -= 1) {
     const [date, openPrice, closePrice, highPrice, lowPrice, deals, dealSum, wave] = fileData.klines[j].split(',')
-    if (openPrice - leftOpenPrice > openPrice * 0.1) {
+    if (Number.parseFloat(openPrice) - Number.parseFloat(leftOpenPrice) > Number.parseFloat(leftOpenPrice) * 0.1) {
       // left边 属于跌落趋势，所以计算需要从右往左看
       leftDailyItem = fileData.klines[j]
+      break
     }
   }
 
   for (let k = rightpoint; k < rightpoint + 5; k += 1) {
     const [date, openPrice, closePrice, highPrice, lowPrice, deals, dealSum, wave] = fileData.klines[k].split(',')
-    if (closePrice - rightClosePrice > openPrice * 0.1) {
+    if (Number.parseFloat(closePrice) - Number.parseFloat(rightClosePrice) > Number.parseFloat(rightClosePrice) * 0.1) {
       // left边 属于跌落趋势，所以计算需要从右往左看
       rightDailyItem = fileData.klines[k]
+      break
     }
   }
 

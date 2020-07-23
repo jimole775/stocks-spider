@@ -14,6 +14,16 @@
       "program": "${workspaceFolder}\\src\\main.js",
       "args":["--mode=vline"]
       // "program": "${workspaceFolder}\\test.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test111",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}\\src\\app\\analyze\\klines\\Uline.js",
+      // "program": "${workspaceFolder}\\test.js"
     }
   ]
 }
