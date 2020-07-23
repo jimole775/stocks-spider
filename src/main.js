@@ -4,7 +4,8 @@
 
   const sniffStockHome = require('./app/base/sniff-stock-home')
   const sniffDailyDeals = require('./app/base/sniff-daily-deals')
-  const analyzer = require('./app/analyze/deals')
+  const analyzerDeals = require('./app/analyze/deals')
+  const analyzerKlines = require('./app/analyze/klines')
   if (['kline', 'all'].includes(global.module)) {
     await sniffStockHome()
   }
@@ -12,10 +13,13 @@
     await sniffDailyDeals()
   }
   if (['shadowline', 'all'].includes(global.module)) {
-    await analyzer.shadowline()
+    await analyzerDeals.shadowline()
   }
   if (['vline', 'all'].includes(global.module)) {
-    await analyzer.vline()
+    await analyzerDeals.vline()
+  }
+  if (['uline', 'all'].includes(global.module)) {
+    await analyzerKlines.uline()
   }
   process.exit()
 })()

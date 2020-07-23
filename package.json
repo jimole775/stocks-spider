@@ -9,11 +9,10 @@
     "start:shadowline": "node src/main.js --module=shadowline",
     "start:deal": "node src/main.js --module=deal",
     "start:vline": "node src/main.js --module=vline",
+    "start:uline": "node src/main.js --module=uline",
     "busy": "node src/main.js --module=all --netstat=busy",
     "busy:kline": "node src/main.js --module=kline --netstat=busy",
-    "busy:shadowline": "node src/main.js --module=shadowline --netstat=busy",
     "busy:deal": "node src/main.js --module=deal --netstat=busy",
-    "busy:vline": "node src/main.js --module=vline --netstat=busy",
     "serve": "node src/api/main --port=9527"
   },
   "author": "Rongxis",
