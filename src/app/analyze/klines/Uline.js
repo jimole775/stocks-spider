@@ -6,14 +6,6 @@
 // 然后根据U型底推演两边的边形态
 // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
 
-
-// 返回的数据模型
-var model = {
-  "code": "000587",
-  "leftSider": [],
-  "bottom": [],
-  "rightSider": []
-}
 const fs = require('fs')
 const path = require('path')
 const theBottomWave = 0.01
@@ -23,22 +15,23 @@ const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
-    const [ulineBeginDaily, ulineEndDaily] = excution(fileData)
-    console.log(ulineBeginDaily, ulineEndDaily)
+    const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
+    console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
     if (ulineBeginDaily && ulineEndDaily) {
       writeFileSync(path.join(global.db_api, save_dir, stock + '.json'), {
-        code: stock,
-        ulineBeginDaily,
-        ulineEndDaily
+        code: fileData.code,
+        name: fileData.name,
+        ulineLeftItems,
+        ulineBottomItems,
+        ulineRihtItems,
       })
     }
   })
-// let fileData = readFileSync('G:\\my_db\\stocks-spider\\stocks\\002355\\fr-klines\\daily\\2020-07-23.json')
-// const [ulineBeginDaily, ulineEndDaily] = excution(fileData)
-// console.log(ulineBeginDaily, ulineEndDaily)
 }
+// let fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')
+// const  [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(JSON.parse(fileData))
+// console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
 function excution (fileData) {
-  // let fileData = readFileSync('G:\\my_db\\stocks-spider\\stocks\\002355\\fr-klines\\daily\\2020-07-23.json')
   const daiesMap = {}
   const matchedMap = {}
   fileData.klines.forEach((daily, index) => {
@@ -53,17 +46,19 @@ function excution (fileData) {
   })
 
   // 获取【U型底】的两个边的起始下标
-  const [leftpoint, rightpoint] = calcBottomBothSides(matchedMap, seriesDaiesDvd)
-  if (leftpoint === null || rightpoint === null) return [null, null]
+  const [leftpoint, rightpoint] = calcBottomSider(matchedMap, seriesDaiesDvd)
+  if (leftpoint === null || rightpoint === null) return [null, null, null]
   console.log(leftpoint, rightpoint)
-  // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
-  const ulineBeginDaily = drawLeftSider(leftpoint, fileData)
-  const ulineEndDaily = drawRightSider(rightpoint, fileData)
 
-  return [ulineBeginDaily, ulineEndDaily]
+  // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
+  const ulineLeftItems = drawLeftSider(leftpoint, fileData.klines)
+  const ulineRihtItems = drawRightSider(rightpoint, fileData.klines)
+
+  const ulineBottomItems = storeBottomItems(leftpoint, rightpoint, fileData.klines)
+  return [ulineLeftItems, ulineBottomItems, ulineRihtItems]
 }
 
-function calcBottomBothSides (matchedMap, seriesDaiesDvd) {
+function calcBottomSider (matchedMap, seriesDaiesDvd) {
   // 获取【U型底】的两个边的起始下标
   let leftpoint = null
   let rightpoint = null
@@ -88,10 +83,10 @@ function calcBottomBothSides (matchedMap, seriesDaiesDvd) {
           break
         }
       }
+
       // 如果确定连续性的间距大于 seriesDaiesDvd，
       // 那么就可以确定 【U型底】 的左边下标了
       if (rightpoint - loopKey >= seriesDaiesDvd) {
-        console.log('loopKey:', loopKey)
         leftpoint = Number.parseInt(loopKey)
       } else {
         rightpoint = null
@@ -102,37 +97,47 @@ function calcBottomBothSides (matchedMap, seriesDaiesDvd) {
   return [leftpoint, rightpoint]
 }
 
-
-function drawLeftSider (leftpoint, fileData) {
-  if (leftpoint === null) return null
-  let [leftDate, leftOpenPrice, leftClosePrice] = fileData.klines[leftpoint].split(',')
-  let ulineBeginDaily = null
-  for (let j = leftpoint; j > leftpoint - 5; j -= 1) {
-    const klineItem = fileData.klines[j]
-    if (!klineItem) break
-    const [date, openPrice, closePrice, highPrice, lowPrice, deals, dealSum, wave] = klineItem.split(',')
-    if (openPrice - leftOpenPrice > leftOpenPrice * 0.1) {
-      // left边 属于跌落趋势，所以计算需要从右往左看
-      ulineBeginDaily = klineItem
-      break
-    }
+function storeBottomItems (leftpoint, rightpoint, klines) {
+  const bottomItems = []
+  for (let index = leftpoint; index <= rightpoint; index++) {
+    const element = klines[index]
+    bottomItems.push(element)
   }
-  return ulineBeginDaily
+  return bottomItems
 }
 
-function drawRightSider (rightpoint, fileData) {
-  if (rightpoint === null) return null
-  let [rightDate, rightOpenPrice, rightClosePrice] = fileData.klines[rightpoint].split(',')
-  let ulineEndDaily = null
-  for (let k = rightpoint; k < rightpoint + 5; k += 1) {
-    const klineItem = fileData.klines[k]
+function drawLeftSider (leftpoint, klines) {
+  let [leftDate, leftOpenPrice, leftClosePrice] = klines[leftpoint].split(',')
+  let isTrue = false
+  const leftItems = []
+  for (let j = leftpoint; j > leftpoint - 5; j -= 1) {
+    const klineItem = klines[j]
     if (!klineItem) break
-    const [date, openPrice, closePrice, highPrice, lowPrice, deals, dealSum, wave] = klineItem.split(',')
-    if (closePrice - rightClosePrice > rightClosePrice * 0.05) {
-      // right边 属于上涨趋势，所以计算需要从左往右看
-      ulineEndDaily = klineItem
+    leftItems.unshift(klineItem)
+    const [date, openPrice] = klineItem.split(',')
+    if (openPrice - leftOpenPrice > leftOpenPrice * 0.1) {
+      // left边 属于跌落趋势，所以计算需要从右往左看
+      isTrue = true
       break
     }
   }
-  return ulineEndDaily
+  return isTrue ? leftItems : null
+}
+
+function drawRightSider (rightpoint, klines) {
+  let [rightDate, rightOpenPrice, rightClosePrice] = klines[rightpoint].split(',')
+  let isTrue = false
+  const rightItems = []
+  for (let k = rightpoint; k < rightpoint + 5; k += 1) {
+    const klineItem = klines[k]
+    if (!klineItem) break
+    rightItems.push(klineItem)
+    const [date, openPrice, closePrice] = klineItem.split(',')
+    if (closePrice - rightClosePrice > rightClosePrice * 0.05) {
+      // right边 属于上涨趋势，所以计算需要从左往右看
+      isTrue = true
+      break
+    }
+  }
+  return isTrue ? rightItems : null
 }
