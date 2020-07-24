@@ -19,7 +19,7 @@ module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
     const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
-    if (ulineBeginDaily && ulineEndDaily) {
+    if (ulineBottomItems && (ulineLeftItems || ulineRihtItems)) {
       writeFileSync(path.join(global.db_api, save_dir, stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
