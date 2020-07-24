@@ -17,22 +17,22 @@ const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
-    const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
-    console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
-    if (ulineBottomItems && (ulineLeftItems || ulineRihtItems)) {
+    const [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
+    console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
+    if (ulineBottomItems && (ulineLeftItems || ulineRightItems)) {
       writeFileSync(path.join(global.db_api, save_dir, stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
         ulineLeftItems,
         ulineBottomItems,
-        ulineRihtItems,
+        ulineRightItems,
       })
     }
   })
 }
 // let fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')
-// const  [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(JSON.parse(fileData))
-// console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
+// const  [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(JSON.parse(fileData))
+// console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
 function excution (fileData) {
   const daiesMap = {}
   const matchedMap = {}
@@ -54,10 +54,10 @@ function excution (fileData) {
 
   // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
   const ulineLeftItems = drawLeftSider(leftpoint, fileData.klines)
-  const ulineRihtItems = drawRightSider(rightpoint, fileData.klines)
+  const ulineRightItems = drawRightSider(rightpoint, fileData.klines)
 
   const ulineBottomItems = storeBottomItems(leftpoint, rightpoint, fileData.klines)
-  return [ulineLeftItems, ulineBottomItems, ulineRihtItems]
+  return [ulineLeftItems, ulineBottomItems, ulineRightItems]
 }
 
 function calcBottomSider (matchedMap, seriesDaiesDvd) {
