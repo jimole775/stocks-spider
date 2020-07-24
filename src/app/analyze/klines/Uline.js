@@ -9,6 +9,8 @@
 const fs = require('fs')
 const path = require('path')
 const theBottomWave = 0.01
+const theLeftWave = 0.1
+const theRightWave = 0.5
 const seriesDaiesDvd = 4
 const { readFileSync, writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
 const save_dir = `uline`
@@ -115,7 +117,7 @@ function drawLeftSider (leftpoint, klines) {
     if (!klineItem) break
     leftItems.unshift(klineItem)
     const [date, openPrice] = klineItem.split(',')
-    if (openPrice - leftOpenPrice > leftOpenPrice * 0.1) {
+    if (openPrice - leftOpenPrice > leftOpenPrice * theLeftWave) {
       // left边 属于跌落趋势，所以计算需要从右往左看
       isTrue = true
       break
@@ -133,7 +135,7 @@ function drawRightSider (rightpoint, klines) {
     if (!klineItem) break
     rightItems.push(klineItem)
     const [date, openPrice, closePrice] = klineItem.split(',')
-    if (closePrice - rightClosePrice > rightClosePrice * 0.05) {
+    if (closePrice - rightClosePrice > rightClosePrice * theRightWave) {
       // right边 属于上涨趋势，所以计算需要从左往右看
       isTrue = true
       break
