@@ -6,8 +6,11 @@
 // 然后根据U型底推演两边的边形态
 // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
 
+// todo @2020/7/27 如果改用5日线，需要算均线，而不是收盘价
+// todo @2020/7/27 通过 theBottomWave 的比对需要重新筛一遍逻辑，使其能符合【华菱精工】的精准U型底 
 const fs = require('fs')
 const path = require('path')
+const moment = require('moment')
 const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
@@ -17,10 +20,14 @@ const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
+    if (global.blackName.test(fileData.name)) return
     const [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
-    if (ulineBottomItems && (ulineLeftItems || ulineRightItems)) {
-      writeFileSync(path.join(global.db_api, save_dir, stock + '.json'), {
+    // if (ulineBottomItems && (ulineLeftItems || ulineRightItems)) {
+    const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+    console.log(dateRange)
+    if (ulineBottomItems && ulineBottomItems.join(',').includes(dateRange)) {
+      writeFileSync(path.join(global.db_api, save_dir, 'temp', stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
         ulineLeftItems,

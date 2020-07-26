@@ -3,6 +3,8 @@ const cmdParam = require(`./utils/cmd-param`)
 const moment = require('moment')
 module.exports = async function () {
 
+  global.blackName = /[ST|退市]/
+
   // 命令行参数
   global.crossEnv = cmdParam()
   global.module = global.crossEnv.module
