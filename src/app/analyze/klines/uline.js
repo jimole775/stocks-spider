@@ -21,18 +21,21 @@ const read_dir = `fr-klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
     if (global.blackName.test(fileData.name)) return
-    const [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
+    let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
-    // if (ulineBottomItems && (ulineLeftItems || ulineRightItems)) {
     const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
-    console.log(dateRange)
     if (ulineBottomItems && ulineBottomItems.join(',').includes(dateRange)) {
+      ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
+      ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
+      ulineRightItems = ulineRightItems ? ulineRightItems : []
       writeFileSync(path.join(global.db_api, save_dir, 'temp', stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
-        ulineLeftItems,
-        ulineBottomItems,
-        ulineRightItems,
+        klines: [
+          ...ulineLeftItems,
+          ...ulineBottomItems,
+          ...ulineRightItems,
+        ]
       })
     }
   })
