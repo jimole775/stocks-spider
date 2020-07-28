@@ -40,6 +40,31 @@ module.exports = function uline () {
     }
   })
 }
+
+function queryBottomTrend (ulineBottomItems) {
+  if (!ulineBottomItems) return false
+  let breakPoint = 0
+  for (breakPoint < ulineBottomItems.length; breakPoint += 1;) {
+    let left = ulineBottomItems[breakPoint]
+    let right = ulineBottomItems[breakPoint + 1]
+    if (!right) break // 边界
+    left = Number.parseFloat(left.split(',')[2])
+    right = Number.parseFloat(right.split(',')[2])
+    if (left < right) break // 如果左大于右，break
+  }
+  
+  for (breakPoint < ulineBottomItems.length; breakPoint += 1;) {
+    let left = ulineBottomItems[breakPoint]
+    let right = ulineBottomItems[breakPoint + 1]
+    if (!right) break // 边界
+    left = Number.parseFloat(left.split(',')[2])
+    right = Number.parseFloat(right.split(',')[2])
+    if (left > right) break // 如果左大于右，break
+  }
+  console.log(breakPoint, ulineBottomItems.length)
+  if (breakPoint === ulineBottomItems.length - 1) return true
+  else return false
+}
 // let fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')
 // const  [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(JSON.parse(fileData))
 // console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
@@ -60,7 +85,7 @@ function excution (fileData) {
   // 获取【U型底】的两个边的起始下标
   const [leftpoint, rightpoint] = calcBottomSider(matchedMap, seriesDaiesDvd)
   if (leftpoint === null || rightpoint === null) return [null, null, null]
-  console.log(leftpoint, rightpoint)
+  // console.log(leftpoint, rightpoint)
 
   // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
   const ulineLeftItems = drawLeftSider(leftpoint, fileData.klines)

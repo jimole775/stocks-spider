@@ -30,8 +30,8 @@ async function pickKline (klineApi) {
   const file_week = path.join(global.db_stocks, stockCode, fileMode_week)
   const file_month = path.join(global.db_stocks, stockCode, fileMode_month)
   await handleRecord(file, klineApi)
-  await handleRecord(file_week, klineApi_week)
-  await handleRecord(file_month, klineApi_month)
+  // await handleRecord(file_week, klineApi_week)
+  // await handleRecord(file_month, klineApi_month)
   return Promise.resolve()
 }
 
@@ -42,8 +42,8 @@ async function pickFRKline (klineApi) {
   const file_week = path.join(global.db_stocks, stockCode, fr_fileMode_week)
   const file_month = path.join(global.db_stocks, stockCode, fr_fileMode_month)
   await handleRecord(file, klineApi)
-  await handleRecord(file_week, klineApi_week)
-  await handleRecord(file_month, klineApi_month)
+  // await handleRecord(file_week, klineApi_week)
+  // await handleRecord(file_month, klineApi_month)
   return Promise.resolve()
 }
 
