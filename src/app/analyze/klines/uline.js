@@ -23,12 +23,12 @@ module.exports = function uline () {
     if (global.blackName.test(fileData.name)) return
     let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
-    const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
-    if (ulineBottomItems && ulineBottomItems.join(',').includes(dateRange)) {
+    // const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+    if (ulineLeftItems && ulineBottomItems) {
       ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
       ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
       ulineRightItems = ulineRightItems ? ulineRightItems : []
-      writeFileSync(path.join(global.db_api, save_dir, 'temp', stock + '.json'), {
+      writeFileSync(path.join(global.db_api, save_dir, global.finalDealDate, stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
         klines: [

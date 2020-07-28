@@ -2,7 +2,7 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const uline_db = path.join(global.db_api, 'uline')
-module.exports = function kline (req, res) {
+module.exports = function uline (req, res) {
   const resData = {
     code: 20000,
     message: 'success',
@@ -12,12 +12,14 @@ module.exports = function kline (req, res) {
   try {
     const { pageNumber, pageSize, date: queryDate, code: queryCode, name: stockName, dateRange: queryDateRange } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
-    const stocks = readDirSync(uline_db)
+    const dates = readDirSync(uline_db)
+    const finalDealDate = dates[dates.length - 1]
+    const stocks = readDirSync(path.join(uline_db, finalDealDate))
     let loop = 0
     stocks.forEach((stock) => {
       // 匹配 date 查询，如果 queryCode 有值，但是匹配不到对应的date，直接退出
-      if (queryCode && queryCode !== stock) return false
-      const data = readFileSync(path.join(uline_db, stock))
+      if (queryCode && !stock.includes(queryCode)) return false
+      const data = readFileSync(path.join(uline_db, finalDealDate, stock))
       loop += 1
       // 匹配 分页 查询
       if (loop > start && loop < (start + pageSize + 1)) {
