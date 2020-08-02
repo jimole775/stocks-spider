@@ -17,7 +17,7 @@ const theRightWave = 0.5
 const seriesDaiesDvd = 4
 const { readFileSync, writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
 const save_dir = `uline`
-const read_dir = `klines/daily`
+const read_dir = `fr-klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
     if (global.blackName.test(fileData.name)) return
