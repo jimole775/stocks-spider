@@ -16,7 +16,7 @@ module.exports = async function vline () {
   // 保证万无一失
   const recordedDates = unrecordFiles(save_vline_dir)
   connectStock(read_peerdeal_dir, recordedDates, (dealData, stock, date)=> {
-    if (global.blackName.test(fileData.n)) return
+    if (global.blackName.test(dealData.n)) return
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
       writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)

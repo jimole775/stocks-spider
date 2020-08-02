@@ -17,12 +17,12 @@ const theRightWave = 0.5
 const seriesDaiesDvd = 4
 const { readFileSync, writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
 const save_dir = `uline`
-const read_dir = `fr-klines/daily`
+const read_dir = `klines/daily`
 module.exports = function uline () {
   connectStock(read_dir, (fileData, stock, date)=> {
     if (global.blackName.test(fileData.name)) return
     let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
-    console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
+    // console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
     // const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
     if (ulineLeftItems && ulineBottomItems) {
       ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
@@ -61,7 +61,7 @@ function queryBottomTrend (ulineBottomItems) {
     right = Number.parseFloat(right.split(',')[2])
     if (left > right) break // 如果左大于右，break
   }
-  console.log(breakPoint, ulineBottomItems.length)
+  // console.log(breakPoint, ulineBottomItems.length)
   if (breakPoint === ulineBottomItems.length - 1) return true
   else return false
 }
