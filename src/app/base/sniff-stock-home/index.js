@@ -30,8 +30,8 @@ async function excution(resolve) {
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('klineApi', unlinkedUrls, async (stockItem) => {
     try {
-      const { klineApi } = klineApiFactory(stockItem['klineApi'])
-      await recordKlines(klineApi)
+      const { klineApi_daily } = klineApiFactory(stockItem['klineApi'])
+      await recordKlines(klineApi_daily)
       return Promise.resolve()
     } catch (error) {
       return Promise.reject()
@@ -58,9 +58,9 @@ async function sniffUrlFromWeb (unlinkedUrls) {
     response: async function (response) {
       const api = response.url()
       if (response.status() === 200 && dailyKlineReg.test(api)) {
-        const { klineApi } = klineApiFactory(api)
-        doneApiMap[stockCode] = klineApi
-        return await recordKlines(klineApi)
+        const { klineApi_daily } = klineApiFactory(api)
+        doneApiMap[stockCode] = klineApi_daily
+        return await recordKlines(klineApi_daily)
       }
     },
     end: function () {

@@ -1,5 +1,5 @@
 const querystring = require('querystring')
-module.exports = function transApi (api, fqt = 0) {
+module.exports = function klineApiFactory (api, fqt = 0) {
   const [host, query] = api.split('?')
   const queryObj = querystring.decode(query)
   const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
@@ -11,7 +11,7 @@ module.exports = function transApi (api, fqt = 0) {
   const klineApi_week = spill(host, queryObj)
   queryObj.klt = 103 // klt: 103 月线
   const klineApi_month = spill(host, queryObj)
-  return { stockCode, klineApi, klineApi_week, klineApi_month}
+  return { stockCode, klineApi_daily, klineApi_week, klineApi_month}
 }
 
 function spill (host, queryObj) {

@@ -24,24 +24,23 @@ async function executes (klineApi, resolve, reject, loopTimes) {
 }
 
 async function pickKline (klineApi) {
-  const { stockCode, klineApi_week, klineApi_month } = klineApiFactory(klineApi)
+  const { stockCode, klineApi_daily, klineApi_week, klineApi_month } = klineApiFactory(klineApi)
   console.log('kline:', stockCode)
   const file = path.join(global.db_stocks, stockCode, fileMode)
-  const file_week = path.join(global.db_stocks, stockCode, fileMode_week)
-  const file_month = path.join(global.db_stocks, stockCode, fileMode_month)
-  await handleRecord(file, klineApi)
+  // const file_week = path.join(global.db_stocks, stockCode, fileMode_week)
+  // const file_month = path.join(global.db_stocks, stockCode, fileMode_month)
+  await handleRecord(file, klineApi_daily)
   // await handleRecord(file_week, klineApi_week)
   // await handleRecord(file_month, klineApi_month)
   return Promise.resolve()
 }
 
 async function pickFRKline (klineApi) {
-  const { stockCode, klineApi_week, klineApi_month } = klineApiFactory(klineApi, 1)
-  console.log('FRkline:', stockCode)
+  const { stockCode, klineApi_daily, klineApi_week, klineApi_month } = klineApiFactory(klineApi, 1)
   const file = path.join(global.db_stocks, stockCode, fr_fileMode)
-  const file_week = path.join(global.db_stocks, stockCode, fr_fileMode_week)
-  const file_month = path.join(global.db_stocks, stockCode, fr_fileMode_month)
-  await handleRecord(file, klineApi)
+  // const file_week = path.join(global.db_stocks, stockCode, fr_fileMode_week)
+  // const file_month = path.join(global.db_stocks, stockCode, fr_fileMode_month)
+  await handleRecord(file, klineApi_daily)
   // await handleRecord(file_week, klineApi_week)
   // await handleRecord(file_month, klineApi_month)
   return Promise.resolve()
