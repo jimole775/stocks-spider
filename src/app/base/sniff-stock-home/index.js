@@ -21,7 +21,6 @@ module.exports = function sniffStockHome() {
 }
 
 async function excution(resolve) {
-
   let unlinkedUrls = hasUnlinks(fileMode)
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
 

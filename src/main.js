@@ -21,6 +21,10 @@
   if (['kline', 'uline', 'all'].includes(global.module)) {
     await analyzerKlines.uline()
   }
+  
+  if (['kline', 'lowerpoint', 'all'].includes(global.module)) {
+    await analyzerKlines.lowerpoint()
+  }
 
   if (['test'].includes(global.module)) {
     const fs = require('fs')

@@ -1,12 +1,14 @@
 const querystring = require('querystring')
 module.exports = function klineApiFactory (api, fqt = 0) {
+  const serveId = Math.round(Math.random() * 10) + '' + Math.round(Math.random() * 10)
+  api = api.replace(/^http:\/\/(\d{2}).push2his/g, `http:\/\/${serveId}.push2his`)
   const [host, query] = api.split('?')
   const queryObj = querystring.decode(query)
   const stockCode = queryObj.secid.split('.').pop() // secid: '1.603005',
   queryObj.lmt = global.kline.page_size || 120 // lmt: '120',
   queryObj.fqt = fqt // fqt: '0'-不复权，'1'-前复权,
   queryObj.klt = 101 // klt: 101 日线
-  const klineApi = spill(host, queryObj)
+  const klineApi_daily = spill(host, queryObj)
   queryObj.klt = 102 // klt: 102 周线
   const klineApi_week = spill(host, queryObj)
   queryObj.klt = 103 // klt: 103 月线

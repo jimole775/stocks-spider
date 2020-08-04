@@ -25,7 +25,6 @@ async function executes (klineApi, resolve, reject, loopTimes) {
 
 async function pickKline (klineApi) {
   const { stockCode, klineApi_daily, klineApi_week, klineApi_month } = klineApiFactory(klineApi)
-  console.log('kline:', stockCode)
   const file = path.join(global.db_stocks, stockCode, fileMode)
   // const file_week = path.join(global.db_stocks, stockCode, fileMode_week)
   // const file_month = path.join(global.db_stocks, stockCode, fileMode_month)

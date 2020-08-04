@@ -1,3 +1,4 @@
 module.exports = {
-  uline: require('./uline')
+  uline: require('./uline'),
+  lowerpoint: require('./lowerpoint'),
 }
