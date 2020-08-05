@@ -39,19 +39,19 @@ function calculate({ klines }) {
   let avg10 = 0
   let avg20 = 0
   let avg30 = 0
-  for (let index = endIndex; index > klines.length - 5; index -= 1) {
+  for (let index = endIndex; index >= klines.length - 5; index -= 1) {
     const [date, open, close] = klines[index].split(',')
     avg05 += Number.parseFloat(close)
   }
-  for (let index = endIndex; index > klines.length - 10; index -= 1) {
+  for (let index = endIndex; index >= klines.length - 10; index -= 1) {
     const [date, open, close] = klines[index].split(',')
     avg10 += Number.parseFloat(close)
   }
-  for (let index = endIndex; index > klines.length - 20; index -= 1) {
+  for (let index = endIndex; index >= klines.length - 20; index -= 1) {
     const [date, open, close] = klines[index].split(',')
     avg20 += Number.parseFloat(close)
   }
-  for (let index = endIndex; index > klines.length - 30; index -= 1) {
+  for (let index = endIndex; index >= klines.length - 30; index -= 1) {
     const [date, open, close] = klines[index].split(',')
     avg30 += Number.parseFloat(close)
   }

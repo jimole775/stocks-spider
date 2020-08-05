@@ -3,6 +3,7 @@ const readDirSync = require('./read-dir-sync')
 const readFileSync = require('./read-file-sync')
 const diffrence = require('./diffrence')
 const assert = require('./assert')
+const dict_code_name = require(path.join(global.db_dict,'code-name.json'))
 const dbPath = global.db_stocks
 /**
  * 读取指定存储目录的stock
@@ -31,11 +32,12 @@ module.exports = function connectStock(targetDir, ignoreDateFiles, callback) {
 
   for (let i = 0; i < stockCodes.length; i += 1) {
     const stockCode = stockCodes[i]
+    console.log(dict_code_name[stockCode])
+    if (global.blackName.test(dict_code_name[stockCode])) continue
     let dateFiles = readDirSync(path.join(dbPath, stockCode, targetDir))
     if (ignoreDateFiles && ignoreDateFiles[stockCode].length) {
       dateFiles = diffrence(dateFiles, ignoreDateFiles[stockCode])
     }
-    console.log(stockCode)
     for (let j = 0; j < dateFiles.length; j++) {
       const dateFile = dateFiles[j]
       const fileData = readFileSync(path.join(dbPath, stockCode, targetDir, dateFile))
