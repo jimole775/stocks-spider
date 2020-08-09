@@ -10,25 +10,27 @@
  * ]
  */
 const path = require('path')
-const { writeFileSync, quest } = require(global.utils)
+const { writeFileSync, quest, dealApiFactory } = require(global.utils)
 const fileModel = `deals/${global.finalDealDate}.json`
-module.exports = async function recordPeerDeal(stockCode, api) {
-  return new Promise((resolve) => excutes(stockCode, api, resolve, 0))
+
+module.exports = async function recordPeerDeal(recordItem) {
+  return new Promise((resolve) => excutes(recordItem, resolve, 0))
 }
 
-async function excutes (stockCode, api, resolve, loopTimes) {
+// http://push2ex.eastmoney.com/getStockFenShi?pagesize=99999&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery112308687412063259543_1592944461518&pageindex=0&id=6039991&sort=1&ft=1&code=603999&market=1&_=1592944461519
+async function excutes (recordItem, resolve, loopTimes) {
   try {
+    recordItem.id = recordItem.id + ''
+    const stockCode = recordItem.id.substring(recordItem.id.length - 1)
     console.log('deal:', stockCode)
-    // 修改数据的请求数量?pagesize=144&
-    const adjustToMax = api.replace(/^(http.*?)\?pagesize\=\d*?\&(.*?)$/, '$1?pagesize=99999&$2')
-    const dirtyData = await quest(adjustToMax) || 'jquey_123456({"data":{"data":[]}});'
+    const dirtyData = await quest(dealApiFactory(recordItem)) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
     await writeFileSync(path.join(global.db_stocks, stockCode, fileModel), pureData.data ? recorDetail(pureData.data) : {})
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
-    console.error('record-deals error:', stockCode, error)
-    return setTimeout(() => excutes(stockCode, api, resolve, ++loopTimes), 1000)
+    console.error('record-deals error:', recordItem.id, error)
+    return setTimeout(() => excutes(recordItem, resolve, ++loopTimes), 1000)
   }
 }
 

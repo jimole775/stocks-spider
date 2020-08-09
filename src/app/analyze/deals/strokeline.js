@@ -3,7 +3,7 @@
  * 初步肯定，这是有庄家的征兆
  */
 const path = require('path')
-const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
+const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
 const price_range = 0.02 // 默认为2%价格间隔
@@ -16,6 +16,10 @@ module.exports = async function vline () {
       writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
     }
   })
+}
+
+function unrecordFiles () {
+
 }
 
 /**

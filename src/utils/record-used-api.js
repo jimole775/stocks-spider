@@ -1,6 +1,6 @@
 const writeFileSync = require('./write-file-sync')
 const allStocks = require(global.baseData).data
-module.exports = function recordUsedApi (apiMap, apiKey) {
+module.exports = function recordUsedApi (apiKey, apiMap) {
   allStocks.forEach(stockItem => {
     if (apiMap[stockItem.code]) {
       stockItem[apiKey] = apiMap[stockItem.code]

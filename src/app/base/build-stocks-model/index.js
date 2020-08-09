@@ -12,15 +12,17 @@ module.exports = function buildStocksModel() {
 }
 
 async function excutes (resolve, reject) {
-  const alreadyData = await tryToloadAlreadyData(global.baseData)
-  if (alreadyData) return resolve(alreadyData)
+  let alreadyData = readFileSync(filePath, 'utf8')
+  if (new Date().getTime() - new Date(alreadyData.date).getTime() <= 24 * 60 * 60 * 1000) {
+    return resolve()
+  }
   try {
     const browser = await puppeteer.launch().catch()
     const pageEnity = await browser.newPage().catch()
     const allStocks = await buildModel(pageEnity)
     const baseData = {
       date: new Date().getTime(),
-      data: JSON.stringify(allStocks)
+      data: alreadyData ? merge(alreadyData.data, allStocks) : JSON.stringify(allStocks)
     }
     writeFileSync(global.baseData, baseData)
     return resolve(baseData)
@@ -30,25 +32,20 @@ async function excutes (resolve, reject) {
   }
 }
 
-function goToken(url) {
-  try {
-    if (!global.external.token) {
-      var matchs = url.match(/[\?|\&]token\=[\d\w]+/ig)
-      if (matchs.length) {
-        global.external.token = matchs[0].split('=')[1]
+function merge (alreadyData, newItems) {
+  const res = []
+  alreadyData.forEach((oldItem) => {
+    for (let j = 0; j < newItems.length; j++) {
+      const newItem = newItems[j]
+      if (element.code === oldItem.code) {
+        res.push({
+          ...oldItem,
+          name: newItem.name
+        })
+        newItems.splice(j, 1)
+        break
       }
     }
-  } catch (error) {
-    console.log('./src/app/process/phantomjs/sniff_home_page.js:87 ', error)
-  }
-}
-
-function tryToloadAlreadyData(filePath) {
-  let data = readFileSync(filePath, 'utf8')
-  if (!data) return ''
-  if (Number.parseInt(data.date) - new Date().getTime() >= 24 * 60 * 60 * 1000) {
-    return ''
-  } else {
-    return data.data
-  }
+  })
+  return res
 }

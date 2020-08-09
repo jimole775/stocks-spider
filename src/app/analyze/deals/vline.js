@@ -4,19 +4,16 @@
  * 数据路径存储：
  */
 const path = require('path')
-const { writeFileSync, connectStock, isEmptyObject, unrecordFiles } = require(global.utils)
+const readDirSync = require('../../../utils/read-dir-sync')
+const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
 const save_vline_dir = `vline`
 const read_peerdeal_dir = `deals`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
 const price_range = global.vline.price_range || 0.03 // 默认为3%价格间隔
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vline () {
-  // 有可能最后一个date目录的票子还没统计完，
-  // 所以，不管如何，把他压到unRecords里面，
-  // 保证万无一失
-  const recordedDates = unrecordFiles(save_vline_dir)
+  const recordedDates = hasRecordedDates(save_vline_dir)
   connectStock(read_peerdeal_dir, recordedDates, (dealData, stock, date)=> {
-    if (global.blackName.test(dealData.n)) return
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
       writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
@@ -24,10 +21,18 @@ module.exports = async function vline () {
   })
 }
 
+function hasRecordedDates (save_vline_dir) {
+  let dates = readDirSync(path.join(global.db_api, save_vline_dir))
+  dates.pop()
+  return {
+    ignoreDates: dates
+  }
+}
+
 /**
  * 
- * @param {*} date 
- * @param {*} stock 
+ * @param {*} date
+ * @param {*} stock
  * return {
  *  heavies, // 买入总额
  *  timeRange: `${rangeCans[0].t}~${rangeCans[rangeCans.length - 1].t}`, // 买入总额

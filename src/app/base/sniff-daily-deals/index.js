@@ -54,13 +54,12 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       response: async function (response) {
         const api = response.url()
         if (response.status() === 200 && peerDealReg.test(api)) {
-          const [host, query] = api.split('?')
-          const queryObj = querystring.decode(query)
-          const stockCode = queryObj.code
-          queryObj.pagesize = 99999
-          const apiEncode = `${host}?${querystring.encode(queryObj)}`
-          doneApiMap[stockCode] = apiEncode
-          return await recordPeerDeal(stockCode, apiEncode)
+          // const [host, query] = api.split('?')
+          // const queryObj = querystring.decode(query)
+          // const apiEncode = `${host}?${querystring.encode(queryObj)}`
+          const { code, ut, cb, id, _ } = dealAnalyze(api)
+          doneApiMap[code] = { ut, cb, id, _ }
+          return await recordPeerDeal({ ut, cb, id, _ })
         }
       },
       end: function () {
@@ -70,13 +69,18 @@ async function sniffUrlFromWeb (unlinkedUrls) {
   return Promise.resolve(doneApiMap)
 }
 
-function canContinue() {
-  const pass = true
-  const curDate = moment(new Date()).format('YYYY-MM-DD')
-  // 如果最后的交易日是APP运行的当天，那么，15点钟收盘之前，recordPeerDeal都不要运行
-  // 这样做可以让 星期六 的任何时间都可以正常运行 recordPeerDeal
-  if (global.finalDealDate === curDate && new Date().getHours() < 15) {
-    pass = false
+function dealAnalyze (api) {
+  // ut:'7eea3edcaed734bea9cbfc24409ed989'
+  // cb:'jQuery112308687412063259543_1592944461518'
+  // id:6039991
+  // _:1592944461519
+  const [host, query] = api.split('?')
+  const queryObj = querystring.decode(query)
+
+  return {
+    ut: queryObj.ut,
+    cb: queryObj.cb,
+    id: queryObj.id,
+    _: queryObj._
   }
-  return pass
 }

@@ -7,7 +7,7 @@ const urlPool = [
 ]
 /**
  * 
- * @return [{ code: [String], name: [String], marketName: [String], marketCode: [String | Number]}]  
+ * @return [{ code: [String], name: [String], mCode: [String | Number]}]  
  */
 module.exports = function buildModel(pageEnity) {
   return new Promise((resolve) => excutes([], pageEnity, resolve, 0))
@@ -69,8 +69,7 @@ function spillStockList(stocksTxt, tabType) {
     if (stockCode && stockName) {
       let model = {
         code: stockCode,
-        marketCode: { sh: 1, sz: 2, }[tabType],
-        marketName: tabType,
+        mCode: { sh: 1, sz: 2, }[tabType],
         name: stockName
       }
       stockModel.push(model)
