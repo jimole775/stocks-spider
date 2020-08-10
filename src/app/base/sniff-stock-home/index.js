@@ -30,8 +30,8 @@ async function excution(resolve) {
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('klineApi', unlinkedUrls, async (stockItem) => {
     try {
-      const { klineApi_daily } = klineApiFactory(stockItem['klineApi'])
-      await recordKlines(klineApi_daily)
+      console.log('kline', stockItem.code)
+      await recordKlines(stockItem['klineApi'])
       return Promise.resolve()
     } catch (error) {
       return Promise.reject()

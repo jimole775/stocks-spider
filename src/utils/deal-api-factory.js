@@ -4,8 +4,9 @@ module.exports = function dealApiFactory ({ut, cb, id, _}) {
   // cb: 'jQuery112308687412063259543_1592944461518'
   // id: 6039991
   // _: 1592944461519
-  const id = record.id + ''
-  const market = id.substring(id.length - 1)
+  id = id + ''
+  const id_market_dict = { 2: 0, 1: 1 }
+  const market = id_market_dict[id.substring(id.length - 1)]
   const code = id.substring(0, id.length - 1)
   const defaultQuery = {
     pageindex: 0,

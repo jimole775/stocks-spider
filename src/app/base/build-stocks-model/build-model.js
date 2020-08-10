@@ -19,8 +19,7 @@ async function excutes (allStocks, pageEnity, resolve, loopTimes) {
   const content = await pageEnity.content().catch()
   if (content.length) { 
     const rightContext = queryContent(content)
-    const typeMap = { 0: 'sh', 1: 'sz' } // sh: 上海交易所 sz: 深圳交易所
-    const stockList = spillStockList(rightContext, typeMap[i])
+    const stockList = spillStockList(rightContext, getMarketType(url))
     allStocks = allStocks.concat(stockList)
   }
   if (loopTimes === urlPool.length - 1) {
@@ -28,6 +27,13 @@ async function excutes (allStocks, pageEnity, resolve, loopTimes) {
     return resolve(allStocks)
   }
   return excutes(allStocks, pageEnity, resolve, ++loopTimes)
+}
+
+function getMarketType (url) {
+  // http://guba.eastmoney.com/remenba.aspx?type=1&tab=1
+  // tab:1 上海
+  // tab:2 深圳
+  return url.split('tab=').pop()
 }
 
 function queryContent(htmlStr) {
@@ -69,7 +75,7 @@ function spillStockList(stocksTxt, tabType) {
     if (stockCode && stockName) {
       let model = {
         code: stockCode,
-        mCode: { sh: 1, sz: 2, }[tabType],
+        mCode: tabType,
         name: stockName
       }
       stockModel.push(model)

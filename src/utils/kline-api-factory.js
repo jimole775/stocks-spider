@@ -1,8 +1,8 @@
-// http://89.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112403637119003265299_1593112370285&secid=1.603999&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58&klt=101&fqt=0&end=20500101&lmt=120&_=1593112370347
+// http://89.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112403637119003265299_1593112370285&secid=1.603999&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5&fields2=f51,f52,f53,f54,f55,f56,f57,f58&klt=101&fqt=0&end=20500101&lmt=120&_=1593112370347
 const querystring = require('querystring')
 // { cb, ut, _ }
 module.exports = function klineApiFactory ({ secid, cb, ut, _, fqt = 0 }) {
-
+  // console.log(secid)
   // const serveId = Math.round(Math.random() * 10) + '' + Math.round(Math.random() * 10)
   // api = api.replace(/^http:\/\/(\d{2}).push2his/g, `http:\/\/${serveId}.push2his`)
   // const [host, query] = api.split('?')
@@ -23,8 +23,8 @@ module.exports = function klineApiFactory ({ secid, cb, ut, _, fqt = 0 }) {
 // fqt: 0 1
 function spill (record) {
   const defaultQuery = {
-    fields1: 'f1%2Cf2%2Cf3%2Cf4%2Cf5',
-    fields2: 'f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58',
+    fields1: 'f1,f2,f3,f4,f5',
+    fields2: 'f51,f52,f53,f54,f55,f56,f57,f58',
     end: 20500101,
     lmt: global.kline.page_size || 120,
     ...record

@@ -8,8 +8,6 @@ const writeDir = `lowerpoint` // `/api/lowerpoint/${date}`
 // 日期，开盘价，收盘价，最高价，最低价，成交量（手），成交额（元），振幅
 const { rangeEqual, writeFileSync, readDirSync, connectStock } = require(global.utils)
 module.exports = function lowerpoint() {
-  // 花 1分钟 时间，把已经存过的过滤出来
-  // const ignoreDateFiles = unrecordFiles(targetRoot)
   connectStock(dailyRoot, (fileData, stock, date) => {
     if (!fileData || !fileData.klines) return false
     const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
@@ -21,9 +19,6 @@ module.exports = function lowerpoint() {
   return Promise.resolve(true)
 }
 
-function unrecordFiles () {
-
-}
 // test()
 // function test () {
 //   const fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')

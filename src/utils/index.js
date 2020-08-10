@@ -20,6 +20,7 @@ module.exports = {
   writeFileSync: require('./write-file-sync'),
   recordUsedApi: require('./record-used-api'),
   klineApiFactory: require('./kline-api-factory'),
+  dealApiFactory: require('./deal-api-factory'),
   hasRefreshLinks: require('./has-refresh-links'),
   removeSiblingDir: require('./remove-sibling-dir'),
   getPathSeparator: require('./get-path-separator'), // 获取路径分隔符

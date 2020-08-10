@@ -27,8 +27,8 @@ module.exports = function connectStock(targetDir, ignoreObject, callback) {
   let ignoreCodes = null
   let ignoreDates = null
   if (ignoreObject) {
-    ignoreCodes = ignoreObject.ignoreCodes
-    ignoreDates = ignoreObject.ignoreDates
+    ignoreCodes = ignoreObject.codes
+    ignoreDates = ignoreObject.dates
   }
 
   let stockCodes = readDirSync(dbPath)
@@ -44,11 +44,28 @@ module.exports = function connectStock(targetDir, ignoreObject, callback) {
     if (global.blackName.test(dict_code_name[stockCode])) continue
     console.log(stockCode, dict_code_name[stockCode])
     let dateFiles = readDirSync(path.join(dbPath, stockCode, targetDir))
-    if (ignoreDates) dateFiles = diffrence(dateFiles, ignoreDates)
+    if (ignoreDates) dateFiles = cuteIgnoreDates(dateFiles, ignoreDates)
     for (let j = 0; j < dateFiles.length; j++) {
       const dateFile = dateFiles[j]
       const fileData = readFileSync(path.join(dbPath, stockCode, targetDir, dateFile))
       callback && callback(fileData, stockCode, dateFile.split('.').shift())
     }
   }
+}
+
+function cuteIgnoreDates (dateFiles, ignoreDates) {
+  const res = []
+  const copyDates = ignoreDates.concat([])
+  dateFiles.forEach((dateFile) => {
+    res.push(dateFile)
+    for (let index = 0; index < copyDates.length; index++) {
+      const ignoreDate = copyDates[index]
+      if (dateFile.includes(ignoreDate)) {
+        res.pop()
+        copyDates.splice(index, 1)
+        break
+      }
+    }
+  })
+  return res
 }

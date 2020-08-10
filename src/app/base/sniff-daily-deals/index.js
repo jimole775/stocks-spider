@@ -4,7 +4,6 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const moment = require('moment')
 const querystring = require('querystring')
 const recordPeerDeal = require('./record-deals')
 const {
@@ -30,7 +29,8 @@ async function excution (resolve, reject) {
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('dealApi', unlinkedUrls, async (stockItem) => {
     try {
-      await recordPeerDeal(stockItem.code, stockItem.dealApi)
+      console.log('deal:', stockItem.code)
+      await recordPeerDeal(stockItem['dealApi'])
       return Promise.resolve()
     } catch (error) {
       return Promise.reject()

@@ -6,22 +6,27 @@
  */
 const puppeteer = require('puppeteer')
 const buildModel = require('./build-model')
+const moment = require('moment')
 const { readFileSync, writeFileSync } = require(global.utils)
+
 module.exports = function buildStocksModel() {
   return new Promise(excutes)
 }
 
 async function excutes (resolve, reject) {
-  let alreadyData = readFileSync(filePath, 'utf8')
-  if (new Date().getTime() - new Date(alreadyData.date).getTime() <= 24 * 60 * 60 * 1000) {
-    return resolve()
-  }
+  let alreadyData = readFileSync(global.baseData, 'utf8')
+  const expired = hasExpired(alreadyData)
+  // 数据没过期，就使用已有的数据
+  if (!expired) return resolve()
+  // 数据过期了，就重新爬取
   try {
     const browser = await puppeteer.launch().catch()
     const pageEnity = await browser.newPage().catch()
     const allStocks = await buildModel(pageEnity)
     const baseData = {
       date: new Date().getTime(),
+      // 我们刷新数据，最多就是为了刷新name这个字段（很多股票ST后，名字会变）
+      // 其他一些数据需要保留，类似“dealApi”之类的
       data: alreadyData ? merge(alreadyData.data, allStocks) : JSON.stringify(allStocks)
     }
     writeFileSync(global.baseData, baseData)
@@ -37,7 +42,7 @@ function merge (alreadyData, newItems) {
   alreadyData.forEach((oldItem) => {
     for (let j = 0; j < newItems.length; j++) {
       const newItem = newItems[j]
-      if (element.code === oldItem.code) {
+      if (newItem.code === oldItem.code) {
         res.push({
           ...oldItem,
           name: newItem.name
@@ -48,4 +53,21 @@ function merge (alreadyData, newItems) {
     }
   })
   return res
+}
+
+function hasExpired (alreadyData) {
+  // 数据库没有原始数据，就当作过期处理
+  if (!alreadyData) return true
+  let expired = false
+
+  // 如果现实时间和global.finalDealDate相同，则证明是非假日或者周末
+  // 这样可以用24小时论做判断
+  const reality = moment(new Date()).format('YYYY-MM-DD')
+  if (reality === global.finalDealDate) {
+    // 大于24小时，就过期了
+    if (new Date().getTime() - new Date(alreadyData.date).getTime() >= 24 * 60 * 60 * 1000) {
+      expired = true
+    }
+  }
+  return expired
 }
