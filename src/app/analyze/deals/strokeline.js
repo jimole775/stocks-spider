@@ -6,11 +6,11 @@ const path = require('path')
 const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
-const price_range = 0.02 // 默认为2%价格间隔
+const price_range = 0.02 // 默认为3%价格间隔
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vline () {
-  const recordedDates = unrecordFiles(strokeline_dir)
-  connectStock(deals_dir, recordedDates, (dealData, stock, date)=> {
+  // const recordedDates = unrecordFiles(strokeline_dir)
+  connectStock(deals_dir, (dealData, stock, date)=> {
     const result = calculateStorkeline(date, stock, dealData)
     if (!isEmptyObject(result)) {
       writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
@@ -46,7 +46,7 @@ function unrecordFiles () {
  */
 // {
 //   "t": 91509,
-//   "p": 34870, 
+//   "p": 34870, 价格在t不超过5分钟的时间，涨跌幅超过3%
 //   "v": 109,
 //   "bs": 4
 // },
@@ -57,15 +57,14 @@ function calculateStorkeline (date, stock, dealData) {
   const high_p = dealData.hp
   const deep_p = dealData.dp
   const deals = dealData.data
-
+  const stroklines = [
+    {
+      t: '111 ~ 111',
+      p: '111 ~ 111',
+      heavy_deals: []
+    }
+  ]
   const divd_p = open_p * price_range
-  // const lt_cans = []
-  // const rt_cans = []
-  // let lt_site = null
-  // let rt_site = null
-  // let deep_site = null
-
-  // let deep_indx = 0
   // 价格的涨幅再2个点以上，但是时间间隔不能超过1分钟，
   // 并且需要记录，主动购买多少
   for (let index = 0; index < deals.length; index++) {
