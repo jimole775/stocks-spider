@@ -64,6 +64,9 @@ function calculateStorkeline (date, stock, dealData) {
       heavy_deals: []
     }
   ]
+  let strokStart = null
+  let strokEnd = null
+
   const divd_p = open_p * price_range
   // 价格的涨幅再2个点以上，但是时间间隔不能超过1分钟，
   // 并且需要记录，主动购买多少
