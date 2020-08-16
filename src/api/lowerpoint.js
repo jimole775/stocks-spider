@@ -18,7 +18,7 @@ module.exports = function kline (req, res) {
     dates.forEach((date) => {
       // 匹配 date 查询，如果 queryDate 有值，但是匹配不到对应的date，直接退出
       if (queryDate && queryDate !== date) return false
-      const codeFiles = readDirSync(path.join(vline_db_base, date))
+      const codeFiles = readDirSync(path.join(lp_db_base, date))
       codeFiles.forEach((codeFile) => {
         const code = codeFile.split('.').shift()
         // 匹配 code 查询，如果 queryCode 有值，但是匹配不到对应的code，直接退出
@@ -27,7 +27,7 @@ module.exports = function kline (req, res) {
         loop += 1
         // 匹配 分页 查询
         if (loop > start && loop < (start + pageSize + 1)) {
-          const item = readFileSync(path.join(vline_db_base, date, codeFile))
+          const item = readFileSync(path.join(lp_db_base, date, codeFile))
           
           // 匹配 name 查询
           if (stockName && stockName !== code_name[code]) {

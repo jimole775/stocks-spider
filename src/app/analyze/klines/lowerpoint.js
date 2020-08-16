@@ -11,9 +11,8 @@ module.exports = function lowerpoint() {
   connectStock(dailyRoot, (fileData, stock, date) => {
     if (!fileData || !fileData.klines) return false
     const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
-    // console.log(avg01, avg05, avg10, avg20, avg30)
     if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
-      writeFileSync(path.join(global.db_api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30 })
+      writeFileSync(path.join(global.db_api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30, avg60 })
     }
   })
   return Promise.resolve(true)

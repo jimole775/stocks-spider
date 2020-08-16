@@ -6,13 +6,13 @@ const path = require('path')
 const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
-const price_range = 0.02 // 默认为3%价格间隔
+const price_range = 0.03 // 默认为3%价格间隔
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vline () {
   // const recordedDates = unrecordFiles(strokeline_dir)
   connectStock(deals_dir, (dealData, stock, date)=> {
     const result = calculateStorkeline(date, stock, dealData)
-    if (!isEmptyObject(result)) {
+    if (result && !isEmptyObject(result)) {
       writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
     }
   })
@@ -58,27 +58,36 @@ function calculateStorkeline (date, stock, dealData) {
   const deep_p = dealData.dp
   const deals = dealData.data
   const stroklines = [
-    {
-      t: '111 ~ 111',
-      p: '111 ~ 111',
-      heavy_deals: []
-    }
+    // {
+      // t: '111 ~ 111',
+      // p: '111 ~ 111',
+      // heavy_deals: []
+    // }
   ]
+
+  if (Math.abs(deep_p - high_p) <= divd_p) return null
+  
+  // 切分为 1分钟 一个刻度，如果前面的一分钟的最高价和后面一分钟的最高价，如果是呈梯级上升的，旧存储起来，前一分钟的最低价为起点，继续获取后一分钟的最高价，进行比对，直到5分钟结束，如果都没有出现直线
+  // 5分钟小组中，如果连续1分钟刻度是连续上涨或者下跌的，可以跳出来，和下一个5分钟小组合并，以求出涨幅超过3%的，不过需要控制在5个刻度内
+
   let strokStart = null
   let strokEnd = null
-
+  let strokStart_index = null
   const divd_p = open_p * price_range
-  // 价格的涨幅再2个点以上，但是时间间隔不能超过1分钟，
+  // 价格的涨幅在3个点以上，但是时间间隔不能超过5分钟，
   // 并且需要记录，主动购买多少
+
+  // 一分钟内，存储最高的值，再比对第二分钟内的最高的值，直到5分钟内的最高值
   for (let index = 0; index < deals.length; index++) {
     const dealItem = deals[index]
     
     // 9点25分之前的数据都不算
     if (dealItem.t < 92500) continue
 
-    if (dealItem.p === deep_p) {
-      deep_indx = index
-      deep_site = dealItem
+    strokStart = dealItem
+    if (strokStart.p > deep_p) {
+      strokStart_index = index
+      strokStart = dealItem
       break
     }
   }
@@ -142,7 +151,7 @@ function calculateStorkeline (date, stock, dealData) {
 function sumRanges (rangeCans) {
   // {
   //   "t": 91509,
-  //   "p": 34870, 
+  //   "p": 34870,
   //   "v": 109,
   //   "bs": 4 // 1卖， 2买， 4竞价
   // },
@@ -204,4 +213,16 @@ function timeFormat (date, t) {
   const m = t.substring(t.length - 4, t.length - 2)
   const h = t.substring(t.length - 6, t.length - 4)
   return `${date} ${h}:${m}:${s}`
+}
+
+function splitByOneMin (deals) {
+  for (let index = 0; index < deals.length; index++) {
+    const deal = deals[index]
+    
+    
+  }
+  deals.forEach((deal) => {
+    
+
+  })
 }
