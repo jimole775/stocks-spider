@@ -11,6 +11,7 @@
     "start:vline": "node src/main.js --module=vline",
     "start:uline": "node src/main.js --module=uline",
     "start:lowerpoint": "node src/main.js --module=lowerpoint",
+    "start:strokeline": "node src/main.js --module=strokeline",
     "start:test": "node src/main.js --module=test",
     "busy": "node src/main.js --module=all --netstat=busy",
     "busy:kline": "node src/main.js --module=kline --netstat=busy",

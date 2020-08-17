@@ -19,6 +19,11 @@
   if (['deal', 'vline', 'all'].includes(global.module)) {
     await analyzerDeals.vline()
   }
+  
+  if (['deal', 'strokeline', 'all'].includes(global.module)) {
+    await analyzerDeals.strokeline()
+  }
+
   if (['kline', 'uline', 'all'].includes(global.module)) {
     await analyzerKlines.uline()
   }

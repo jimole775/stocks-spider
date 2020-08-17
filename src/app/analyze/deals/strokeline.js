@@ -7,13 +7,15 @@ const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
 const price_range = 0.03 // 默认为3%价格间隔
+const time_range = 5
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vline () {
   // const recordedDates = unrecordFiles(strokeline_dir)
   connectStock(deals_dir, (dealData, stock, date)=> {
     const result = calculateStorkeline(date, stock, dealData)
     if (result && !isEmptyObject(result)) {
-      writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
+      console.log(result)
+      writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
     }
   })
 }
@@ -57,98 +59,90 @@ function calculateStorkeline (date, stock, dealData) {
   const high_p = dealData.hp
   const deep_p = dealData.dp
   const deals = dealData.data
-  const stroklines = [
-    // {
-      // t: '111 ~ 111',
-      // p: '111 ~ 111',
-      // heavy_deals: []
-    // }
-  ]
+  const res = {
+     strokes: [
+      // {
+      //   lineSize: '+- x',
+      //   cost: '+- xxx',
+      //   timeRange: 'xxx ~ xxx',
+      //   isRollback: 'boolean',
+      //   rollbackTime: 'xxx',
+      //   rollbackCost: '+-xxx',
+      // }
+    ],
+    open_pice: open_p, // 开盘价
+    clos_pice: close_p, // 收盘价
+    min_pice: deep_p, // 最低价
+    max_pice: high_p, // 最高价
+    name: name,
+    code: stock,
+  }
 
+  const divd_p = open_p * price_range
   if (Math.abs(deep_p - high_p) <= divd_p) return null
-  
+
   // 切分为 1分钟 一个刻度，如果前面的一分钟的最高价和后面一分钟的最高价，如果是呈梯级上升的，旧存储起来，前一分钟的最低价为起点，继续获取后一分钟的最高价，进行比对，直到5分钟结束，如果都没有出现直线
   // 5分钟小组中，如果连续1分钟刻度是连续上涨或者下跌的，可以跳出来，和下一个5分钟小组合并，以求出涨幅超过3%的，不过需要控制在5个刻度内
 
-  let strokStart = null
-  let strokEnd = null
-  let strokStart_index = null
-  const divd_p = open_p * price_range
+  let startItem = null
   // 价格的涨幅在3个点以上，但是时间间隔不能超过5分钟，
   // 并且需要记录，主动购买多少
 
+  let indistinctRanges = []
   // 一分钟内，存储最高的值，再比对第二分钟内的最高的值，直到5分钟内的最高值
-  for (let index = 0; index < deals.length; index++) {
-    const dealItem = deals[index]
-    
-    // 9点25分之前的数据都不算
-    if (dealItem.t < 92500) continue
+  for (let i = 0; i < deals.length; i++) {
+    startItem = deals[i]
 
-    strokStart = dealItem
-    if (strokStart.p > deep_p) {
-      strokStart_index = index
-      strokStart = dealItem
-      break
+    // 9点25分之前的数据都不算
+    if (startItem.t < 92500) continue
+
+    for (let j = i; j < deals.length; j++) {
+      const endItem = deals[j]
+      if (isInRangeTime(startItem, endItem, date)) {
+        const prevItem = deals[j - 1] || endItem
+        const nextItem = deals[j + 1] || endItem
+        indistinctRanges.push(endItem)
+      } else {
+        const correctRanges = matchRightStroke(indistinctRanges, divd_p)
+        if (correctRanges && correctRanges.length) {
+          // 1. 如果得出了一个正确的直线，需要考虑的是，后面是否会持续上涨
+          // 2. 如果后面不上涨，需要把i定到当前直线结束的位置
+          res.strokes.push(sumRanges(correctRanges))
+        }
+        indistinctRanges = []
+        // i = j
+        break
+      }
     }
   }
 
-  // if (!deep_site) return {}
-
-  // // lt_site
-  // for (let j = deep_indx; j > 0; j--) {
-  //   const lt_dealItem = deals[j]
-
-  //   // 9点25分之前的数据都不算
-  //   if (lt_dealItem.t < 92500) continue
-  //   const deep_time = new Date(timeFormat(date, deep_site.t))
-  //   const left_time = new Date(timeFormat(date, lt_dealItem.t))
-  //   if (deep_time - left_time <= time_dvd) {
-  //     lt_cans.push(lt_dealItem)
-  //     if (lt_dealItem.p - deep_site.p >= divd_p) {
-  //       lt_site = lt_dealItem
-  //       break
-  //     }
-  //   } else {
-  //     break
-  //   }
-  // }
-
-  // if (!lt_site) return {}
-  // // rt_site
-  // for (let k = deep_indx; k < deals.length; k++) {
-
-  //   const rt_dealItem = deals[k]
-
-  //   // 9点25分之前的数据都不算
-  //   if (rt_dealItem.t < 92500) continue
-
-  //   const deep_time = new Date(timeFormat(date, deep_site.t))
-  //   const rigt_time = new Date(timeFormat(date, rt_dealItem.t))
-  //   if (rigt_time - deep_time <= time_dvd) {
-  //     rt_cans.push(rt_dealItem)
-  //     if (rt_dealItem.p - deep_site.p >= divd_p) {
-  //       rt_site = rt_dealItem
-  //       break
-  //     }
-  //   } else {
-  //     break
-  //   }
-  // }
-  // if (!rt_site) return {}
-  console.log(date, stock, '下潜：', lt_site, ' 回升：', rt_site)
-  const res = sumRanges(lt_cans.concat(rt_cans))
-  res.start_p = lt_site.p
-  res.deep_p = deep_site.p
-  res.end_p = rt_site.p
-  res.deep_size = (lt_site.p - deep_site.p) / open_p
-  res.open_p = open_p
-  res.close_p = close_p
-  res.high_p = high_p
-  res.name = name
+  if (res.strokes.length === 0) return null
   return res
 }
 
-function sumRanges (rangeCans) {
+function matchRightStroke (indistinctRanges, divd_p) {
+  let high = { p: 0, index: 0 }
+  let deep = { p: 999999, index: 0 }
+  const res = []
+  indistinctRanges.forEach((item, index) => {
+    if (item.p > high.p) {
+      high.p = item.p
+      high.index = index
+    }
+    if (item.p < deep.p) {
+      deep.p = item.p
+      deep.index = index
+    }
+  })
+  if (high.p - deep.p > divd_p) {
+    for (let i = deep.index; i < high.index - deep.index; i++) {
+      res.push(indistinctRanges[i])
+    }
+  }
+  return res
+}
+
+function sumRanges (correctRanges) {
   // {
   //   "t": 91509,
   //   "p": 34870,
@@ -159,25 +153,27 @@ function sumRanges (rangeCans) {
   let sum_buy_v = 0
   let sum_sal_p = 0
   let sum_sal_v = 0
-  let heavy_buy = 0
-  let heavy_sal = 0
+  let heavy_buy_p = 0
+  let heavy_sal_p = 0
+  let heavy_buy_v = 0
+  let heavy_sal_v = 0
   const heavies = []
-  for (let index = 0; index < rangeCans.length; index++) {
-    const canItem = rangeCans[index]
-    const sum_p = (canItem.p / 1000) * (canItem.v * 100)
+  for (let index = 0; index < correctRanges.length; index++) {
+    const dealItem = correctRanges[index]
+    const sum_p = (dealItem.p / 1000) * (dealItem.v * 100)
     // 每单金额超过10W，就当作大单记录
     if (sum_p >= haevy_standard) {
-      heavies.push(canItem)
+      heavies.push(dealItem)
     }
 
-    if (canItem.bs === 1) {
+    if (dealItem.bs === 1) {
       sum_sal_p += sum_p
-      sum_sal_v += canItem.v
+      sum_sal_v += dealItem.v
     }
 
-    if (canItem.bs === 2) {
+    if (dealItem.bs === 2) {
       sum_buy_p += sum_p
-      sum_buy_v += canItem.v
+      sum_buy_v += dealItem.v
     }
   }
 
@@ -185,25 +181,31 @@ function sumRanges (rangeCans) {
   if (heavies.length) {
     heavies.forEach(element => {
       if (element.bs === 1) {
-        heavy_sal += (element.p / 1000) * element.v * 100
+        heavy_sal_p += (element.p / 1000) * element.v * 100
+        heavy_sal_v += element.v
       }
       if (element.bs === 2) {
-        heavy_buy += (element.p / 1000) * element.v * 100
+        heavy_buy_p += (element.p / 1000) * element.v * 100
+        heavy_buy_v += element.v
       }
     })
   }
 
   return {
-    heavies, // 买入总额
-    timeRange: `${rangeCans[0].t} ~ ${rangeCans[rangeCans.length - 1].t}`, // 买入总额
-    buy_p_v: (sum_buy_p / (sum_buy_v * 100)).toFixed(2), // 买入均价
-    sal_p_v: (sum_sal_p / (sum_sal_v * 100)).toFixed(2), // 卖出均价
-    sum_buy_p: sum_buy_p, // 买入总额
-    sum_buy_v: sum_buy_v, // 买入手数
-    sum_sal_p: sum_sal_p, // 卖出总额
-    sum_sal_v: sum_sal_v, // 卖出手数
-    heavy_buy: heavy_buy, // 大单买入额
-    heavy_sal: heavy_sal // 大单卖出额
+    // heavies, // 买入总额
+    time_range: `${correctRanges[0].t} ~ ${correctRanges[correctRanges.length - 1].t}`, // 买入总额
+    buy_p_v: (sum_buy_p / (sum_buy_v * 100)).toFixed(2) * 1, // 买入均价
+    sal_p_v: (sum_sal_p / (sum_sal_v * 100)).toFixed(2) * 1, // 卖出均价
+    sum_buy_p, // 买入总额
+    sum_buy_v, // 买入手数
+    sum_sal_p, // 卖出总额
+    sum_sal_v, // 卖出手数
+    heavy_buy_p, // 大单买入额
+    heavy_sal_p, // 大单卖出额
+    heavy_buy_v, // 大单买入额
+    heavy_sal_v, // 大单卖出额
+    heavy_buy_p_v: (heavy_buy_p / (heavy_buy_v * 100)).toFixed(2) * 1, // 买入均价
+    heavy_sal_p_v: (heavy_sal_p / (heavy_sal_v * 100)).toFixed(2) * 1, // 卖出均价
   }
 }
 
@@ -215,14 +217,6 @@ function timeFormat (date, t) {
   return `${date} ${h}:${m}:${s}`
 }
 
-function splitByOneMin (deals) {
-  for (let index = 0; index < deals.length; index++) {
-    const deal = deals[index]
-    
-    
-  }
-  deals.forEach((deal) => {
-    
-
-  })
+function isInRangeTime (startItem, endItem, date) {
+  return new Date(timeFormat(date, endItem.t)) - new Date(timeFormat(date, startItem.t)) <= time_range * 60 * 1000
 }
