@@ -98,19 +98,21 @@ function calculateStorkeline (date, stock, dealData) {
 
     for (let j = i; j < deals.length; j++) {
       const endItem = deals[j]
-      if (isInRangeTime(startItem, endItem, date)) {
+      if (isInRangeTime(startItem, endItem)) {
         const prevItem = deals[j - 1] || endItem
         const nextItem = deals[j + 1] || endItem
         indistinctRanges.push(endItem)
       } else {
-        const correctRanges = matchRightStroke(indistinctRanges, divd_p)
+        const { correctRanges, nextIndex, nextTime } = matchRightStroke(indistinctRanges, divd_p)
         if (correctRanges && correctRanges.length) {
           // 1. 如果得出了一个正确的直线，需要考虑的是，后面是否会持续上涨
           // 2. 如果后面不上涨，需要把i定到当前直线结束的位置
           res.strokes.push(sumRanges(correctRanges))
+          i = nextIndex
+        } else {
+          
         }
         indistinctRanges = []
-        // i = j
         break
       }
     }
@@ -123,6 +125,7 @@ function calculateStorkeline (date, stock, dealData) {
 function matchRightStroke (indistinctRanges, divd_p) {
   let high = { p: 0, index: 0 }
   let deep = { p: 999999, index: 0 }
+  let nextIndex = 0
   const res = []
   indistinctRanges.forEach((item, index) => {
     if (item.p > high.p) {
@@ -134,12 +137,19 @@ function matchRightStroke (indistinctRanges, divd_p) {
       deep.index = index
     }
   })
-  if (high.p - deep.p > divd_p) {
+  if (high.p - deep.p > divd_p && timeFormat(high.t) - timeFormat(deep.t) > 0) {
     for (let i = deep.index; i < high.index - deep.index; i++) {
       res.push(indistinctRanges[i])
     }
+    nextIndex = high.index
+  } else {
+    nextIndex = deep.index
   }
-  return res
+  // 剩余的是否有回撤情况
+  return {
+    correctRanges: res,
+    nextIndex // 需要根据回撤程度
+  }
 }
 
 function sumRanges (correctRanges) {
@@ -209,14 +219,14 @@ function sumRanges (correctRanges) {
   }
 }
 
-function timeFormat (date, t) {
+function timeFormat (t) {
   t = t + ''
   const s = t.substring(t.length - 2, t.length)
   const m = t.substring(t.length - 4, t.length - 2)
   const h = t.substring(t.length - 6, t.length - 4)
-  return `${date} ${h}:${m}:${s}`
+  return `${new Date().getFullYear()} ${h}:${m}:${s}`
 }
 
-function isInRangeTime (startItem, endItem, date) {
-  return new Date(timeFormat(date, endItem.t)) - new Date(timeFormat(date, startItem.t)) <= time_range * 60 * 1000
+function isInRangeTime (startItem, endItem) {
+  return new Date(timeFormat(endItem.t)) - new Date(timeFormat(startItem.t)) <= time_range * 60 * 1000
 }

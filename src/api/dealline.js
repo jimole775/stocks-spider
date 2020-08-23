@@ -10,71 +10,62 @@ module.exports = function deals (req, res) {
     code: 20000,
     message: 'success',
     data: [],
-    total: 0,
-    bigDealIn: 0,
-    bigDealOut: 0,
-    tinyDealIn: 0,
-    tinyDealOut: 0
+    open_p: 0
   }
   const failModel = {
     code: 40000,
     message: 'failure',
     data: null,
-    total: 0,
-    bigDealIn: 0,
-    bigDealOut: 0,
-    tinyDealIn: 0,
-    tinyDealOut: 0
+    open_p: 0
   }
   try {
-    let { pageNumber, pageSize, gradient, type, stock, date: queryDate, dateRange: queryDateRange } = req.body
-    // stock 和 queryDate 为必填
-    if (!stock || !queryDate) {
+    let { stock, date } = req.body
+    // stock 和 date 为必填
+    if (!stock || !date) {
       failModel.message = '日期和股票代码是查询必填项！'
       return res.send(failModel)
     }
-    const date = moment(queryDate).format('YYYY-MM-DD')
+    date = moment(date).format('YYYY-MM-DD')
 
     // 如果是6位长度，确定就是股票代码
     // 否则就是股票名
     if (stock.length !== 6) {
       stock = name_code[stock]
     }
-    const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
-    const dealRecord = readFileSync(path.join(global.db_stocks, stock, 'deals', date + '.json'))
+    const { data = null, cp: open_p } = readFileSync(path.join(global.db_stocks, stock, 'deals', date + '.json'))
     let loop = 0
     let bigDealIn = 0
     let bigDealOut = 0
     let tinyDealIn = 0
     let tinyDealOut= 0
-    dealRecord.data.forEach((dealItem) => {
-      const sum = (dealItem.p / 1000) * dealItem.v * 100
+    data && data.forEach((dealItem) => {
+      // const sum = (dealItem.p / 1000) * dealItem.v * 100
       // 查询大单
-      if (gradient && sum < gradient * 10000) {
-        if (dealItem.bs === 2) tinyDealIn += sum
-        if (dealItem.bs === 1) tinyDealOut += sum
-        return false
-      }
+      // if (gradient && sum < gradient * 10000) {
+      //   if (dealItem.bs === 2) tinyDealIn += sum
+      //   if (dealItem.bs === 1) tinyDealOut += sum
+      //   return false
+      // }
 
-      if (dealItem.bs === 2) bigDealIn += sum
-      if (dealItem.bs === 1) bigDealOut += sum
+      // if (dealItem.bs === 2) bigDealIn += sum
+      // if (dealItem.bs === 1) bigDealOut += sum
 
       // 查询类型
-      if (type && Number.parseInt(type) !== Number.parseInt(dealItem.bs)) return false
+      // if (type && Number.parseInt(type) !== Number.parseInt(dealItem.bs)) return false
 
-      loop = loop + 1
+      // loop = loop + 1
       // 匹配 分页 查询
-      if (loop > start && loop < (start + pageSize + 1)) {
-        dealItem.p = (dealItem.p / 1000).toFixed(2)
-        dealItem.t = timeFormat(dealItem.t)
-        successModel.data.push(dealItem)
-      }
+      // if (loop > start && loop < (start + pageSize + 1)) {
+      dealItem.p = (dealItem.p / 1000).toFixed(2)
+      dealItem.t = timeFormat(dealItem.t)
+      successModel.data.push(dealItem)
+      // }
     })
-    successModel.bigDealIn = bigDealIn
-    successModel.bigDealOut = bigDealOut
-    successModel.tinyDealIn = tinyDealIn
-    successModel.tinyDealOut = tinyDealOut
-    successModel.total = loop
+    // successModel.bigDealIn = bigDealIn
+    // successModel.bigDealOut = bigDealOut
+    // successModel.tinyDealIn = tinyDealIn
+    // successModel.tinyDealOut = tinyDealOut
+    successModel.open_p = (open_p / 1000).toFixed(2)
     res.send(successModel)
   } catch (error) {
     failModel.code = 50000
