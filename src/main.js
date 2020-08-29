@@ -16,19 +16,19 @@
   if (['shadowline', 'all'].includes(global.module)) {
     await analyzerDeals.shadowline()
   }
-  if (['deal', 'vline', 'all'].includes(global.module)) {
+  if (['vline', 'all'].includes(global.module)) {
     await analyzerDeals.vline()
   }
   
-  if (['deal', 'strokeline', 'all'].includes(global.module)) {
+  if (['strokeline', 'all'].includes(global.module)) {
     await analyzerDeals.strokeline()
   }
 
-  if (['kline', 'uline', 'all'].includes(global.module)) {
+  if (['uline', 'all'].includes(global.module)) {
     await analyzerKlines.uline()
   }
   
-  if (['kline', 'lowerpoint', 'all'].includes(global.module)) {
+  if (['lowerpoint', 'all'].includes(global.module)) {
     await analyzerKlines.lowerpoint()
   }
 
