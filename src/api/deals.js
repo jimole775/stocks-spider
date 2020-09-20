@@ -6,34 +6,20 @@ const name_code = require(`${global.db_dict}/name-code.json`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const moment = require('moment')
 module.exports = function deals (req, res) {
-  const successModel = {
-    code: 20000,
-    message: 'success',
-    data: [],
+  const model = {
+    list: [],
     total: 0,
     bigDealIn: 0,
     bigDealOut: 0,
     tinyDealIn: 0,
     tinyDealOut: 0
   }
-  const failModel = {
-    code: 40000,
-    message: 'failure',
-    data: null,
-    total: 0,
-    bigDealIn: 0,
-    bigDealOut: 0,
-    tinyDealIn: 0,
-    tinyDealOut: 0
-  }
-  try {
+  return new Promise((resolve) => {
     let { pageNumber, pageSize, gradient, type, stock, date: queryDate, dateRange: queryDateRange } = req.body
     // stock 和 queryDate 为必填
     if (!stock || !queryDate) {
-      failModel.message = '日期和股票代码是查询必填项！'
-      return res.send(failModel)
+      return resolve('日期和股票代码是查询必填项！')
     }
-    const date = moment(queryDate).format('YYYY-MM-DD')
 
     // 如果是6位长度，确定就是股票代码
     // 否则就是股票名
@@ -41,7 +27,7 @@ module.exports = function deals (req, res) {
       stock = name_code[stock]
     }
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
-    const dealRecord = readFileSync(path.join(global.db_stocks, stock, 'deals', date + '.json'))
+    const dealRecord = readFileSync(path.join(global.db_stocks, stock, 'deals', queryDate + '.json'))
     let loop = 0
     let bigDealIn = 0
     let bigDealOut = 0
@@ -67,28 +53,23 @@ module.exports = function deals (req, res) {
       if (loop > start && loop < (start + pageSize + 1)) {
         dealItem.p = (dealItem.p / 1000).toFixed(2)
         dealItem.t = timeFormat(dealItem.t)
-        successModel.data.push(dealItem)
+        model.list.push(dealItem)
       }
     })
-    successModel.bigDealIn = bigDealIn
-    successModel.bigDealOut = bigDealOut
-    successModel.tinyDealIn = tinyDealIn
-    successModel.tinyDealOut = tinyDealOut
-    successModel.total = loop
-    res.send(successModel)
-  } catch (error) {
-    failModel.code = 50000
-    failModel.message = error
-    console.log(error)
-    res.send(failModel)
-  }
+    model.bigDealIn = bigDealIn
+    model.bigDealOut = bigDealOut
+    model.tinyDealIn = tinyDealIn
+    model.tinyDealOut = tinyDealOut
+    model.total = loop
+    return resolve(model)
+  })
 }
 
 function timeFormat (t) {
   if (t === null && t === undefined) {
     t = ''
   }
-  t = (t + '').trim() 
+  t = (t + '').trim()
   let s = t.substring(t.length - 2, t.length)
   let m = t.substring(t.length - 4, t.length - 2)
   let h = t.substring(t.length - 6, t.length - 4)

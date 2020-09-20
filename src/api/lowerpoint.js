@@ -5,12 +5,10 @@ const lp_db_base = path.join(global.db_api, 'lowerpoint')
 const code_name = require(path.join(global.db_dict, 'code-name.json'))
 module.exports = function kline (req, res) {
   const resData = {
-    code: 20000,
-    message: 'success',
-    data: [],
+    list: [],
     total: 0
   }
-  try {
+  return new Promise((resolve) => {
     const { pageNumber, pageSize, date: queryDate, code: queryCode, dateRange: queryDateRange, name: stockName } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(lp_db_base)
@@ -37,18 +35,13 @@ module.exports = function kline (req, res) {
           item.name = code_name[code]
           item.code = code
           item.date = date
-          resData.data.push(item)
+          resData.list.push(item)
         }
       })
     })
     resData.total = loop
-    res.send(resData)
-  } catch (error) {
-    resData.code = 50000
-    resData.message = error
-    console.log(error)
-    res.send(resData)
-  }
+    return resolve(resData)
+  })
 }
 
 function timeFormat (t) {

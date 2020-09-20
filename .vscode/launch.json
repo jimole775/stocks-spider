@@ -24,6 +24,17 @@
       ],
       "program": "${workspaceFolder}\\src\\app\\analyze\\klines\\Uline.js",
       // "program": "${workspaceFolder}\\test.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "serve",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}\\src\\api\\main.js",
+      "args":["--port=9527"]
+      // "program": "${workspaceFolder}\\test.js"
     }
   ]
 }

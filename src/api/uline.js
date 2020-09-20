@@ -5,12 +5,10 @@ const uline_db = path.join(global.db_api, 'uline')
 const code_name = readFileSync(path.join(global.db_dict, 'code-name.json'))
 module.exports = function uline (req, res) {
   const resData = {
-    code: 20000,
-    message: 'success',
-    data: [],
+    list: [],
     total: 0
   }
-  try {
+  return new Promise((resolve) => {
     const { pageNumber, pageSize, date: queryDate, code: queryCode, name: stockName, dateRange: queryDateRange } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(uline_db)
@@ -31,17 +29,12 @@ module.exports = function uline (req, res) {
       loop += 1
       // 匹配 分页 查询
       if (loop > start && loop < (start + pageSize + 1)) {
-        resData.data.push(data)
+        resData.list.push(data)
       }
     })
     resData.total = loop
-    res.send(resData)
-  } catch (error) {
-    resData.code = 50000
-    resData.message = error
-    console.log(error)
-    res.send(resData)
-  }
+    return resolve(resData)
+  })
 }
 
 function queryByDate (klines = [], queryDate) {

@@ -4,12 +4,10 @@ const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const vline_db_base = path.join(global.db_api, 'vline')
 module.exports = function kline (req, res) {
   const resData = {
-    code: 20000,
-    message: 'success',
-    data: [],
+    list: [],
     total: 0
   }
-  try {
+  return new Promise((resolve) => {
     const { pageNumber, pageSize, date: queryDate, code: queryCode, dateRange: queryDateRange, name: stockName } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(vline_db_base)
@@ -38,18 +36,13 @@ module.exports = function kline (req, res) {
           item.code = code.split('.').shift()
           // 删除无用且量大的字段
           delete item.heavies
-          resData.data.push(item)
+          resData.list.push(item)
         }
       })
     })
     resData.total = loop
-    res.send(resData)
-  } catch (error) {
-    resData.code = 50000
-    resData.message = error
-    console.log(error)
-    res.send(resData)
-  }
+    return resolve(resData)
+  })
 }
 
 function timeFormat (t) {
