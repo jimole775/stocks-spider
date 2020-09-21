@@ -4,10 +4,11 @@ const { isString, isNumber } = require(`${global.utils}/assert.js`)
 const code_name = require(`${global.db_dict}/code-name.json`)
 const name_code = require(`${global.db_dict}/name-code.json`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
+const quest = require(`${global.utils}/quest`)
 const moment = require('moment')
 module.exports = function base (req, res) {
   return new Promise(async (resolve) => {
-    return resolve(await getDate())
+    return resolve({date: await getDate()})
   })
 }
 

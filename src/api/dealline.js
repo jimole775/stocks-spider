@@ -13,6 +13,7 @@ module.exports = function deals (req, res) {
 
     const list = []
     const { data = [], cp: open_p } = readFileSync(filePath(stock, date))
+    
     splitByMinute(data).forEach((dealItem) => {
       dealItem.p = (dealItem.p / 1000).toFixed(2)
       dealItem.t = timeFormat(dealItem.t)
