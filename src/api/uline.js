@@ -2,27 +2,28 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const uline_db = path.join(global.db_api, 'uline')
-const code_name = readFileSync(path.join(global.db_dict, 'code-name.json'))
+const { queryStockCode } = require('./toolkit')
+// const code_name = readFileSync(path.join(global.db_dict, 'code-name.json'))
+
 module.exports = function uline (req, res) {
   const resData = {
     list: [],
     total: 0
   }
   return new Promise((resolve) => {
-    const { pageNumber, pageSize, date: queryDate, code: queryCode, name: stockName, dateRange: queryDateRange } = req.body
+    const { pageNumber, pageSize, date: queryDate, stock, dateRange: queryDateRange } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(uline_db)
     const finalDealDate = dates[dates.length - 1]
-    const stocks = readDirSync(path.join(uline_db, finalDealDate))
+    const codeFiles = readDirSync(path.join(uline_db, finalDealDate))
+    const queryCode = queryStockCode(stock)
     let loop = 0
-    stocks.forEach((stock) => {
-      const stockCode = stock.split('.').shift()
+    codeFiles.forEach((codeFile) => {
+      const code = codeFile.split('.').shift()
       // 匹配 date 查询，如果 queryCode 有值，但是匹配不到对应的date，直接退出
-      if (queryCode && stockCode !== queryCode) return false
-
-      if (stockName && !code_name[stockCode].includes(stockName)) return false
+      if (queryCode && code !== queryCode) return false
       
-      const data = readFileSync(path.join(uline_db, finalDealDate, stock))
+      const data = readFileSync(path.join(uline_db, finalDealDate, codeFile))
 
       if (queryDate && !queryByDate(data.klines, queryDate)) return false
 

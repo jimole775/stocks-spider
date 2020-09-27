@@ -1,8 +1,9 @@
 const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const { isString, isNumber } = require(`${global.utils}/assert.js`)
-const code_name = require(`${global.db_dict}/code-name.json`)
-const name_code = require(`${global.db_dict}/name-code.json`)
+// const code_name = require(`${global.db_dict}/code-name.json`)
+// const name_code = require(`${global.db_dict}/name-code.json`)
+const { queryStockCode } = require('./toolkit')
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 module.exports = function deals (req, res) {
   const model = {
@@ -19,13 +20,8 @@ module.exports = function deals (req, res) {
     if (!stock) {
       return resolve('股票代码是查询必填项！')
     }
-
-    // 如果是6位长度，确定就是股票代码
-    // 否则就是股票名
-    if (stock.length !== 6) {
-      stock = name_code[stock]
-    }
-    const basePath = path.join(global.db_stocks, stock, 'klines', 'daily')
+    const stockCode = queryStockCode(stock)
+    const basePath = path.join(global.db_stocks, stockCode, 'klines', 'daily')
     const lastDate = readDirSync(basePath).pop()
     const klineRecord = readFileSync(path.join(basePath, lastDate))
     model.list = klineRecord.klines

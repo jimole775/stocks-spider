@@ -1,9 +1,8 @@
 const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const { isString, isNumber } = require(`${global.utils}/assert.js`)
-const code_name = require(`${global.db_dict}/code-name.json`)
-const name_code = require(`${global.db_dict}/name-code.json`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
+const { queryStockCode } = require('./toolkit')
 const moment = require('moment')
 module.exports = function deals (req, res) {
   const model = {
@@ -20,19 +19,14 @@ module.exports = function deals (req, res) {
     if (!stock || !queryDate) {
       return resolve('日期和股票代码是查询必填项！')
     }
-
-    // 如果是6位长度，确定就是股票代码
-    // 否则就是股票名
-    if (stock.length !== 6) {
-      stock = name_code[stock]
-    }
+    const stockCode = queryStockCode(stock)
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
-    const dealRecord = readFileSync(path.join(global.db_stocks, stock, 'deals', queryDate + '.json'))
+    const dealRecord = readFileSync(path.join(global.db_stocks, stockCode, 'deals', queryDate + '.json'))
     let loop = 0
     let bigDealIn = 0
     let bigDealOut = 0
     let tinyDealIn = 0
-    let tinyDealOut= 0
+    let tinyDealOut = 0
     dealRecord.data.forEach((dealItem) => {
       const sum = (dealItem.p / 1000) * dealItem.v * 100
       // 查询大单

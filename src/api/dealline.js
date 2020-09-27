@@ -1,18 +1,16 @@
 const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const { isString, isNumber } = require(`${global.utils}/assert.js`)
-const code_name = require(`${global.db_dict}/code-name.json`)
-const name_code = require(`${global.db_dict}/name-code.json`)
+const { queryStockCode } = require('./toolkit')
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const moment = require('moment')
 module.exports = function deals (req, res) {
   return new Promise((resolve) => {
     let { stock, date } = req.body
     if (!stock || !date) return resolve('日期和股票代码是查询必填项！')
-    if (stock.length !== 6) stock = name_code[stock]
-
+    const stockCode = queryStockCode(stock)
     const list = []
-    const { data = [], cp: open_p } = readFileSync(filePath(stock, date))
+    const { data = [], cp: open_p } = readFileSync(filePath(stockCode, date))
     
     splitByMinute(data).forEach((dealItem) => {
       dealItem.p = (dealItem.p / 1000).toFixed(2)

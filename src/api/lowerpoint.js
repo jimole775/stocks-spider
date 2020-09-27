@@ -2,6 +2,7 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const lp_db_base = path.join(global.db_api, 'lowerpoint')
+const { queryStockCode } = require('./toolkit')
 const code_name = require(path.join(global.db_dict, 'code-name.json'))
 module.exports = function kline (req, res) {
   const resData = {
@@ -9,9 +10,10 @@ module.exports = function kline (req, res) {
     total: 0
   }
   return new Promise((resolve) => {
-    const { pageNumber, pageSize, date: queryDate, code: queryCode, dateRange: queryDateRange, name: stockName } = req.body
+    const { pageNumber, pageSize, date: queryDate, stock, dateRange: queryDateRange } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(lp_db_base)
+    const queryCode = queryStockCode(stock)
     let loop = 0
     dates.forEach((date) => {
       // 匹配 date 查询，如果 queryDate 有值，但是匹配不到对应的date，直接退出
@@ -19,7 +21,7 @@ module.exports = function kline (req, res) {
       const codeFiles = readDirSync(path.join(lp_db_base, date))
       codeFiles.forEach((codeFile) => {
         const code = codeFile.split('.').shift()
-        // 匹配 code 查询，如果 queryCode 有值，但是匹配不到对应的code，直接退出
+        // 匹配 code 查询，如果 stock 有值，但是匹配不到对应的code，直接退出
         if (queryCode && queryCode !== code) return false
 
         loop += 1
@@ -28,10 +30,10 @@ module.exports = function kline (req, res) {
           const item = readFileSync(path.join(lp_db_base, date, codeFile))
           
           // 匹配 name 查询
-          if (stockName && stockName !== code_name[code]) {
-            loop -= 1
-            return false
-          }
+          // if (stockName && stockName !== code_name[code]) {
+          //   loop -= 1
+          //   return false
+          // }
           item.name = code_name[code]
           item.code = code
           item.date = date
@@ -55,3 +57,6 @@ function timeFormat (t) {
   h = h.length === 1 ? '0' + h : h
   return `${h}:${m}:${s}`
 }
+
+// 市值选项：10亿，100亿，200亿，300亿，400亿，500亿，600亿，...10000亿
+// 股价选项：10元内，10-30元，30-40，40-50，

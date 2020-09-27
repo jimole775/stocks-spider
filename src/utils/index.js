@@ -10,7 +10,6 @@ module.exports = {
   buildPath: require('./build-path'),
   removeDir: require('./remove-dir'),
   hasUnlinks: require('./has-unlinks'),
-  dateFormat: require('./date-format'),
   BunchThread: require('./bunch-thread'),
   moneyFormat: require('./money-format'),
   readDirSync: require('./read-dir-sync'),
