@@ -2,7 +2,7 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const { isString, isNumber } = require(`${global.utils}/assert.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
-const { queryStockCode } = require('./toolkit')
+const { transferStock } = require('./toolkit')
 const moment = require('moment')
 module.exports = function deals (req, res) {
   const model = {
@@ -19,7 +19,7 @@ module.exports = function deals (req, res) {
     if (!stock || !queryDate) {
       return resolve('日期和股票代码是查询必填项！')
     }
-    const stockCode = queryStockCode(stock)
+    const stockCode = transferStock(stock)
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dealRecord = readFileSync(path.join(global.db_stocks, stockCode, 'deals', queryDate + '.json'))
     let loop = 0

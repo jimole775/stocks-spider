@@ -2,7 +2,7 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const uline_db = path.join(global.db_api, 'uline')
-const { queryStockCode } = require('./toolkit')
+const { transferStock } = require('./toolkit')
 // const code_name = readFileSync(path.join(global.db_dict, 'code-name.json'))
 
 module.exports = function uline (req, res) {
@@ -16,7 +16,7 @@ module.exports = function uline (req, res) {
     const dates = readDirSync(uline_db)
     const finalDealDate = dates[dates.length - 1]
     const codeFiles = readDirSync(path.join(uline_db, finalDealDate))
-    const queryCode = queryStockCode(stock)
+    const queryCode = transferStock(stock)
     let loop = 0
     codeFiles.forEach((codeFile) => {
       const code = codeFile.split('.').shift()

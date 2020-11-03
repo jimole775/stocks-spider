@@ -2,7 +2,7 @@ const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
 const readDirSync = require(`${global.utils}/read-dir-sync.js`)
 const vline_db_base = path.join(global.db_api, 'vline')
-const { queryStockCode } = require('./toolkit')
+const { transferStock } = require('./toolkit')
 module.exports = function kline (req, res) {
   const resData = {
     list: [],
@@ -12,7 +12,7 @@ module.exports = function kline (req, res) {
     const { pageNumber, pageSize, date: queryDate, stock, dateRange: queryDateRange } = req.body
     const start = (Number.parseInt(pageNumber) - 1) * Number.parseInt(pageSize)
     const dates = readDirSync(vline_db_base)
-    const queryCode = queryStockCode(stock)
+    const queryCode = transferStock(stock)
     let loop = 0
     dates.forEach((date) => {
       // 匹配 date 查询，如果 queryDate 有值，但是匹配不到对应的date，直接退出
