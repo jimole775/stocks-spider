@@ -16,7 +16,7 @@
     "busy": "node src/main.js --module=all --netstat=busy",
     "busy:kline": "node src/main.js --module=kline --netstat=busy",
     "busy:deal": "node src/main.js --module=deal --netstat=busy",
-    "serve": "node src/api/main --port=9527"
+    "serve": "node src/api/main.js --port=9527"
   },
   "author": "Rongxis",
   "license": "ISC",
