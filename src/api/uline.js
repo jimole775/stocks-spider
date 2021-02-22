@@ -44,6 +44,7 @@ function queryByDate (klines = [], queryDate) {
     const element = klines[index]
     if (element.includes(queryDate)) {
       isExist = true
+      break
     }
   }
   return isExist
