@@ -12,7 +12,7 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\src\\main.js",
-      "args":["--mode=uline"]
+      "args":["--module=deal"]
       // "program": "${workspaceFolder}\\test.js"
     },
     {

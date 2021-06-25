@@ -12,7 +12,7 @@ const allStocks = require(global.baseData).data
 
 module.exports = function hasUnlinks(fileMode) {
   const unlinks = []
-  const typeMap = { 0: 'sh', 1: 'sz' } // sh: 上海交易所 sz: 深圳交易所
+  const typeMap = { 1: 'sh', 2: 'sz' } // sh: 上海交易所 sz: 深圳交易所
   allStocks.forEach((stockItem) => {
     if(!fs.existsSync(path.join(global.db_stocks, stockItem.code, fileMode))) {
       unlinks.push(urlModel.model.StockHome
