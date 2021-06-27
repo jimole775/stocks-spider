@@ -95,7 +95,6 @@ const insertDocuments = function (db, callback) {
     // Get the documents collection
     const collection1 = db.collection(docNames[0])
     // const collection2 = db.collection(docNames[1])
-    debugger
     // Insert some documents
     collection1.insertMany(dbjson, function (err, result) {
         assert.equal(err, null)

@@ -22,7 +22,7 @@ module.exports = function sniffStockHome() {
 }
 
 async function excution(resolve) {
-  let unlinkedUrls = hasUnlinks(fileMode)
+  let unlinkedUrls = hasUnlinks(fileMode, 'klines')
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
 
   if (unlinkedUrls.length === 0) return resolve(0)
@@ -64,7 +64,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       }
     },
     end: function () {
-      return hasUnlinks(fileMode)
+      return hasUnlinks(fileMode, 'klines')
     }
   }).emit()
   return Promise.resolve(doneApiMap)

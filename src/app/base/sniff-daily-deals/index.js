@@ -21,11 +21,10 @@ module.exports = function sniffDailyDeals() {
 
 async function excution (resolve, reject) {
 
-  let unlinkedUrls = hasUnlinks(fileMode)
+  let unlinkedUrls = hasUnlinks(fileMode, 'deals')
   console.log('daily deals unlink: ', unlinkedUrls.length)
   
   if (unlinkedUrls.length === 0) return resolve(0)
-
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
   unlinkedUrls = await requestApiInBunch('dealApi', unlinkedUrls, async (stockItem) => {
     try {
@@ -36,7 +35,6 @@ async function excution (resolve, reject) {
       return Promise.reject()
     }
   })
-
   if (unlinkedUrls.length === 0) return resolve(0)
 
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
@@ -63,7 +61,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUnlinks(fileMode)
+        return hasUnlinks(fileMode, 'deals')
       }
     }).emit()
   return Promise.resolve(doneApiMap)
@@ -78,6 +76,7 @@ function dealAnalyze (api) {
   const queryObj = querystring.decode(query)
 
   return {
+    code: queryObj.code,
     ut: queryObj.ut,
     cb: queryObj.cb,
     id: queryObj.id,

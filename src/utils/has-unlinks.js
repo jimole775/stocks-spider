@@ -10,15 +10,26 @@ const allStocks = require(global.baseData).data
  * @param {*} recordDir 
  */
 
-module.exports = function hasUnlinks(fileMode) {
+const marketMap = { 1: 'sh', 2: 'sz' } // sh: 上海交易所 sz: 深圳交易所
+const typeMap = { deals: spillPeerDealLink, klines: spillStockHomeLink }
+module.exports = function hasUnlinks(fileMode, type) {
   const unlinks = []
-  const typeMap = { 1: 'sh', 2: 'sz' } // sh: 上海交易所 sz: 深圳交易所
   allStocks.forEach((stockItem) => {
     if(!fs.existsSync(path.join(global.db_stocks, stockItem.code, fileMode))) {
-      unlinks.push(urlModel.model.StockHome
-        .replace('[marketName]', typeMap[stockItem.mCode])
-        .replace('[stockCode]', stockItem.code))
+      typeMap[type](unlinks, stockItem)
     }
   })
   return unlinks
+}
+
+function spillStockHomeLink (unlinks, stockItem) {
+  unlinks.push(urlModel.model.StockHome
+    .replace('[marketName]', marketMap[stockItem.mCode])
+    .replace('[stockCode]', stockItem.code))
+}
+
+function spillPeerDealLink (unlinks, stockItem) {
+  unlinks.push(urlModel.model.PeerDeal
+    .replace('[marketCode]', stockItem.mCode)
+    .replace('[stockCode]', stockItem.code))
 }
