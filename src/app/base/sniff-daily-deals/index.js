@@ -41,7 +41,7 @@ async function excution (resolve, reject) {
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
 
   // 把api存起来
-  await recordUsedApi(doneApiMap, 'dealApi')
+  await recordUsedApi('dealApi', doneApiMap)
   return resolve()
 }
 

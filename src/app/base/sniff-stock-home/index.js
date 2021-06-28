@@ -45,7 +45,7 @@ async function excution(resolve) {
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls)
 
   // 把api存起来
-  await recordUsedApi(doneApiMap, 'klineApi')
+  await recordUsedApi('klineApi', doneApiMap)
 
   return resolve()
 }
