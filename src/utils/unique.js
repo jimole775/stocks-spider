@@ -1,11 +1,11 @@
 const { isArray, isObject } = require('./assert')
 /**
-* 
-* @param { Array } arrays
-* @return { Array }
-* @template unique([1, 2, 3, 3]) => [1, 2, 3]
-* @template unique([{a: 1}, {a: 1}, {b: 2}]) => [{a: 1}, {b: 2}]
-*/
+ * 数组去重
+ * @param { Array } arrays
+ * @return { Array }
+ * @template unique([1, 2, 3, 3]) => [1, 2, 3]
+ * @template unique([{a: 1}, {a: 1}, {b: 2}]) => [{a: 1}, {b: 2}]
+ */
 module.exports = function unique (arrays) {
   if (!isArray(arrays)) return arrays
 

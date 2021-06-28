@@ -1,9 +1,9 @@
 const fs = require('fs')
 /**
- * links 中，必须包含【股票代码】
- * recordDir 目录下的文件，必须确保能取到【股票代码】
- * @param {*} links  
- * @param {*} recordDir 
+ * 根据提供的links，去本地库匹配，筛选出缺省项
+ * @param { Array<String> } links 必须包含【股票代码】
+ * @param { String } recordDir 目录下的文件，必须确保能取到【股票代码】
+ * @return { Array<String> } 
  */
 module.exports = function hasRefreshLinks(links, recordDir) {
   const files = fs.readdirSync(recordDir)
@@ -16,8 +16,7 @@ module.exports = function hasRefreshLinks(links, recordDir) {
   for (const file of files) {
     const recordedDate = file.split('.').shift()
     // 已保存文件的日期，超过最后交易日1天，就需要重新采集
-    if (new Date(recordedDate).getTime() + 24 * 60 * 60 * 1000 
-        < new Date(global.finalDealDate).getTime()) {
+    if ((new Date(recordedDate).getTime() + 24 * 60 * 60 * 1000) < (new Date(global.finalDealDate).getTime())) {
       expireFiles.push(file)
     }
   }
@@ -25,7 +24,12 @@ module.exports = function hasRefreshLinks(links, recordDir) {
   return matchURL(links, expireFiles)
 }
 
-// 把文件名换成link
+/**
+ * 把文件名换成link
+ * @param { Array<String> } links
+ * @param { Array<String> } expireFiles
+ * @return { Array<String> }
+ */
 function matchURL(links, expireFiles) {
   const refreshLinks = []
   let l = links.length

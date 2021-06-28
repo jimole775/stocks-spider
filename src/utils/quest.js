@@ -2,10 +2,11 @@
 const superagent = require('superagent')
 const getPathSeparator = require('./get-path-separator')
 /**
- * 
- * @param url 
- * @param {method, header} 
- * @return String
+ * 伪造随机IP进行接口访问
+ * @param { String } url
+ * @param { Object } params {method, header}
+ * @return { String } 一般以JSON字符串的形式返回数据
+ * @template quest('http://xxxxx/xx?xxxx', { method: 'post' }) => '{"message":"success"}'
  */
 module.exports = function quest(url, params = {}) {
   const { method = 'GET', header = {}} = params

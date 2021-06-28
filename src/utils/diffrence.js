@@ -1,7 +1,7 @@
 /**
  * @param { Object | Array } src
  * @param { Array | String | Number } eliminateItems
- * @return { Object | Array } src
+ * @return { Object | Array }
  * @template diffrence([1, 2], 1) => [2]
  * @template diffrence([1, 2], [2, 3]) => [1]
  * @template diffrence({ a: 1, b: 2 }, { a: 1 }) => { b: 2 }

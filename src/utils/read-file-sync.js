@@ -1,5 +1,11 @@
 const fs = require('fs')
 const yaml = require('js-yaml')
+/**
+ * 读取文件，读取不存在的文件不会报错，返回空
+ * @param { String } filePath
+ * @return { any } 根据读取的文件类型返回不同的数据
+ * @template readFileSync('xxx/xxx/xxx.xx') => any
+ */
 module.exports = function readFileSync(filePath) {
   let data = null
   try {

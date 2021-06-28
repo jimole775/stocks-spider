@@ -1,9 +1,14 @@
 const querystring = require('querystring')
-module.exports = function dealApiFactory ({ut, cb, id, _}) {
-  // ut: '7eea3edcaed734bea9cbfc24409ed989'
-  // cb: 'jQuery112308687412063259543_1592944461518'
-  // id: 6039991
-  // _: 1592944461519
+/**
+ * deal的api的拼装函数
+ * @param {Object|Map} param get类型的参数，这些参数都是预存在base.json里的
+ * @return {String}
+ */
+module.exports = function dealApiFactory ({ ut, cb, id, _ }) {
+  // id: 股票代码 + 股票市场 6000011
+  // cb: jsonp的回调名
+  // ut: 用户token
+  // _: 时间戳
   id = id + ''
   const id_market_dict = { 2: 0, 1: 1 }
   const market = id_market_dict[id.substring(id.length - 1)]
@@ -12,7 +17,7 @@ module.exports = function dealApiFactory ({ut, cb, id, _}) {
     pageindex: 0,
     pagesize: 99999,
     dpt: 'wzfscj',
-    sort: 1,
+    sort: 1, // 正序
     ft: 1,
     ut, cb, id, _, market, code
   }

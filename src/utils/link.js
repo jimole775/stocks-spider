@@ -1,5 +1,11 @@
 const initPage = require('./init-page')
+/**
+ * 单线程
+ */
 module.exports = class Link {
+  /**
+   * @param { String } url
+   */
   constructor (url) {
     this.url = url
     this.page = {}

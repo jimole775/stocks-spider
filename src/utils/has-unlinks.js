@@ -3,15 +3,17 @@ const path = require('path')
 const readFileSync = require('./read-file-sync')
 const urlModel = readFileSync(global.urlModel)
 const allStocks = require(global.baseData).data
-/**
- * links 中，必须包含【股票代码】
- * recordDir 目录下的文件，必须确保能取到【股票代码】
- * @param {*} links  
- * @param {*} recordDir 
- */
-
 const marketMap = { 1: 'sh', 2: 'sz' } // sh: 上海交易所 sz: 深圳交易所
 const typeMap = { deals: spillPeerDealLink, klines: spillStockHomeLink }
+
+/**
+ * 根据本地库是否缺省某个票的某日数据
+ * @param { String } fileMode
+ * @param { String } type ['deals' | 'klines']
+ * @return { Array<String> } ['http://xxxx', 'http://xxxx']
+ * @template hasUnlinks('deals/2021-06-25', 'deals') => ['http://quote.eastmoney.com/f1.html?code=xxxxxx&market=1', ...]
+ * @template hasUnlinks('klines/2021-06-25', 'klines') => ['http://quote.eastmoney.com/1xxxxxx.html', ...]
+ */
 module.exports = function hasUnlinks(fileMode, type) {
   const unlinks = []
   allStocks.forEach((stockItem) => {
