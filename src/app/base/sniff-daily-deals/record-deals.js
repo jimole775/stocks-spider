@@ -26,7 +26,7 @@ async function excutes (recordItem, resolve, loopTimes) {
     const savePath = path.join(global.db_stocks, stockCode, fileModel)
     const dirtyData = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-    pureData.data && await writeFileSync(savePath, spillDetail(pureData.data))
+    await writeFileSync(savePath, spillDetail(pureData.data || []))
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
