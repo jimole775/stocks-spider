@@ -5,10 +5,10 @@ const querystring = require('querystring')
  * @param { Object | Map } param get类型的参数，这些参数都是预存在base.json里的
  * @return { Object | Map } { stockCode, daily, week, month }
  */
-module.exports = function klineApiFactory ({ secid, cb, ut, _, fqt = 0 }) {
-  const klineApi_daily = spill({ klt: 101, secid, cb, ut, _, fqt}) // klt: 101 日线
-  const klineApi_week = spill({ klt: 102, secid, cb, ut,  _, fqt}) // klt: 102 周线
-  const klineApi_month = spill({ klt: 103, secid, cb, ut,  _, fqt}) // klt: 103 月线
+module.exports = function klineApiFactory ({ secid, cb, ut, fqt = 0 }) {
+  const klineApi_daily = spill({ klt: 101, secid, cb, ut, fqt}) // klt: 101 日线
+  const klineApi_week = spill({ klt: 102, secid, cb, ut, fqt}) // klt: 102 周线
+  const klineApi_month = spill({ klt: 103, secid, cb, ut, fqt}) // klt: 103 月线
   return { stockCode: secid.split('.').pop(), klineApi_daily, klineApi_week, klineApi_month}
 }
 
@@ -24,6 +24,7 @@ function spill (record) {
     fields2: 'f51,f52,f53,f54,f55,f56,f57,f58',
     end: 20500101,
     lmt: global.kline.page_size || 120,
+    _: new Date().getTime(),
     ...record
   }
   const host = 'push2his.eastmoney.com/api/qt/stock/kline/get'

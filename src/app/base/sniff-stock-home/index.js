@@ -58,9 +58,9 @@ async function sniffUrlFromWeb (unlinkedUrls) {
     response: async function (response) {
       const api = response.url()
       if (response.status() === 200 && dailyKlineReg.test(api)) {
-        const { secid, cb, ut, _ } = klineAnalyze(api)
-        doneApiMap[secid.split('.').pop()] = { secid, cb, ut, _ }
-        return await recordKlines({ secid, cb, ut, _ })
+        const { secid, cb, ut } = klineAnalyze(api)
+        doneApiMap[secid.split('.').pop()] = { secid, cb, ut }
+        return await recordKlines({ secid, cb, ut })
       }
     },
     end: function () {
@@ -74,12 +74,10 @@ function klineAnalyze (api) {
   // cb: 'jQuery112403637119003265299_1593112370285'
   // ut: 'fa5fd1943c7b386f172d6893dbfba10b'
   // klt: 101
-  // _: 1593112370347
   const [host, query] = api.split('?')
   const queryObj = querystring.decode(query)
   // const code = queryObj.secid.split('.').pop() // secid: '1.603005',
   return {
-    _: queryObj._,
     cb: queryObj.cb,
     ut: queryObj.ut,
     secid: queryObj.secid

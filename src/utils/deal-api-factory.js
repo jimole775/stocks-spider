@@ -4,7 +4,7 @@ const querystring = require('querystring')
  * @param {Object|Map} param get类型的参数，这些参数都是预存在base.json里的
  * @return {String}
  */
-module.exports = function dealApiFactory ({ ut, cb, id, _ }) {
+module.exports = function dealApiFactory ({ ut, cb, id }) {
   // id: 股票代码 + 股票市场 6000011
   // cb: jsonp的回调名
   // ut: 用户token
@@ -13,6 +13,7 @@ module.exports = function dealApiFactory ({ ut, cb, id, _ }) {
   const id_market_dict = { 2: 0, 1: 1 }
   const market = id_market_dict[id.substring(id.length - 1)]
   const code = id.substring(0, id.length - 1)
+  const _ = new Date().getTime()
   const defaultQuery = {
     pageindex: 0,
     pagesize: 99999,

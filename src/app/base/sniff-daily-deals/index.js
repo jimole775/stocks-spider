@@ -55,9 +55,9 @@ async function sniffUrlFromWeb (unlinkedUrls) {
           // const [host, query] = api.split('?')
           // const queryObj = querystring.decode(query)
           // const apiEncode = `${host}?${querystring.encode(queryObj)}`
-          const { code, ut, cb, id, _ } = dealAnalyze(api)
-          doneApiMap[code] = { ut, cb, id, _ }
-          return await recordPeerDeal({ ut, cb, id, _ })
+          const { code, ut, cb, id } = dealAnalyze(api)
+          doneApiMap[code] = { ut, cb, id }
+          return await recordPeerDeal({ ut, cb, id })
         }
       },
       end: function () {
@@ -71,7 +71,6 @@ function dealAnalyze (api) {
   // ut:'7eea3edcaed734bea9cbfc24409ed989'
   // cb:'jQuery112308687412063259543_1592944461518'
   // id:6039991
-  // _:1592944461519
   const [host, query] = api.split('?')
   const queryObj = querystring.decode(query)
 
@@ -79,7 +78,6 @@ function dealAnalyze (api) {
     code: queryObj.code,
     ut: queryObj.ut,
     cb: queryObj.cb,
-    id: queryObj.id,
-    _: queryObj._
+    id: queryObj.id
   }
 }
