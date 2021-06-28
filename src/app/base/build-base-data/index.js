@@ -5,11 +5,11 @@
  * @Last Modified time: 2019-08-17 10:43:26
  */
 const puppeteer = require('puppeteer')
-const buildModel = require('./build-model')
+const analyzeStocksPage = require('./analyze-stocks-page')
 const moment = require('moment')
 const { readFileSync, writeFileSync } = require(global.utils)
 
-module.exports = function buildStocksModel() {
+module.exports = function buildBaseData () {
   return new Promise(excutes)
 }
 
@@ -22,7 +22,7 @@ async function excutes (resolve, reject) {
   try {
     const browser = await puppeteer.launch().catch()
     const pageEnity = await browser.newPage().catch()
-    const allStocks = await buildModel(pageEnity)
+    const allStocks = await analyzeStocksPage(pageEnity)
     const baseData = {
       date: new Date().getTime(),
       // 我们刷新数据，最多就是为了刷新name这个字段（很多股票ST后，名字会变）

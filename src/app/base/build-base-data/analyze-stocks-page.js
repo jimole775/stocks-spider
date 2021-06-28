@@ -9,7 +9,7 @@ const urlPool = [
  * 
  * @return [{ code: [String], name: [String], mCode: [String | Number]}]  
  */
-module.exports = function buildModel(pageEnity) {
+module.exports = function analyzeStocksPage(pageEnity) {
   return new Promise((resolve) => excutes([], pageEnity, resolve, 0))
 }
 

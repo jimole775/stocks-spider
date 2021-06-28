@@ -1,6 +1,6 @@
 ;(async function (){
   await require('./global.config')()
-  await require('./app/base/build-stocks-model')()
+  await require('./app/base/build-base-data')()
   await require('./app/base/build-dict')()
   console.log('is ok here')
   const sniffStockHome = require('./app/base/sniff-stock-home')
