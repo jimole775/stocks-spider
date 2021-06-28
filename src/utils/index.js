@@ -24,7 +24,7 @@ function isObject(likeObject) {
 function isFunction(likeFunction) {
   return Object.prototype.toString.call(likeFunction) === '[object Function]'            
 }
-
+debugger
 module.exports = res
 // module.exports = {
 //   ...require('./assert'),

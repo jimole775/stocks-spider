@@ -56,4 +56,3 @@ function questType (url) {
     return 'json'
   }
 }
-
