@@ -27,8 +27,12 @@ module.exports = {
     return Object.prototype.toString.call(likeString) === '[object String]'    
   },
 
-  isEmpty(likeEmpty) {
-    return likeEmpty === undefined || likeEmpty === null || likeEmpty === ''
+  isNone(src) {
+    return src === undefined || src === null || src === ''
+  },
+
+  isValuable (src) {
+    return src !== undefined && src !== null && src !== ''
   },
 
   isImgUrl(src) {
