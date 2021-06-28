@@ -7,7 +7,7 @@
 const querystring = require('querystring')
 const recordPeerDeal = require('./record-deals')
 const {
-  readFileSync, BunchLinking, hasUnlinks,
+  readFileSync, BunchLinking, hasUnlinked,
   recordUsedApi, requestApiInBunch
 } = require(global.utils)
 
@@ -21,7 +21,7 @@ module.exports = function sniffDailyDeals() {
 
 async function excution (resolve, reject) {
 
-  let unlinkedUrls = hasUnlinks(fileMode, 'deals')
+  let unlinkedUrls = hasUnlinked(fileMode, 'deals')
   console.log('daily deals unlink: ', unlinkedUrls.length)
   
   if (unlinkedUrls.length === 0) return resolve(0)
@@ -61,7 +61,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
         }
       },
       end: function () {
-        return hasUnlinks(fileMode, 'deals')
+        return hasUnlinked(fileMode, 'deals')
       }
     }).emit()
   return Promise.resolve(doneApiMap)

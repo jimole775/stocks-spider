@@ -7,7 +7,7 @@
 const recordKlines = require(`./record-klines`)
 const querystring = require('querystring')
 const {
-  readFileSync, BunchLinking, hasUnlinks,
+  readFileSync, BunchLinking, hasUnlinked,
   recordUsedApi, requestApiInBunch, klineApiFactory
 } = require(global.utils)
 
@@ -22,7 +22,7 @@ module.exports = function sniffStockHome() {
 }
 
 async function excution(resolve) {
-  let unlinkedUrls = hasUnlinks(fileMode, 'klines')
+  let unlinkedUrls = hasUnlinked(fileMode, 'klines')
   console.log('klines unlinkedUrls:', unlinkedUrls.length)
 
   if (unlinkedUrls.length === 0) return resolve(0)
@@ -64,7 +64,7 @@ async function sniffUrlFromWeb (unlinkedUrls) {
       }
     },
     end: function () {
-      return hasUnlinks(fileMode, 'klines')
+      return hasUnlinked(fileMode, 'klines')
     }
   }).emit()
   return Promise.resolve(doneApiMap)
