@@ -13,7 +13,7 @@ const path = require('path')
 const { writeFileSync, quest, dealApiFactory } = require(global.utils)
 const fileModel = `deals/${global.finalDealDate}.json`
 
-module.exports = async function recordPeerDeal(recordItem) {
+module.exports = async function recordDeals(recordItem) {
   return new Promise((resolve) => excutes(recordItem, resolve, 0))
 }
 
@@ -26,7 +26,7 @@ async function excutes (recordItem, resolve, loopTimes) {
     const savePath = path.join(global.db_stocks, stockCode, fileModel)
     const dirtyData = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
     const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-    await writeFileSync(savePath, spillDetail(pureData.data || []))
+    await writeFileSync(savePath, createFields(pureData.data || []))
     return resolve()
   } catch (error) {
     if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
@@ -36,7 +36,7 @@ async function excutes (recordItem, resolve, loopTimes) {
 }
 
 // 拼装一些可简单计算的数据，以便调用，不用再通过浏览器爬取
-function spillDetail (data) {
+function createFields (data) {
   let hp = 0 // 当日最高价
   let ep = 0 // 当日收盘价
   let dp = 9999999 // 当日最低价
