@@ -1,10 +1,10 @@
 ;(async function (){
   await require('./global.config')()
-  await require('./app/base/build-base-data')()
-  await require('./app/base/build-dict')()
+  await require('./app/base/assistants/build-base-data')()
+  await require('./app/base/assistants/build-dict')()
   console.log('is ok here')
-  const sniffStockHome = require('./app/base/sniff-stock-home')
-  const sniffDailyDeals = require('./app/base/sniff-daily-deals')
+  const sniffStockHome = require('./app/base/business/sniff-stock-home')
+  const sniffDailyDeals = require('./app/base/business/sniff-daily-deals')
   const analyzerDeals = require('./app/analyze/deals')
   const analyzerKlines = require('./app/analyze/klines')
   if (['kline', 'all'].includes(global.module)) {
