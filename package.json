@@ -69,6 +69,7 @@
     "browserify-shim": "^3.8.14",
     "cheerio": "^1.0.0-rc.3",
     "js-yaml": "^3.13.1",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "mongodb": "^3.3.4",
     "os-utils": "0.0.14",

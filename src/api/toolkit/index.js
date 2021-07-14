@@ -1,3 +1,4 @@
+const { orderBy } = require('lodash')
 const code_name = require(`${global.db_dict}/code-name.json`)
 const name_code = require(`${global.db_dict}/name-code.json`)
 function transferStock (stock) {
@@ -10,6 +11,15 @@ function transferStock (stock) {
     }
 }
 
+function rank (data, rank_key, rank_up) {
+  if (rank_key) {
+    return orderBy(data, rank_key, rank_up ? 'asc' : 'desc')
+  } else {
+    return data
+  }
+}
+
 module.exports = {
+  rank,
   transferStock
 }

@@ -1,9 +1,9 @@
 const path = require('path')
 const readFileSync = require(`${global.utils}/read-file-sync.js`)
-const { isString, isNumber } = require(`${global.utils}/assert.js`)
-const readDirSync = require(`${global.utils}/read-dir-sync.js`)
-const { transferStock } = require('./toolkit')
-const moment = require('moment')
+// const { isString, isNumber } = require(`${global.utils}/assert.js`)
+// const readDirSync = require(`${global.utils}/read-dir-sync.js`)
+const { transferStock, rank } = require('./toolkit')
+// const moment = require('moment')
 module.exports = function deals (req, res) {
   const model = {
     list: [],
@@ -14,7 +14,7 @@ module.exports = function deals (req, res) {
     tinyDealOut: 0
   }
   return new Promise((resolve) => {
-    let { pageNumber, pageSize, gradient, type, stock, date: queryDate, dateRange: queryDateRange } = req.body
+    let { pageNumber, pageSize, gradient, type, stock, date: queryDate, dateRange: queryDateRange, rank_key, rank_up } = req.body
     // stock 和 queryDate 为必填
     if (!stock || !queryDate) {
       return resolve('日期和股票代码是查询必填项！')
@@ -27,7 +27,7 @@ module.exports = function deals (req, res) {
     let bigDealOut = 0
     let tinyDealIn = 0
     let tinyDealOut = 0
-    dealRecord.data.forEach((dealItem) => {
+    rank(dealRecord.data, rank_key, rank_up).forEach((dealItem) => {
       const sum = (dealItem.p / 1000) * dealItem.v * 100
       // 查询大单
       if (gradient && sum < gradient * 10000) {
