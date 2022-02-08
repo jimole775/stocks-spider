@@ -29,3 +29,7 @@ api: # API类型的URL，参数太多，不适合动态拼，所以从主页URL�
     # 每笔交易详情
     peerDeal: "http://push2ex.eastmoney.com/getStockFenShi?pagesize=144&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery1123011401122580670009_1584374552958&pageindex=0&id=0006522&sort=1&ft=1&code=000652&market=0&_=1584374552959"
     peerDealReg: "push2ex\\.eastmoney\\.com\\/getStockFenShi\\?pagesize\\="
+
+    # 报价信息（fileds只要“f530”就行，其他的用不到）
+    quote: "https://push2.eastmoney.com/api/qt/stock/get?ut=fa5fd1943c7b386f172d6893dbfba10b&invt=2&fltt=2&fields=f530&secid=0.000651&cb=jQuery112406609094002744729_1644173214139&_=1644173214158"
+    quoteReg: "push2\\.eastmoney\\.com\\/api\\/qt\\/stock\\/get\\?.*?\\invt=2&fltt=2&fields="

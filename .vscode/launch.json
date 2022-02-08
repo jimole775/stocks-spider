@@ -7,12 +7,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "stock",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\src\\main.js",
-      "args":["--module=deal"]
+      "args":["--module=kline"]
       // "program": "${workspaceFolder}\\test.js"
     },
     {

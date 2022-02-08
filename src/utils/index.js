@@ -24,33 +24,4 @@ function isObject(likeObject) {
 function isFunction(likeFunction) {
   return Object.prototype.toString.call(likeFunction) === '[object Function]'            
 }
-debugger
 module.exports = res
-// module.exports = {
-//   ...require('./assert'),
-//   Link: require('./link'),
-//   sleep: require('./sleep'),
-//   clone: require('./clone'),
-//   quest: require('./quest'), // superagent的封装
-//   unique: require('./unique'), // 去重
-//   toMoney: require('./to-money'),
-//   diffrence: require('./diffrence'), // 比对
-//   initPage: require('./init-page'),
-//   cmdParam: require('./cmd-param'),
-//   buildPath: require('./build-path'),
-//   removeDir: require('./remove-dir'),
-//   hasUnlinks: require('./has-unlinks'),
-//   BunchThread: require('./bunch-thread'),
-//   readDirSync: require('./read-dir-sync'),
-//   connectStock: require('./connect-stock'),
-//   BunchLinking: require('./bunch-linking'),
-//   readFileSync: require('./read-file-sync'),
-//   writeFileSync: require('./write-file-sync'),
-//   recordUsedApi: require('./record-used-api'),
-//   dealApiFactory: require('./deal-api-factory'),
-//   klineApiFactory: require('./kline-api-factory'),
-//   hasRefreshLinks: require('./has-refresh-links'),
-//   removeSiblingDir: require('./remove-sibling-dir'),
-//   getPathSeparator: require('./get-path-separator'), // 获取路径分隔符
-//   requestApiInBunch: require('./request-api-in-bunch'),
-// }

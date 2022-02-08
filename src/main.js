@@ -7,8 +7,8 @@
   const sniffDailyDeals = require('./app/base/business/sniff-daily-deals')
   const analyzerDeals = require('./app/analyze/deals')
   const analyzerKlines = require('./app/analyze/klines')
-  if (['kline', 'all'].includes(global.module)) {
-    await sniffStockHome()
+  if (['kline', 'quote', 'all'].includes(global.module)) {
+    await sniffStockHome(global.module)
   }
   if (['deal', 'all'].includes(global.module)) {
     await sniffDailyDeals()

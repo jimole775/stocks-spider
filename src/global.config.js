@@ -29,7 +29,7 @@ module.exports = async function () {
   global.kline = {
     page_size: 120, // 每次采集多少个交易日的数据
   }
-  
+
   // 资源路径别名
   global.srcRoot = __dirname
   global.urlModel = `${__dirname}\\url-model.yml`
