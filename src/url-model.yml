@@ -30,6 +30,10 @@ api: # API类型的URL，参数太多，不适合动态拼，所以从主页URL�
     peerDeal: "http://push2ex.eastmoney.com/getStockFenShi?pagesize=144&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery1123011401122580670009_1584374552958&pageindex=0&id=0006522&sort=1&ft=1&code=000652&market=0&_=1584374552959"
     peerDealReg: "push2ex\\.eastmoney\\.com\\/getStockFenShi\\?pagesize\\="
 
+    # 每笔交易详情，新股票的地址
+    peerDeal1: "http://27.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.603261&wbp2u=|0|0|0|web"
+    peerDealReg1: "push2\\.eastmoney\\.com\\/api\\/qt\\/stock\\/details\\/sse\\?"
+
     # 报价信息（fileds只要“f530”就行，其他的用不到）
     quote: "https://push2.eastmoney.com/api/qt/stock/get?ut=fa5fd1943c7b386f172d6893dbfba10b&invt=2&fltt=2&fields=f530&secid=0.000651&cb=jQuery112406609094002744729_1644173214139&_=1644173214158"
-    quoteReg: "push2\\.eastmoney\\.com\\/api\\/qt\\/stock\\/get\\?.*?\\invt=2&fltt=2&fields="
+    quoteReg: "push2\\.eastmoney\\.com\\/api\\/qt\\/stock\\/get\\?.*?invt=2&fltt=2&fields="

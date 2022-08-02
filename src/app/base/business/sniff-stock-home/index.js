@@ -22,10 +22,10 @@ const business = {
   },
   quote: {
     api: 'quoteApi',
-    decompose: require(`./quote/uri`).decompose,
-    dataPath: `quote/${global.finalDealDate}.json`,
-    record: require(`./quote/record`),
-    reg: new RegExp(urlModel.api.quetoReg, 'ig')
+    decompose: require(`./quotes/uri`).decompose,
+    dataPath: `quotes/${global.finalDealDate}.json`,
+    record: require(`./quotes/record`),
+    reg: new RegExp(urlModel.api.quoteReg, 'ig')
   }
 }
 
@@ -78,9 +78,12 @@ async function sniffUrlFromWeb (unlinkedUrls, chart) {
         if (bus['reg'].test(api)) {
           const stockItem = bus['decompose'](api)
           const stock = stockItem.stock
-          doneApiMap[stock] = stockItem
-          console.log('record:', stock)
-          return await bus['record'](stockItem)
+          // 防止网页中的重复接口
+          if (!doneApiMap[stock]) {
+            console.log('record:', stock)
+            doneApiMap[stock] = stockItem
+            return await bus['record'](stockItem)
+          }
         }
       }
     },

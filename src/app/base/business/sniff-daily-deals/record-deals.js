@@ -10,7 +10,8 @@
  * ]
  */
 const path = require('path')
-const { writeFileSync, quest, dealApiFactory } = require(global.utils)
+const querystring = require('querystring')
+const { writeFileSync, quest } = require(global.utils)
 const fileModel = `deals/${global.finalDealDate}.json`
 
 module.exports = async function recordDeals(recordItem) {
@@ -25,11 +26,11 @@ async function excutes (recordItem, resolve, loopTimes) {
     const api = dealApiFactory(recordItem)
     const savePath = path.join(global.db_stocks, stockCode, fileModel)
     const dirtyData = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
-    const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
+    const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
     await writeFileSync(savePath, createFields(pureData.data || []))
-    return resolve()
+    return resolve(recordItem)
   } catch (error) {
-    if (loopTimes > 30) return resolve() // 超过30次都不能成功quest，就直接跳过
+    if (loopTimes > 30) return resolve(recordItem) // 超过30次都不能成功quest，就直接跳过
     console.error('record-deals error:', recordItem.id, error)
     return setTimeout(() => excutes(recordItem, resolve, ++loopTimes), 1000)
   }
@@ -45,8 +46,36 @@ function createFields (data) {
     if (deal.p < dp) dp = deal.p
     ep = deal.p
   })
+  data.dt = 0 // deals的数据结构分 0 1 两种
   data.hp = hp
   data.dp = dp
   data.ep = ep
   return data
+}
+
+/**
+ * deal的api的拼装函数
+ * @param {Object|Map} param get类型的参数，这些参数都是预存在base.json里的
+ * @return {String}
+ */
+function dealApiFactory ({ ut, cb, id }) {
+  // id: 股票代码 + 股票市场 6000011
+  // cb: jsonp的回调名
+  // ut: 用户token
+  // _: 时间戳
+  id = id + ''
+  const id_market_dict = { 2: 0, 1: 1 }
+  const market = id_market_dict[id.substring(id.length - 1)]
+  const code = id.substring(0, id.length - 1)
+  const _ = new Date().getTime()
+  const defaultQuery = {
+    pageindex: 0,
+    pagesize: 99999,
+    dpt: 'wzfscj',
+    sort: 1, // 正序
+    ft: 1,
+    ut, cb, id, _, market, code
+  }
+  const host = 'push2ex.eastmoney.com/getStockFenShi'
+  return `http://${host}?${querystring.encode(defaultQuery)}`
 }

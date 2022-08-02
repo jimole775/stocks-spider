@@ -17,7 +17,7 @@ module.exports = async function () {
 
   // 从站点上获取最后一天的交易日期
   global.finalDealDate = await getDate()
-
+  console.log(global.finalDealDate)
   // vline模块配置项
   global.vline = {
     time_dvd: 15 * 60 * 1000, // v型k线的形成时间
@@ -54,7 +54,7 @@ function getDate () {
   return new Promise(async (resolve, reject) => {
     try {
       const dirtyData = await quest('http://push2his.eastmoney.com/api/qt/stock/trends2/get?cb=jQuery1124012891801110637102_1584422853173&secid=1.000001&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11&fields2=f51%2Cf53%2Cf56%2Cf58&iscr=0&ndays=1&_=1584422853176')
-      const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
+      const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
       const curDate = new Date((pureData.data.time || 0) * 1000)
       return resolve(moment(curDate).format('YYYY-MM-DD'))
     } catch (error) {

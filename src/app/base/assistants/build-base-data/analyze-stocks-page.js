@@ -15,6 +15,7 @@ module.exports = function analyzeStocksPage(pageEnity) {
 
 async function excutes (allStocks, pageEnity, resolve, loopTimes) {
   const url = urlPool[loopTimes]
+  console.log('getMarketType', url)
   await pageEnity.goto(url)
   const content = await pageEnity.content().catch()
   if (content.length) { 

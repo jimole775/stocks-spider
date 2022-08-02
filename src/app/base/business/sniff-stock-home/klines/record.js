@@ -58,7 +58,7 @@ async function pickFRKline (recordItem) {
 async function handleRecord (file, api) {
   // 修改数据的请求数量
   const dirtyData = await quest(api) // 'jquey_123456({"data":{"klines":[]}});'
-  const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
+  const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
   writeFileSync(file, pureData.data ? pureData.data : {})
   return Promise.resolve()
 }

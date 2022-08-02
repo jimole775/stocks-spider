@@ -27,6 +27,16 @@ module.exports = {
     return Object.prototype.toString.call(likeString) === '[object String]'    
   },
 
+  isBuffer(likeBuffer) {
+    return [
+      '[object ArrayBuffer]',
+      '[object Buffer]',
+      '[object Uint8Array]',
+      '[object Uint16Array]',
+      '[object Uint32Array]'
+    ].includes(Object.prototype.toString.call(likeBuffer))
+  },
+
   isNone(src) {
     return src === undefined || src === null || src === ''
   },

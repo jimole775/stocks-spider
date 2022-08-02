@@ -2,7 +2,7 @@ const path = require(`path`)
 const uri = require(`./uri`)
 const { quest, writeFileSync } = require(global.utils)
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
-const dataPath = `quotes/daily/${global.finalDealDate}.json`
+const dataPath = `quotes/${global.finalDealDate}.json`
 module.exports = async function recordQuotes (recordItem) {
   return new Promise((resolve, reject) => executes(recordItem, resolve, reject, 0))
 }
@@ -30,7 +30,7 @@ async function handleRecord (recordItem) {
   const { stock, api } = uri.spill({ ...recordItem })
   const file = path.join(global.db_stocks, stock, dataPath)
   const dirtyData = await quest(api) // 'jquey_123456({"data":{"klines":[]}});'
-  const pureData = JSON.parse(dirtyData.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
+  const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
   writeFileSync(file, pureData.data ? pureData.data : {})
   return Promise.resolve()
 }

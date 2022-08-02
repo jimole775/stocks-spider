@@ -22,7 +22,9 @@ module.exports = function hasUnlinked(dataPath, chart) {
   const unlinks = []
   allStocks.forEach((stockItem) => {
     if(!fs.existsSync(path.join(global.db_stocks, stockItem.code, dataPath))) {
-      unlinks.push(spillMap[chart](stockItem))
+      const url = spillMap[chart](stockItem)
+      console.log('deals url:', url)
+      unlinks.push(url)
     }
   })
   return unlinks
