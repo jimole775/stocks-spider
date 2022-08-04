@@ -25,7 +25,6 @@ async function excution (resolve, reject) {
   // 从url中筛选出code，再从 baseData 中拿deals的api
   const neverLinedURLs = await requestApiInBunch('dealApi', unlinkedURLs, async (stockItem) => {
     try {
-      console.log('deal:', stockItem.code)
       await recordDeals(stockItem['dealApi'])
       return Promise.resolve()
     } catch (error) {

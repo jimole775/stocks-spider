@@ -18,28 +18,23 @@ module.exports = async function sniffApiFromWebSite (dealsURLs) {
       response: async function (response) {
         const api = response.url()
         if (response.status() === 200) {
-          
           if (peerDealReg.test(api)) {
             const { code, ut, cb, id } = dealAnalyze(api)
             doneApiMap[code] = { ut, cb, id }
-            return await recordDeals({ ut, cb, id })
-            // const dealItem = await recordDeals(api)
-            // doneApiMap[dealItem.code] = dealItem.record
-            // return Promise.resolve()
+            recordDeals({ ut, cb, id })
           } else if (peerDealReg1.test(api)) {
             const { code, secid } = dealAnalyze(api)
             doneApiMap[code] = { secid }
-            return await recordDeals1({ secid })
-            // const dealItem = await recordDeals1(api)
-            // doneApiMap[dealItem.code] = dealItem.record
-            // return Promise.resolve()
+            recordDeals1({ secid })
           }
         }
       },
       end: function () {
+        console.log('完成一个页面的嗅探')
         return hasUnlinked(dataPath, 'deal')
       }
     }).emit()
+  console.log('完成所有网页的嗅探！')
   return Promise.resolve(doneApiMap)
 }
 

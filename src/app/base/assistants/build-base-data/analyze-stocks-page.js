@@ -18,7 +18,7 @@ async function excutes (allStocks, pageEnity, resolve, loopTimes) {
   console.log('getMarketType', url)
   await pageEnity.goto(url)
   const content = await pageEnity.content().catch()
-  if (content.length) { 
+  if (content.length) {
     const rightContext = queryContent(content)
     const stockList = spillStockList(rightContext, getMarketType(url))
     allStocks = allStocks.concat(stockList)

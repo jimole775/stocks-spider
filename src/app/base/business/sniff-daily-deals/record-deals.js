@@ -20,19 +20,33 @@ module.exports = async function recordDeals(recordItem) {
 
 // http://push2ex.eastmoney.com/getStockFenShi?pagesize=99999&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery112308687412063259543_1592944461518&pageindex=0&id=6039991&sort=1&ft=1&code=603999&market=1&_=1592944461519
 async function excutes (recordItem, resolve, loopTimes) {
+  const id = recordItem.id + '' // 保持id为字符串
+  const stockCode = id.substring(0, id.length - 1)
+  const api = dealApiFactory(recordItem)
+  const savePath = path.join(global.db_stocks, stockCode, fileModel)
   try {
-    const id = recordItem.id + '' // 保持id为字符串
-    const stockCode = id.substring(0, id.length - 1)
-    const api = dealApiFactory(recordItem)
-    const savePath = path.join(global.db_stocks, stockCode, fileModel)
-    const dirtyData = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
-    const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
-    await writeFileSync(savePath, createFields(pureData.data || []))
-    return resolve(recordItem)
+    const res = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
+    if (res.code === 200) {
+      const data = res.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1')
+      const entity = JSON.parse(data)
+      const coreData = createFields(entity.data)
+      await writeFileSync(savePath, coreData || {})
+      console.log('交易详情-存入股票：', stockCode)
+      resolve()
+    } else {
+      resolve()
+    }
   } catch (error) {
-    if (loopTimes > 30) return resolve(recordItem) // 超过30次都不能成功quest，就直接跳过
-    console.error('record-deals error:', recordItem.id, error)
-    return setTimeout(() => excutes(recordItem, resolve, ++loopTimes), 1000)
+    if (loopTimes < 10) {
+      console.error(stockCode, '交易详情-报错:', error)
+      return setTimeout(() => excutes(recordItem, resolve, ++loopTimes), 1000)
+    } else {
+      // 超过10次都不能成功quest，就直接跳过
+      loopTimes = 0
+      await writeFileSync(savePath, {})
+      console.log(stockCode, '无法获取，直接存入空数据！')
+      resolve()
+    }
   }
 }
 

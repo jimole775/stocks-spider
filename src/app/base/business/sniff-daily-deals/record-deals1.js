@@ -20,30 +20,38 @@ module.exports = async function recordDeals({ secid }) {
 
 // "http://27.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.603261&wbp2u=|0|0|0|web"
 async function excutes ({ secid }, resolve, loopTimes) {
+  const api = dealApiFactory({ secid })
   const code = secid.split('.').pop()
+  const savePath = path.join(global.db_stocks, code, fileModel)
   try {
-    const api = dealApiFactory({ secid })
-    const savePath = path.join(global.db_stocks, code, fileModel)
     // 'data: {"rc":0,"rt":12,"svr":182995883,"lt":1,"full":1,"dlmkts":"","data":{"code":"000667","market":0,"decimal":2,"prePrice":1.6,"details":[]}'
-    const dirtyData = await quest(api, {
+    const res = await quest(api, {
       header: { 'Content-Type': 'text\/event-stream' },
       eventTerminal (text) {
         // data: {"rc":0,"rt":2,"svr":182995883,"lt":1,"full":1,"dlmkts":"","data":null}\n\n
         return (/"data":\s?null/.test(text))
       }
     })
-    const pureData = JSON.parse(dirtyData.data.replace(/^data:\s?(\{.+?\})/ig, '$1'))
-    console.log('存入股票：', code)
-    await writeFileSync(savePath, pureData.data || {})
-    return resolve({ secid })
+    if (res.code === 200) {
+      const data = res.data || ''
+      const entity = data.replace(/^data:\s?(\{.+?\})/ig, '$1')
+      const coreData = JSON.parse(entity) || {}
+      await writeFileSync(savePath, coreData.data || {})
+      console.log('交易详情-存入股票：', code)
+      resolve()
+    } else {
+      resolve()
+    }
   } catch (error) {
     if (loopTimes < 10) {
-      console.error('record-deals error:', code, error)
+      console.error(code, '交易详情-报错:', error)
       return setTimeout(() => excutes({ secid }, resolve, ++loopTimes), 1000)
     } else {
       // 超过10次都不能成功quest，就直接跳过
       loopTimes = 0
-      return resolve({ secid })
+      await writeFileSync(savePath, {})
+      console.log(code, '无法获取，直接存入空数据！')
+      resolve()
     }
   }
 }
