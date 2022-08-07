@@ -1,0 +1,26 @@
+{
+  "buy_sum_pp": {
+    "18.71": 9826492,
+    "18.72": 10902528
+  },
+  "sal_sum_pp": {
+    "18.70": 12768360,
+    "18.71": 13302810
+  },
+  "overview": {
+    "min_pice": 18.22,
+    "max_pice": 18.79,
+    "opn_pice": 18.65,
+    "end_pice": 18.52,
+    "buy_sum_v": 392898,
+    "buy_sum_p": 727768921,
+    "sal_sum_v": 494898,
+    "sal_sum_p": 914593354,
+    "buy_sum_p_v": "18.52",
+    "sal_sum_p_v": "18.48",
+    "upShadowSize": "0.00",
+    "waves_percent": "0.03",
+    "downShadowSize": "1.61",
+    "isCrossShadow": false
+  }
+}
