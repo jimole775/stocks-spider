@@ -72,6 +72,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "mongodb": "^3.3.4",
+    "mysql": "^2.18.1",
     "os-utils": "0.0.14",
     "puppeteer": "^2.1.1",
     "superagent": "^5.1.0"
