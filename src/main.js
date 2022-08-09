@@ -9,27 +9,34 @@
   const analyzerKlines = require('./app/analyze/klines')
   console.log('Main function was mounted!')
   if (['kline', 'quote', 'all'].includes(global.module)) {
+    console.log('Sniff stock home!')
     await sniffStockHome(global.module)
   }
   if (['deal', 'all'].includes(global.module)) {
+    console.log('Sniff daily deals!')
     await sniffDailyDeals()
   }
   if (['shadowline', 'all'].includes(global.module)) {
+    console.log('Analyzes deals into shadowline!')
     await analyzerDeals.shadowline()
   }
   if (['vline', 'all'].includes(global.module)) {
+    console.log('Analyzes deals into vline!')
     await analyzerDeals.vline()
   }
-  
+
   if (['strokeline', 'all'].includes(global.module)) {
+    console.log('Analyzes deals into strokeline!')
     await analyzerDeals.strokeline()
   }
 
   if (['uline', 'all'].includes(global.module)) {
+    console.log('Analyzes klines into uline!')
     await analyzerKlines.uline()
   }
   
   if (['lowerpoint', 'all'].includes(global.module)) {
+    console.log('Analyzes klines into lowerpoint!')
     await analyzerKlines.lowerpoint()
   }
 
@@ -48,5 +55,6 @@
     // fs.writeFileSync(global.baseData, JSON.stringify(base))
   }
 
+  console.log('Process was end!')
   process.exit()
 })()
