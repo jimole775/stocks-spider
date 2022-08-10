@@ -1,0 +1,19 @@
+{
+  "date": "DATE COMMENT '交易日期'",
+
+  "market": "TINYINT COMMENT '市场类型|0.深圳;1.上海'",
+
+  "volumn": "INT COMMENT '当日交易数的总量'",
+
+  "amount": "DOUBLE COMMENT '当日交易的总金额'",
+
+  "start_price": "FLOAT COMMENT '开盘价'",
+
+  "end_price": "FLOAT COMMENT '收盘价'",
+
+  "highest_price": "FLOAT COMMENT '最高价'",
+
+  "lowest_price": "FLOAT COMMENT '最低价'",
+
+  "divid_rate": "FLOAT COMMENT '振幅'"
+}

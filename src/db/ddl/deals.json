@@ -1,0 +1,21 @@
+{
+  "date": "DATE COMMENT '交易日期'",
+
+  "market": "TINYINT COMMENT '市场类型|0.深圳;1.上海'",
+
+  "time": "TIME COMMENT '交易单成交的时间",
+
+  "price": "INT COMMENT '单笔交易的单价'",
+
+  "volumn": "INT COMMENT '单笔交易的数量'",
+
+  "deal_type": "TINYINT COMMENT '交易类型|1.主动买;2.主动卖;3.未知;4.竞价'",
+
+  "data_type": "TINYINT COMMENT '数据类型，新旧数据的结构不一样|0.旧;1.新'",
+
+  "highest_price": "INT COMMENT '当日成交的最高价'",
+
+  "lowest_price": "INT COMMENT '当日成交的最低价'",
+
+  "end_price": "INT COMMENT '当日收盘价'"
+}
