@@ -15,7 +15,7 @@ Mysql.prototype.connect = function (option) {
 }
 
 Mysql.prototype.create = function (table, map) {
-  if (!table) return throw new Error('插入表单数据需要确认表单名!')
+  if (!table) return throw new Error('创建表需要确认表名!')
   const keys   = Object.keys(map)
   const values = Object.values(map)
   const entities = []
@@ -42,6 +42,38 @@ Mysql.prototype.insert = function (table, map) {
   } catch (error) {
     console.log(error)
   }
+}
+
+Mysql.prototype.query = function (table, map) {
+  if (!table) return throw new Error('查询表单数据需要确认表单名!')
+  const keys   = Object.keys(map)
+  const values = Object.values(map)
+  const sql    = `INSERT INTO ${table} (${keys}) VALUES (${values});`
+  try {
+    this.connection.query(sql)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+Mysql.prototype.update = function (table, map) {
+  if (!table) return throw new Error('更新表单数据需要确认表单名!')
+  // const keys   = Object.keys(map)
+  // const values = Object.values(map)
+  const id = map.id
+  delete map.id
+  const sql    = `UPDATE ${table} SET (${updateEntity}) WHERE id=${map.id};`
+  try {
+    this.connection.query(sql)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+function getObjectEntity (src) {
+  const updateEntity = JSON.stringify(src)
+  updateEntity.replace()
 }
 
 module.exports = Mysql
