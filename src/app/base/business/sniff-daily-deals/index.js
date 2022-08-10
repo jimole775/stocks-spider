@@ -26,11 +26,12 @@ async function excution (resolve, reject) {
   // 从url中筛选出code，再从 baseData 中拿deals的api
   const neverLinedURLs = await requestApiInBunch('dealApi', unlinkedURLs, async (stockItem) => {
     try {
-      if (stockItem.dt === 0) {
-        await recordDeals(stockItem['dealApi'])
+      const dealApi = stockItem['dealApi']
+      if (dealApi && dealApi['dt'] === 0) {
+        await recordDeals(dealApi)
       }
-      if (stockItem.dt === 1) {
-        await recordDeals1(stockItem['dealApi'])
+      if (dealApi && dealApi['dt'] === 1) {
+        await recordDeals1(dealApi)
       }
       return Promise.resolve()
     } catch (error) {
