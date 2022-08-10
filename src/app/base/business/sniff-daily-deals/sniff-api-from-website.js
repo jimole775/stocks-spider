@@ -20,11 +20,11 @@ module.exports = async function sniffApiFromWebSite (dealsURLs) {
         if (response.status() === 200) {
           if (peerDealReg.test(api)) {
             const { code, ut, cb, id } = dealAnalyze(api)
-            doneApiMap[code] = { ut, cb, id }
+            doneApiMap[code] = { ut, cb, id, dt: 0 }
             recordDeals({ ut, cb, id })
           } else if (peerDealReg1.test(api)) {
-            const { code, secid } = dealAnalyze(api)
-            doneApiMap[code] = { secid }
+            const { code, secid, id } = dealAnalyze(api)
+            doneApiMap[code] = { secid, dt: 1 }
             recordDeals1({ secid })
           }
         }

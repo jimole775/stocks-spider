@@ -5,6 +5,7 @@
  * @Last Modified time: 2019-08-17 10:43:24
  */
 const recordDeals = require('./record-deals')
+const recordDeals1 = require('./record-deals1')
 const sniffApiFromWebsite = require('./sniff-api-from-website')
 const { hasUnlinked, recordUsedApi, requestApiInBunch } = require(global.utils)
 
@@ -25,7 +26,12 @@ async function excution (resolve, reject) {
   // 从url中筛选出code，再从 baseData 中拿deals的api
   const neverLinedURLs = await requestApiInBunch('dealApi', unlinkedURLs, async (stockItem) => {
     try {
-      await recordDeals(stockItem['dealApi'])
+      if (stockItem.dt === 0) {
+        await recordDeals(stockItem['dealApi'])
+      }
+      if (stockItem.dt === 1) {
+        await recordDeals1(stockItem['dealApi'])
+      }
       return Promise.resolve()
     } catch (error) {
       return Promise.reject()
