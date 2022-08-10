@@ -1,9 +1,9 @@
 // require('@babel/register') // 转接外部模块的加载方式，amd改为common
 const fs = require('fs')
 const path = require('path')
-const readDirSync = require('./src/utils/read-dir-sync')
-const readFileSync = require('./src/utils/read-file-sync')
-const writeFileSync = require('./src/utils/write-file-sync')
+const readDirSync = require('../src/utils/read-dir-sync')
+const readFileSync = require('../src/utils/read-file-sync')
+const writeFileSync = require('../src/utils/write-file-sync')
 
 // const { readDirSync, readFileSync, writeFileSync } = require('./src/utils')
 // 取出 json 数据中的 date 数据，当作当前数据的文件名
