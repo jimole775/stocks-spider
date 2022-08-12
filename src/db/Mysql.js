@@ -1,10 +1,6 @@
 const mysql      = require('mysql')
-const config     = require('../../db_config.json')
-function Mysql {
-  this.connection = {}
-}
-
-Mysql.prototype.connect = function (option) {
+const assert      = require('../utils/assert')
+function Mysql (option) {
   this.connection = mysql.createConnection({
     host     : option.host,
     user     : option.user,
@@ -14,8 +10,13 @@ Mysql.prototype.connect = function (option) {
   this.connection.connect()
 }
 
-Mysql.prototype.create = function (table, map) {
-  if (!table) return throw new Error('创建表需要确认表名!')
+// Mysql.prototype.connection = {}
+
+// Mysql.prototype.connect = function (option) {
+// }
+
+Mysql.prototype.create = function (table, map, callback) {
+  if (!table) return new Error('创建表需要确认表名!')
   const keys   = Object.keys(map)
   const values = Object.values(map)
   const entities = []
@@ -25,27 +26,41 @@ Mysql.prototype.create = function (table, map) {
   const sql = `CREATE TABLE ${table} IF NOT EXISTS (
     id INT NOT NULL UNSIGNED AUTO_INCREMENT, ${entities}, PRIMARY KEY(id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-  try {
-    this.connection.query(sql)
-  } catch (error) {
-    console.log(error)
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      this.connection.query(sql, (err, result) => {
+        if (err) return reject(err)
+        if (callback) callback(result)
+        resolve(result)
+      })
+    } catch (error) {
+      console.log(error)
+      reject(error)
+    }
+  })
 }
 
-Mysql.prototype.insert = function (table, map) {
-  if (!table) return throw new Error('插入表单数据需要确认表单名!')
+Mysql.prototype.insert = function (table, map, callback) {
+  if (!table) return new Error('插入表单数据需要确认表单名!')
   const keys   = Object.keys(map)
   const values = Object.values(map)
   const sql    = `INSERT INTO ${table} (${keys}) VALUES (${values});`
-  try {
-    this.connection.query(sql)
-  } catch (error) {
-    console.log(error)
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      this.connection.query(sql, (err, result) => {
+        if (err) return reject(err)
+        if (callback) callback(result)
+        resolve(result)
+      })
+    } catch (error) {
+      console.log(error)
+      reject(error)
+    }
+  })
 }
 
 // Mysql.prototype.delete = function (table, map) {
-//   if (!table) return throw new Error('插入表单数据需要确认表单名!')
+//   if (!table) return new Error('插入表单数据需要确认表单名!')
 //   const keys   = Object.keys(map)
 //   const values = Object.values(map)
 //   const sql    = `INSERT INTO ${table} (${keys}) VALUES (${values});`
@@ -56,38 +71,77 @@ Mysql.prototype.insert = function (table, map) {
 //   }
 // }
 
-Mysql.prototype.query = function (table, map) {
-  if (!table) return throw new Error('查询表单数据需要确认表单名!')
-  // const keys   = Object.keys(map)
-  // const values = Object.values(map)
-  const querysql = []
-  // const { page, size = 10 } = map
-  // if (page) {
-  //   querysql.push(`limit ${page*size},${size}`)
-  // }
+Mysql.prototype.query = function (table, map, callback) {
+  if (!table) return new Error('查询表单数据需要确认表单名!')
+  let limit = ''
+  let query = []
   Object.keys(map).forEach(key => {
-    if (key === 'page') {
-      querysql.push(`limit ${map.page*map.size},${map.size}`)
+    const value = map[key]
+    if (assert.isDate(value)) {
+      if (/start/.test(key)) {
+        const startKey = key.replace(/start/, '').replace(/^\w/, (a) => a.toLocaleLowerCase())
+        query.push(`${startKey}>='${value}'`)
+      } else if (/end/.test(key)) {
+        const endKey = key.replace(/end/, '').replace(/^\w/, (a) => a.toLocaleLowerCase())
+        query.push(`${endKey}<='${value}'`)
+      } else {
+        query.push(`${key}='${value}'`)
+      }
+    } else if (key === 'page' || key === 'size') {
+      limit = `${map.page*map.size},${map.size}`
+    } else {
+      query.push(`${key}=${value}`)
     }
   })
-  const sql = `SELECT * FROM ${table} WHERE ${querysql}`
-  try {
-    this.connection.query(sql)
-  } catch (error) {
-    console.log(error)
+  let sql = `SELECT * FROM ${table}`
+  if (query.length) {
+    sql += ` WHERE ${query.join(' AND ')}`
   }
+  if (limit) {
+    sql += ` LIMIT ${limit}`
+  }
+  console.log('asdasd', table, map, sql)
+  return new Promise((resolve, reject) => {
+    try {
+      this.connection.query(sql, (err, result) => {
+        console.log('1111', err, result)
+        if (err) return reject(err)
+        if (callback) callback(result)
+        resolve(result)
+      })
+    } catch (error) {
+      console.log(error)
+      reject(error)
+    }
+  })
 }
 
-Mysql.prototype.update = function (table, map) {
-  if (!table) return throw new Error('更新表单数据需要确认表单名!')
-  const sql = `UPDATE ${table} SET (${mapToUpdateSql(map)}) WHERE id=${map.id};`
-  try {
-    this.connection.query(sql)
-  } catch (error) {
-    console.log(error)
-  }
+Mysql.prototype.update = function (table, map, callback) {
+  if (!table) return new Error('更新表单数据需要确认表单名!')
+  return new Promise((resolve, reject) => {
+    const sql = `UPDATE ${table} SET (${mapToUpdateSql(map)}) WHERE id=${map.id};`
+    try {
+      this.connection.query(sql, (err, result) => {
+        if (err) return reject(err)
+        if (callback) callback(result)
+        resolve(result)
+      })
+    } catch (error) {
+      console.log(error)
+      reject(error)
+    }
+  })
 }
 
+Mysql.prototype.disconnect = function (callback) {
+  return new Promise((resolve, reject) => {
+    this.connection.end(function(err) {
+      if (err) return reject(err)
+      if (callback) callback()
+      resolve()
+    })
+  })
+}
 
 function mapToUpdateSql (map) {
   const cmap = { ...map }

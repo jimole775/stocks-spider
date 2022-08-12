@@ -19,5 +19,12 @@
     "user": "root",
     "database": "stock_analyze",
     "password": "123456"
+  },
+  "yiibai": {
+    "host": "localhost",
+    "port": "3306",
+    "user": "root",
+    "database": "yiibaidb",
+    "password": "Lester&1991"
   }
 }

@@ -1,10 +1,18 @@
 module.exports = {
+  isDate (src) {
+    return this.isString(src) &&
+      (
+        /^\d{4}([-/\\]\d{2}([-/\\]\d{2}( \d{2}:\d{2}:\d{2})?)?)?$/.test(src) ||
+        /^\d{2}(:\d{2}(:\d{2})?)?$/.test(src)
+      )
+  },
+
   isArray (likeArray) {
-    return Object.prototype.toString.call(likeArray) === '[object Array]'       
+    return Object.prototype.toString.call(likeArray) === '[object Array]'
   },
 
   isEmptyArray (likeArray) {
-    return isArray(likeArray) && likeArray.length === 0    
+    return isArray(likeArray) && likeArray.length === 0
   },
 
   isObject(likeObject) {
@@ -12,19 +20,19 @@ module.exports = {
   },
 
   isFunction(likeFunction) {
-    return Object.prototype.toString.call(likeFunction) === '[object Function]'            
+    return Object.prototype.toString.call(likeFunction) === '[object Function]'
   },
 
   isNumber(likeNumber) {
-    return Object.prototype.toString.call(likeNumber) === '[object Number]'            
+    return Object.prototype.toString.call(likeNumber) === '[object Number]'
   },
 
   isEmptyObject(likeObject) {
-    return Object.prototype.toString.call(likeObject) === '[object Object]' && Object.keys(likeObject).length === 0    
+    return Object.prototype.toString.call(likeObject) === '[object Object]' && Object.keys(likeObject).length === 0
   },
 
   isString(likeString) {
-    return Object.prototype.toString.call(likeString) === '[object String]'    
+    return Object.prototype.toString.call(likeString) === '[object String]'
   },
 
   isBuffer(likeBuffer) {
