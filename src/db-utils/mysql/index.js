@@ -1,5 +1,5 @@
 const mysql      = require('mysql')
-const assert      = require('../utils/assert')
+const assert      = require('../../utils/assert')
 function Mysql (option) {
   this.connection = mysql.createConnection({
     host     : option.host,
@@ -24,7 +24,9 @@ Mysql.prototype.create = function (table, map, callback) {
     entities.push(`${key} ${map[key]} DEFAULT NULL`)
   })
   const sql = `CREATE TABLE ${table} IF NOT EXISTS (
-    id INT NOT NULL UNSIGNED AUTO_INCREMENT, ${entities}, PRIMARY KEY(id)
+    id INT NOT NULL UNSIGNED AUTO_INCREMENT,
+    ${entities},
+    PRIMARY KEY(id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;`
   return new Promise((resolve, reject) => {
     try {

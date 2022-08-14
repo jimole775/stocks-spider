@@ -35,6 +35,8 @@ module.exports = async function () {
   global.urlModel = `${__dirname}\\url-model.yml`
   global.utils = `${__dirname}\\utils\\index.js`
 
+  global.db_utils = `${__dirname}\\utils\\index.js`
+
   // 数据库别名
   global.db_home = `G:\\my_db\\stocks-spider`
   global.db_api = `G:\\my_db\\stocks-spider\\api`
