@@ -15,25 +15,25 @@ module.exports = async function sniffApiFromWebSite (dealsURLs) {
   const doneApiMap = {}
   const bunchLinking = new BunchLinking(dealsURLs)
   await bunchLinking.on({
-      response: async function (response) {
-        const api = response.url()
-        if (response.status() === 200) {
-          if (peerDealReg.test(api)) {
-            const { code, ut, cb, id } = dealAnalyze(api)
-            doneApiMap[code] = { ut, cb, id, dt: 0 }
-            recordDeals({ ut, cb, id })
-          } else if (peerDealReg1.test(api)) {
-            const { code, secid, id } = dealAnalyze(api)
-            doneApiMap[code] = { secid, dt: 1 }
-            recordDeals1({ secid })
-          }
+    response: async function (response) {
+      const api = response.url()
+      if (response.status() === 200) {
+        if (peerDealReg.test(api)) {
+          const { code, ut, cb, id } = dealAnalyze(api)
+          doneApiMap[code] = { ut, cb, id, dt: 0 }
+          recordDeals({ ut, cb, id })
+        } else if (peerDealReg1.test(api)) {
+          const { code, secid, id } = dealAnalyze(api)
+          doneApiMap[code] = { secid, dt: 1 }
+          recordDeals1({ secid })
         }
-      },
-      end: function () {
-        console.log('完成一个页面的嗅探')
-        return hasUnlinked(dataPath, 'deal')
       }
-    }).emit()
+    },
+    end: function () {
+      console.log('完成一个页面的嗅探')
+      return hasUnlinked(dataPath, 'deal')
+    }
+  }).emit()
   console.log('完成所有网页的嗅探！')
   return Promise.resolve(doneApiMap)
 }

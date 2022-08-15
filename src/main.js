@@ -3,23 +3,28 @@
   await require('./app/base/assistants/build-base-data')()
   await require('./app/base/assistants/build-dict')()
   console.log('Base info was loaded!')
+
   const sniffStockHome = require('./app/base/business/sniff-stock-home')
   const sniffDailyDeals = require('./app/base/business/sniff-daily-deals')
   const analyzerDeals = require('./app/analyze/deals')
   const analyzerKlines = require('./app/analyze/klines')
   console.log('Main function was mounted!')
+
   if (['kline', 'quote', 'all'].includes(global.module)) {
     console.log('Sniff stock home!')
     await sniffStockHome(global.module)
   }
+
   if (['deal', 'all'].includes(global.module)) {
     console.log('Sniff daily deals!')
     await sniffDailyDeals()
   }
+
   if (['shadowline', 'all'].includes(global.module)) {
     console.log('Analyzes deals into shadowline!')
     await analyzerDeals.shadowline()
   }
+
   if (['vline', 'all'].includes(global.module)) {
     console.log('Analyzes deals into vline!')
     await analyzerDeals.vline()

@@ -1,6 +1,11 @@
+/**
+ * "2021-12-02, 17.62, 17.59, 17.81, 17.37, 994798, 1749164560.00, 2.49",
+ * "日期，开盘价，收盘价，最高价，最低价，量，价，振幅"
+ */
 const path = require(`path`)
 const uri = require(`./uri`)
 const { quest, writeFileSync } = require(global.utils)
+
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const dataPath = `klines/daily/${global.finalDealDate}.json`
 const dataPath_week = `klines/week/${global.finalDealDate}.json`
@@ -8,6 +13,7 @@ const dataPath_month = `klines/month/${global.finalDealDate}.json`
 const fr_dataPath = `/fr-klines/daily/${global.finalDealDate}.json`
 const fr_dataPath_week = `/fr-klines/week/${global.finalDealDate}.json`
 const fr_dataPath_month = `/fr-klines/month/${global.finalDealDate}.json`
+
 module.exports = async function recordKlines ({ secid, cb, ut }) {
   return new Promise((resolve, reject) => executes({ secid, cb, ut }, resolve, reject, 0))
 }

@@ -5,16 +5,19 @@ const diffrence = require('./diffrence')
 const assert = require('./assert')
 const dict_code_name = require(path.join(global.db_dict,'code-name.json'))
 const dbPath = global.db_stocks
-const LogTag = 'utils.connectStock => '
+const LogTag = 'utils.StockConnect => '
 /**
  * 读取指定存储目录的stock
  * 当前仅支持目录结构 `${global.db_stocks}/${stock}/${targetDir}/${date}`
  * @param { Array } dict
  * @param { Array | String } ignoreObject
  * @param { Function } callback
- * @return { Undefined }
+ * @return { Promise }
  */
-module.exports = function connectStock(targetDir, ignoreObject, callback) {
+module.exports = function StockConnect(targetDir, ignoreObject, callback) {
+  this.eventsParams = []
+  this.dataEventReceiver = null
+  this.endEventReceiver = null
   if (assert.isFunction(ignoreObject)) {
     callback = ignoreObject
     ignoreObject = null
@@ -49,9 +52,42 @@ module.exports = function connectStock(targetDir, ignoreObject, callback) {
     for (let j = 0; j < dateFiles.length; j++) {
       const dateFile = dateFiles[j]
       const fileData = readFileSync(path.join(dbPath, stockCode, targetDir, dateFile))
-      callback && callback(fileData, stockCode, dateFile.split('.').shift())
+      if (callback) {
+        callback(fileData, stockCode, dateFile.split('.').shift())
+      } else {
+        this.eventsParams.push([fileData, stockCode, dateFile.split('.').shift()])
+      }
     }
   }
+
+  return Promise.resolve()
+}
+
+StockConnect.prototype.on = (option, callback) {
+  if (utils.isObject(option)) {
+    this.dataEventReceiver = option['data']
+    this.endEventReceiver = option['end']
+  }
+  if (utils.isString(option) && callback) {
+    if (option === 'data') {
+      this.dataEventReceiver = callback
+    }
+    if (option === 'end') {
+      this.endEventReceiver = callback
+    }
+  }
+  return this
+}
+
+StockConnect.prototype.emit = () {
+  if (this.eventsParams.length && this.dataEventReceiver) {
+    this.eventsParams.forEach((params) => {
+      this.dataEventReceiver.apply(this, params)
+    })
+    this.eventsParams.length = 0
+    this.endEventReceiver && this.endEventReceiver()
+  }
+  return this
 }
 
 function cuteIgnoreDates (dateFiles, ignoreDates) {

@@ -6,16 +6,29 @@ const dailyRoot = `fr-klines/daily`
 const writeDir = `lowerpoint` // `/api/lowerpoint/${date}`
 // "2020-07-21,26.18,28.01,32.02,26.17,24354359,70439577904.00,22.38"
 // 日期，开盘价，收盘价，最高价，最低价，成交量（手），成交额（元），振幅
-const { rangeEqual, writeFileSync, readDirSync, connectStock } = require(global.utils)
+const { rangeEqual, writeFileSync, readDirSync, StockConnect } = require(global.utils)
 module.exports = function lowerpoint() {
-  connectStock(dailyRoot, (fileData, stock, date) => {
-    if (!fileData || !fileData.klines) return false
-    const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
-    if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
-      writeFileSync(path.join(global.db_api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30, avg60 })
-    }
+  // connectStock(dailyRoot, (fileData, stock, date) => {
+  //   if (!fileData || !fileData.klines) return false
+  //   const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
+  //   if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
+  //     writeFileSync(path.join(global.db_api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30, avg60 })
+  //   }
+  // })
+  return new Promise((resolve, reject) => {
+    const connect = StockConnect(dailyRoot)
+    connect.on('data', (fileData, stock, date) => {
+      if (!fileData || !fileData.klines) return false
+      const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
+      if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
+        writeFileSync(path.join(global.db_api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30, avg60 })
+      }
+    })
+    connect.on('end', () => {
+      return resolve(true)
+    })
+    connect.emit()
   })
-  return Promise.resolve(true)
 }
 
 // test()

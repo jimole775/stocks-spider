@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "init": "npm install puppeteer@2.1.1 --ignore-scripts && npm --registry https://registry.npm.taobao.org install",
     "start": "node src/main.js --module=all",
     "start:kline": "node src/main.js --module=kline",
     "start:shadowline": "node src/main.js --module=shadowline",
@@ -75,7 +76,7 @@
     "mysql": "^2.18.1",
     "os-utils": "0.0.14",
     "puppeteer": "^2.1.1",
-    "superagent": "^5.1.0"
+    "superagent": "^5.3.1"
   },
   "browserify": {
     "transform": "browserify-shim"

@@ -3,21 +3,29 @@
  * 初步肯定，这是有庄家的征兆
  */
 const path = require('path')
-const { writeFileSync, connectStock, isEmptyObject } = require(global.utils)
+const { writeFileSync, StockConnect, isEmptyObject } = require(global.utils)
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
 const price_range = 0.03 // 默认为3%价格间隔
 const time_range = 5
 const haevy_standard = global.vline.haevy_standard || 10 * 10000 // 大单的标准
 module.exports = async function vline () {
-  // const recordedDates = unrecordFiles(strokeline_dir)
-  connectStock(deals_dir, (dealData, stock, date)=> {
+  // connectStock(deals_dir, (dealData, stock, date)=> {
+  //   const result = calculateStorkeline(date, stock, dealData)
+  //   if (result && !isEmptyObject(result)) {
+  //     console.log(result)
+  //     writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
+  //   }
+  // })
+  const connect = StockConnect(deals_dir)
+  connect.on('data', (dealData, stock, date)=> {
     const result = calculateStorkeline(date, stock, dealData)
     if (result && !isEmptyObject(result)) {
       console.log(result)
       writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
     }
   })
+  connect.emit()
 }
 
 function unrecordFiles () {

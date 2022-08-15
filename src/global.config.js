@@ -17,7 +17,7 @@ module.exports = async function () {
 
   // 从站点上获取最后一天的交易日期
   global.finalDealDate = await getDate()
-  console.log(global.finalDealDate)
+
   // vline模块配置项
   global.vline = {
     time_dvd: 15 * 60 * 1000, // v型k线的形成时间
@@ -58,7 +58,9 @@ function getDate () {
       const dirtyData = await quest('http://push2his.eastmoney.com/api/qt/stock/trends2/get?cb=jQuery1124012891801110637102_1584422853173&secid=1.000001&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11&fields2=f51%2Cf53%2Cf56%2Cf58&iscr=0&ndays=1&_=1584422853176')
       const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
       const curDate = new Date((pureData.data.time || 0) * 1000)
-      return resolve(moment(curDate).format('YYYY-MM-DD'))
+      const dateString = moment(curDate).format('YYYY-MM-DD')
+      console.log(dateString)
+      return resolve(dateString)
     } catch (error) {
       console.log('getdate: ', error)
       // 一般情况下，quest失败，不是网络异常，就是服务器异常，异常状态一般持续数秒或者数分钟，

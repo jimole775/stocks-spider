@@ -33,15 +33,22 @@
 const path = require('path')
 const dirRoot = `deals`
 const targetRoot = `/analyze/deals/shadowline/`
-const { rangeEqual, writeFileSync, readDirSync, connectStock } = require(global.utils)
+const { rangeEqual, writeFileSync, readDirSync, StockConnect } = require(global.utils)
 module.exports = async function shadowline() {
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
-  connectStock(dirRoot, ignoreDateFiles, (fileData, stock, date) => {
+  const connect = StockConnect(dirRoot, ignoreDateFiles)
+  connect.on('data', (fileData, stock, date) => {
     if (!fileData || !fileData.data) return false
     const analyzeData = calculate(fileData)
     writeFileSync(path.join(global.db_stocks, stock, targetRoot, date + '.json'), analyzeData)
   })
+  connect.emit()
+  // connectStock(dirRoot, ignoreDateFiles, (fileData, stock, date) => {
+  //   if (!fileData || !fileData.data) return false
+  //   const analyzeData = calculate(fileData)
+  //   writeFileSync(path.join(global.db_stocks, stock, targetRoot, date + '.json'), analyzeData)
+  // })
   return Promise.resolve(true)
 }
 

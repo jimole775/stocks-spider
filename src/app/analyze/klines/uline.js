@@ -15,11 +15,32 @@ const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, connectStock, isEmptyObject } = require(global.utils)
+const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = require(global.utils)
 const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 module.exports = function uline () {
-  connectStock(read_dir, (fileData, stock, date)=> {
+  // connectStock(read_dir, (fileData, stock, date)=> {
+  //   if (global.blackName.test(fileData.name)) return
+  //   let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
+  //   // console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
+  //   // const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+  //   if (ulineLeftItems && ulineBottomItems) {
+  //     ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
+  //     ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
+  //     ulineRightItems = ulineRightItems ? ulineRightItems : []
+  //     writeFileSync(path.join(global.db_api, save_dir, global.finalDealDate, stock + '.json'), {
+  //       code: fileData.code,
+  //       name: fileData.name,
+  //       klines: [
+  //         ...ulineLeftItems,
+  //         ...ulineBottomItems,
+  //         ...ulineRightItems,
+  //       ]
+  //     })
+  //   }
+  // })
+  const connect = StockConnect(read_dir)
+  connect.on('data', (fileData, stock, date) => {
     if (global.blackName.test(fileData.name)) return
     let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
     // console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
@@ -39,6 +60,7 @@ module.exports = function uline () {
       })
     }
   })
+  connect.emit()
 }
 
 function queryBottomTrend (ulineBottomItems) {

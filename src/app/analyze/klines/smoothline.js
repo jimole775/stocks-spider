@@ -11,7 +11,7 @@ const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, connectStock, isEmptyObject } = require(global.utils)
+const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = require(global.utils)
 const save_dir = `smoothline`
 const read_dir = `fr-klines/daily`
 var a = {
@@ -21,7 +21,21 @@ var a = {
   kline30: '',
 }
 module.exports = function smoothline () {
-  connectStock(read_dir, (fileData, stock, date) => {
+  // connectStock(read_dir, (fileData, stock, date) => {
+  //   const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
+  //   console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
+  //   if (ulineBeginDaily && ulineEndDaily) {
+  //     writeFileSync(path.join(global.db_api, save_dir, stock + '.json'), {
+  //       code: fileData.code,
+  //       name: fileData.name,
+  //       ulineLeftItems,
+  //       ulineBottomItems,
+  //       ulineRihtItems,
+  //     })
+  //   }
+  // })
+  const connect = StockConnect(read_dir)
+  connect.on('data', (fileData, stock, date) => {
     const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
     if (ulineBeginDaily && ulineEndDaily) {
@@ -34,6 +48,7 @@ module.exports = function smoothline () {
       })
     }
   })
+  connect.emit()
 }
 // let fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')
 // const  [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(JSON.parse(fileData))

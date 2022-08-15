@@ -1,14 +1,12 @@
-const Mysql = require(`${global.db_utils}/mysql/index.js`)
-const config = require(`${global.root}/db_config.json`)
-require(`F:/my_pro/stocks/src/global.config.js`)().then(() => {
-  const { assert, connectStock } = require(`F:/my_pro/stocks/src/utils/index.js`)
-  connectStock('deals', (dealData, stock, date)=> {
-    const mysql = new Mysql(config.deals)
-    // if (result && !assert.isEmptyObject(result)) {
-    //   console.log(result)
-    // }
-    console.log(dealData, stock, date)
-
+require(`../../../global.config.js`)().then(async () => {
+  const Mysql = require(`${global.db_utils}/mysql/index.js`)
+  const db_config = require(`${global.root}/db_config.json`)
+  const deals_ddl = require(`${global.root}/src/db-utils/mysql/ddl/deals.json`)
+  const { assert, StockConnect } = require(`F:/my_pro/stocks/src/utils/index.js`)
+  const mysql = new Mysql(db_config.deals)
+  await connectStock('deals', async (dealData, stock, date)=> {
+    const tableName = 'stock_' + stock
+    await mysql.create(tableName, deals_ddl)
     if (dealData.dt === 1) {
       // c: '000001',
       // m: 0,
@@ -20,13 +18,22 @@ require(`F:/my_pro/stocks/src/global.config.js`)().then(() => {
       //   { t: 91500, p: 13040, v: 1, bs: 4 },
       // ],
       // "hp": 13940, // 当日最高价
-      // "dp": 13140,// 当日最低价
+      // "dp": 13140, // 当日最低价
       // "ep": 13410 // 当日收盘价
       const data = dealData.data || []
       data.forEach((deal) => {
-        let {t: time, p: price, v: volumn, bs: dealType} = deal
-        price = price / 1000
-        time = int2time(time)
+        const {t: time, p: price, v: volumn, bs: dealType} = deal
+        const record = {}
+        record.price = price / 1000
+        record.time = int2time(time)
+        record.volumn = volumn
+        record.deal_type = dealType
+        record.data_type = dealData.dt || 0
+        record.market = dealData.m
+        record.highest_price = dealData.hp / 1000
+        record.lowest_price = dealData.dp / 1000
+        record.end_price = dealData.ep / 1000
+        mysql.insert(tableName, record)
       })
     } else {
       // {
@@ -42,10 +49,21 @@ require(`F:/my_pro/stocks/src/global.config.js`)().then(() => {
       // }
       const details = createFields(dealData).details || []
       details.forEach((deal) => {
-        let [time, price, volumn, null, dealType] = deal.split(',')
-        // price = price * 1000
+        const [time, price, volumn, none, dealType] = deal.split(',')
+        const record = {}
+        record.price = price
+        record.time = time
+        record.volumn = volumn
+        record.deal_type = dealType
+        record.data_type = dealData.dt || 0
+        record.market = dealData.market
+        record.highest_price = dealData.hp
+        record.lowest_price = dealData.dp
+        record.end_price = dealData.ep
+        mysql.insert(tableName, record)
       })
     }
+    mysql.disconnect()
   })
 })
 
@@ -56,7 +74,7 @@ function createFields (data = {}) {
   let ep = 0 // 当日收盘价
   let dp = 9999999 // 当日最低价
   data.details && data.details.forEach((deal) => {
-    let [time, price, volumn, null, dealType] = deal.split(',')
+    let [time, price, volumn, none, dealType] = deal.split(',')
     if (price > hp) hp = price
     if (price < dp) dp = price
     ep = price
