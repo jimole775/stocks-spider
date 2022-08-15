@@ -19,6 +19,16 @@ module.exports = class BunchThread {
     return this
   }
 
+  beatHeart () {
+    if (this.taskLiving >= this.limit) {
+      return setTimeout(() => {
+        this.beatHeart()
+      }, 45)
+    } else {
+
+    }
+  }
+
   /**
    * 线程调用
    * @param { Function } $$task
@@ -31,7 +41,7 @@ module.exports = class BunchThread {
       this.thread($$task)
     }
     this.taskLiving ++
-    return this
+    return Promise.resolve()
   }
 
   /**

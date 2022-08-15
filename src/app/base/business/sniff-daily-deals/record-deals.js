@@ -37,7 +37,7 @@ async function excutes (recordItem, resolve, loopTimes) {
       resolve()
     }
   } catch (error) {
-    if (loopTimes < 10) {
+    if (loopTimes < 5) {
       console.error(stockCode, '交易详情-报错:', error)
       return setTimeout(() => excutes(recordItem, resolve, ++loopTimes), 1000)
     } else {

@@ -24,6 +24,7 @@ async function excutes ({ secid }, resolve, loopTimes) {
   const code = secid.split('.').pop()
   const savePath = path.join(global.db_stocks, code, fileModel)
   try {
+    console.log('正在探测：', code)
     // 'data: {"rc":0,"rt":12,"svr":182995883,"lt":1,"full":1,"dlmkts":"","data":{"code":"000667","market":0,"decimal":2,"prePrice":1.6,"details":[]}'
     const res = await quest(api, {
       header: { 'Content-Type': 'text\/event-stream' },
@@ -43,7 +44,7 @@ async function excutes ({ secid }, resolve, loopTimes) {
       resolve()
     }
   } catch (error) {
-    if (loopTimes < 10) {
+    if (loopTimes < 5) {
       console.error(code, '交易详情-报错:', error)
       return setTimeout(() => excutes({ secid }, resolve, ++loopTimes), 1000)
     } else {
