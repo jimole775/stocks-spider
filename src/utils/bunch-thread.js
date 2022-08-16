@@ -63,27 +63,30 @@ module.exports = class BunchThread {
   async taskNormalConsume () {
     if (this.taskQueue.length) {
       const task = this.taskQueue.shift()
-      const consumeId = task.id
       await task()
-      this.taskLivingIds.splice(this.taskLivingIds.indexOf(consumeId), 1)
+      this.livingIdReduce(task)
     }
+  }
+
+  livingIdReduce (task) {
+    const idIndex = this.taskLivingIds.indexOf(task.id)
+    this.taskLivingIds.splice(idIndex, 1)
   }
 
   waitConsumeUnderLimit () {
     return new Promise((resolve, reject) => {
-      if (this.taskQueue.length >= this.limit) {
-        return this.consumeLoop(resolve)
-      }
+      return this.consumeLoop(resolve)
     })
   }
 
   async consumeLoop (resolve) {
-    if (this.taskQueue.length < this.limit) {
+    if (this.taskLivingIds.length < this.limit) {
       return resolve()
     } else {
       if (this.taskQueue.length) {
-        const curTask = this.taskQueue.shift()
-        await curTask()
+        const task = this.taskQueue.shift()
+        await task()
+        this.livingIdReduce(task)
         return this.consumeLoop(resolve)
       }
     }
