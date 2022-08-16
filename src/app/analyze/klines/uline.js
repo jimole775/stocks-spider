@@ -39,7 +39,7 @@ module.exports = function uline () {
   //     })
   //   }
   // })
-  const connect = StockConnect(read_dir)
+  const connect = new StockConnect(read_dir)
   connect.on('data', (fileData, stock, date) => {
     if (global.blackName.test(fileData.name)) return
     let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)

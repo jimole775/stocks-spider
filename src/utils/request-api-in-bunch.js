@@ -21,22 +21,22 @@ module.exports = function requestApiInBunch (apikey, apis, task) {
         }
       }
     })
-    
+
     // 如果没有一个api被记录的，就直接返回 apis
     if (unLinkStocks.length === 0) return resolve(apis)
 
     const bunch = new BunchThread()
     unLinkStocks.forEach((stockItem) => {
-      bunch.taskCalling(() => {
-        return new Promise(async (s, j) => {
+      bunch.taskCalling((stockItem) => {
+        return new Promise(async (resolve, reject) => {
           try {
             await task(stockItem)
-            return s()
+            return resolve()
           } catch (error) {
             // 如果报错了就把失败的url重新推回 apis
             console.log(LogTag, error, stockItem['code'])
             apis.push(stockItem[apikey])
-            return j()
+            return reject()
           }
         })
       })

@@ -34,7 +34,7 @@ module.exports = function smoothline () {
   //     })
   //   }
   // })
-  const connect = StockConnect(read_dir)
+  const connect = new StockConnect(read_dir)
   connect.on('data', (fileData, stock, date) => {
     const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)

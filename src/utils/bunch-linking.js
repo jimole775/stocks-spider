@@ -31,12 +31,12 @@ module.exports = class BunchLinking {
 
   async emit () {
     await this._buildPage()
-    return new Promise((s, j) => {
-      return this._loop(this.urls, s, j)
+    return new Promise((resolve, reject) => {
+      return this._loop(this.urls, resolve, reject)
     })
   }
 
-  _loop (urls, s, j) {
+  _loop (urls, resolve, reject) {
     urls.forEach((url) => {
       this.bunch.taskCalling(() => {
         return this._taskEntity(url)
@@ -46,46 +46,45 @@ module.exports = class BunchLinking {
       let remainUrls = this.end()
       if (remainUrls && remainUrls.length) {
         console.log(LogTag, 'remainUrls: ', remainUrls.length)
-        return this._loop(remainUrls, s, j)
+        return this._loop(remainUrls, resolve, reject)
       } else {
-        console.log(LogTag, 'loop end！shutting down pages!')
+        console.log(LogTag, 'loop end, shutting down pages!')
         await this._shutdownPages()
-        return s()
+        return resolve()
       }
     })
   }
 
   _taskEntity (url) {
-    return new Promise(async (s, j) => {
+    return new Promise(async (resolve, reject) => {
       const idlPage = this._pickIdlPage()
       idlPage.idl = false
-      await idlPage.goto(url, { timeout: 0 })
-        .catch((err) => console.log(LogTag, 'idlPage.goto:', err))
+      await idlPage.goto(url, { timeout: 0 }).catch((err) => console.log(LogTag, 'idlPage.goto:', err))
       idlPage.idl = true
-      return s(true)
+      return resolve(true)
     })
   }
 
   _buildPage () {
-    return new Promise(async (s, j) => {
+    return new Promise(async (resolve, reject) => {
       for (let i = 0; i < this.limitBunch; i++) {
         const idlPage = await initPage(this.request, this.response)
         idlPage.id = '_id_' + i
         idlPage.idl = true
         this.pages.push(idlPage)
       }
-      return s()
+      return resolve()
     })
   }
 
   _shutdownPages () {
-    return new Promise(async (s, j) => {
+    return new Promise(async (resolve, reject) => {
       for (let i = 0; i < this.pages.length; i++) {
         const page = this.pages[i]
-        await page.close().catch(() => { i - 1})
+        await page.close().catch(() => { i - 1 })
       }
       this.pages = []
-      return s()
+      return resolve()
     })
   }
 

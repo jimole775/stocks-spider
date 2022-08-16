@@ -16,7 +16,7 @@ module.exports = function lowerpoint() {
   //   }
   // })
   return new Promise((resolve, reject) => {
-    const connect = StockConnect(dailyRoot)
+    const connect = new StockConnect(dailyRoot)
     connect.on('data', (fileData, stock, date) => {
       if (!fileData || !fileData.klines) return false
       const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)

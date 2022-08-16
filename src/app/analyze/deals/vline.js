@@ -19,7 +19,7 @@ module.exports = async function vline () {
   //     writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
   //   }
   // })
-  const connect = StockConnect(read_peerdeal_dir, ignoreObj)
+  const connect = new StockConnect(read_peerdeal_dir, ignoreObj)
   connect.on('data', (dealData, stock, date)=> {
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
