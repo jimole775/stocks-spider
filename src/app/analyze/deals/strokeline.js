@@ -17,7 +17,7 @@ module.exports = async function vline () {
   //     writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
   //   }
   // })
-  const connect = StockConnect(deals_dir)
+  const connect = new StockConnect(deals_dir)
   connect.on('data', (dealData, stock, date)=> {
     const result = calculateStorkeline(date, stock, dealData)
     if (result && !isEmptyObject(result)) {

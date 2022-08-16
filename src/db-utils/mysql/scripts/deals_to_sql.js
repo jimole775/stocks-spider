@@ -4,7 +4,8 @@ require(`../../../global.config.js`)().then(async () => {
   const deals_ddl = require(`${global.root}/src/db-utils/mysql/ddl/deals.json`)
   const { assert, StockConnect } = require(`F:/my_pro/stocks/src/utils/index.js`)
   const mysql = new Mysql(db_config.deals)
-  await connectStock('deals', async (dealData, stock, date)=> {
+  const connect = new StockConnect('deals')
+  connect.on('data', (dealData, stock, date)=> {
     const tableName = 'stock_' + stock
     await mysql.create(tableName, deals_ddl)
     if (dealData.dt === 1) {
@@ -26,7 +27,7 @@ require(`../../../global.config.js`)().then(async () => {
         const record = {}
         record.price = price / 1000
         record.time = int2time(time)
-        record.volumn = volumn
+        record.volumn = volumn * 100
         record.deal_type = dealType
         record.data_type = dealData.dt || 0
         record.market = dealData.m
@@ -53,7 +54,7 @@ require(`../../../global.config.js`)().then(async () => {
         const record = {}
         record.price = price
         record.time = time
-        record.volumn = volumn
+        record.volumn = volumn * 100
         record.deal_type = dealType
         record.data_type = dealData.dt || 0
         record.market = dealData.market
@@ -65,6 +66,7 @@ require(`../../../global.config.js`)().then(async () => {
     }
     mysql.disconnect()
   })
+  connect.emit()
 })
 
 // todo 2022/08/01 的数据，没有运行次方法

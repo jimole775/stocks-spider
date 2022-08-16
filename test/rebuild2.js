@@ -1,4 +1,4 @@
-const connect = require('./src/utils/connect-stock')
+const connect = require('./src/utils/stock-connect')
 const path = require('path')
 const writeFileSync = require('./src/utils/write-file-sync')
 const readdir = 'src/db/warehouse/deals'

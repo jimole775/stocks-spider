@@ -37,7 +37,7 @@ const { rangeEqual, writeFileSync, readDirSync, StockConnect } = require(global.
 module.exports = async function shadowline() {
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
-  const connect = StockConnect(dirRoot, ignoreDateFiles)
+  const connect = new StockConnect(dirRoot, ignoreDateFiles)
   connect.on('data', (fileData, stock, date) => {
     if (!fileData || !fileData.data) return false
     const analyzeData = calculate(fileData)
