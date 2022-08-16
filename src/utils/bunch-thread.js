@@ -38,7 +38,7 @@ module.exports = class BunchThread {
    */
   register (paramList, taskEntity) {
     this.paramList = paramList || []
-    this.taskEntity = taskEntity || () => {}
+    this.taskEntity = taskEntity || function () {}
   }
 
   async emit () {
@@ -60,7 +60,7 @@ module.exports = class BunchThread {
     }
   }
 
-  taskNormalConsume () {
+  async taskNormalConsume () {
     if (this.taskQueue.length) {
       const task = this.taskQueue.shift()
       const consumeId = task.id
