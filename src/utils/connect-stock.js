@@ -14,7 +14,7 @@ const LogTag = 'utils.StockConnect => '
  * @param { Function } callback
  * @return { Promise }
  */
-module.exports = function StockConnect(targetDir, ignoreObject, callback) {
+function StockConnect(targetDir, ignoreObject, callback) {
   this.eventsParams = []
   this.dataEventReceiver = null
   this.endEventReceiver = null
@@ -63,7 +63,7 @@ module.exports = function StockConnect(targetDir, ignoreObject, callback) {
   return Promise.resolve()
 }
 
-StockConnect.prototype.on = (option, callback) {
+StockConnect.prototype.on = function (option, callback) {
   if (utils.isObject(option)) {
     this.dataEventReceiver = option['data']
     this.endEventReceiver = option['end']
@@ -79,7 +79,7 @@ StockConnect.prototype.on = (option, callback) {
   return this
 }
 
-StockConnect.prototype.emit = () {
+StockConnect.prototype.emit = function () {
   if (this.eventsParams.length && this.dataEventReceiver) {
     this.eventsParams.forEach((params) => {
       this.dataEventReceiver.apply(this, params)
@@ -106,3 +106,5 @@ function cuteIgnoreDates (dateFiles, ignoreDates) {
   })
   return res
 }
+
+module.exports = StockConnect
