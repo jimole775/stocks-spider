@@ -3,7 +3,7 @@ const LogTag = 'utils.BunchThread => '
 /**
  * 并发线程
  */
-module.exports = class BunchThread {
+class BunchThread {
   /**
    * 构造函数
    * @param { Number } limit
@@ -21,16 +21,6 @@ module.exports = class BunchThread {
     return this
   }
 
-  beatHeart () {
-    if (this.taskLiving >= this.limit) {
-      return setTimeout(() => {
-        this.beatHeart()
-      }, 45)
-    } else {
-
-    }
-  }
-
   /**
    * 注册
    * @param { Array } paramList
@@ -46,7 +36,7 @@ module.exports = class BunchThread {
       for (let i = 0; i < this.paramList.length; i++) {
         const param = this.paramList[i]
         const task = async () => {
-          await this.taskEntity(param)
+          await this.taskEntity(param, i)
         }
         task.id = i
         this.taskQueue.push(task)
@@ -121,7 +111,7 @@ module.exports = class BunchThread {
     }
 
     // 如果是 busy 模式，每个任务执行后需要睡眠指定的时间
-    // 默认为 3 秒，可以在global.config里面进行配置
+    // 默认为 3 秒，可以在 global.config 里面进行配置
     if (global.onBusyNetwork) {
       await this.sleep(global.sleepTimes * global.bunchLimit)
     }
@@ -160,3 +150,25 @@ module.exports = class BunchThread {
   //   }, 0)
   // }
 }
+
+function test () {
+  const bunch = new BunchThread(5)
+  bunch.register(new Array(100).fill(1), (item, i) => {
+    return new Promise((s, j) => {
+      setTimeout(() => {
+        console.log(i)
+        s()
+      }, Math.random() * 3000)
+    })
+  })
+  bunch.emit()
+}
+
+if (!global.env) {
+  global.sleepTimes = 3000
+  global.bunchLimit = 10
+  global.onBusyNetwork = false
+  test()
+}
+
+module.exports = BunchThread

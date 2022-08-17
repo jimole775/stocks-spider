@@ -3,6 +3,8 @@ const cmdParam = require(`./utils/cmd-param`)
 const moment = require('moment')
 module.exports = async function () {
 
+  global.env = 'prod'
+
   global.blackName = /[ST|退]/
 
   // 命令行参数
