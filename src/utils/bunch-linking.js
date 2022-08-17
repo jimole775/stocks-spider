@@ -37,12 +37,17 @@ module.exports = class BunchLinking {
   }
 
   _loop (urls, resolve, reject) {
-    urls.forEach((url) => {
-      this.bunch.taskCalling(() => {
-        return this._taskEntity(url)
-      })
+    // urls.forEach((url) => {
+    //   this.bunch.taskCalling(() => {
+    //     return this._taskEntity(url)
+    //   })
+    // })
+    this.bunch.register(urls, (url) => {
+      // this.bunch.taskCalling(() => {
+      return this._taskEntity(url)
+      // })
     })
-    this.bunch.finally(async () => {
+    .finally(async () => {
       let remainUrls = this.end()
       if (remainUrls && remainUrls.length) {
         console.log(LogTag, 'remainUrls: ', remainUrls.length)
@@ -53,6 +58,7 @@ module.exports = class BunchLinking {
         return resolve()
       }
     })
+    .emit()
   }
 
   _taskEntity (url) {

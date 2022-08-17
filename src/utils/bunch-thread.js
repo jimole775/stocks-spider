@@ -37,7 +37,8 @@ class BunchThread {
    */
   async emit () {
     if (this.paramList && this.paramList.length) {
-      for (let i = 0; i < this.paramList.length; i++) {
+      const max = this.paramList.length
+      for (let i = 0; i < max; i++) {
         const param = this.paramList[i]
         const task = async () => {
           await this.taskEntity(param, i)
@@ -45,6 +46,7 @@ class BunchThread {
         task.id = i
         this.taskQueue.push(task)
         this.taskLivingIds.push(i)
+        console.log('并发剩余：', max - i)
         if (this.taskLivingIds.length >= this.limit) {
           await this._waitConsumeUnderLimit()
         } else {
@@ -76,7 +78,7 @@ class BunchThread {
    * @return { BunchThread }
    */
   finally (callback) {
-    this.endCallback = callback || () => console.log('Bunch End!')
+    this.endCallback = callback
     return this
   }
 
@@ -112,6 +114,8 @@ class BunchThread {
         await task()
         this._livingIdReduce(task)
         return this._consumeLoop(resolve)
+      } else {
+        resolve()
       }
     }
   }
