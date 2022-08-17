@@ -1,4 +1,3 @@
-// const os = require('os-utils')
 const LogTag = 'utils.BunchThread => '
 /**
  * 并发线程
@@ -7,30 +6,35 @@ class BunchThread {
   /**
    * 构造函数
    * @param { Number } limit
-   * @param { Function } endCallback
    * @return { BunchThread }
    */
-  constructor (limit = global.bunchLimit, endCallback = () => { console.log('auto end') }) {
+  constructor (limit = global.bunchLimit) {
     this.limit = limit
     this.paramList = []
     this.taskQueue = []
     this.taskLivingIds = []
+    this.consumedIds = []
     this.taskLiving = 0
-    this.endCallback = endCallback
-    // this.updateCPU()
+    this.endCallback = () => console.log('Bunch End!')
     return this
   }
 
   /**
-   * 注册
+   * 注册执行函数
    * @param { Array } paramList
    * @param { Function } taskEntity
+   * @return { BunchThread }
    */
   register (paramList, taskEntity) {
     this.paramList = paramList || []
     this.taskEntity = taskEntity || function () {}
+    return this
   }
 
+  /**
+   * 并发发起
+   * @return { BunchThread }
+   */
   async emit () {
     if (this.paramList && this.paramList.length) {
       for (let i = 0; i < this.paramList.length; i++) {
@@ -42,44 +46,13 @@ class BunchThread {
         this.taskQueue.push(task)
         this.taskLivingIds.push(i)
         if (this.taskLivingIds.length >= this.limit) {
-          await this.waitConsumeUnderLimit()
+          await this._waitConsumeUnderLimit()
         } else {
-          this.taskNormalConsume()
+          this._taskNormalConsume()
         }
       }
     }
-  }
-
-  async taskNormalConsume () {
-    if (this.taskQueue.length) {
-      const task = this.taskQueue.shift()
-      await task()
-      this.livingIdReduce(task)
-    }
-  }
-
-  livingIdReduce (task) {
-    const idIndex = this.taskLivingIds.indexOf(task.id)
-    this.taskLivingIds.splice(idIndex, 1)
-  }
-
-  waitConsumeUnderLimit () {
-    return new Promise((resolve, reject) => {
-      return this.consumeLoop(resolve)
-    })
-  }
-
-  async consumeLoop (resolve) {
-    if (this.taskLivingIds.length < this.limit) {
-      return resolve()
-    } else {
-      if (this.taskQueue.length) {
-        const task = this.taskQueue.shift()
-        await task()
-        this.livingIdReduce(task)
-        return this.consumeLoop(resolve)
-      }
-    }
+    return this
   }
 
   /**
@@ -87,14 +60,60 @@ class BunchThread {
    * @param { Function } $$task
    * @return { BunchThread }
    */
-  taskCalling ($$task) {
+   taskCalling ($$task) {
     if (this.taskLiving >= this.limit) {
       this.taskQueue.push($$task)
     } else {
-      this.thread($$task)
+      this._thread($$task)
     }
     this.taskLiving ++
-    return Promise.resolve()
+    return this
+  }
+
+  /**
+   * 注册并发结束的回调
+   * @param { Function } callback
+   * @return { BunchThread }
+   */
+  finally (callback) {
+    this.endCallback = callback || () => console.log('Bunch End!')
+    return this
+  }
+
+  async _taskNormalConsume () {
+    if (this.taskQueue.length) {
+      const task = this.taskQueue.shift()
+      await task()
+      this._livingIdReduce(task)
+    }
+  }
+
+  _livingIdReduce (task) {
+    const idIndex = this.taskLivingIds.indexOf(task.id)
+    this.taskLivingIds.splice(idIndex, 1)
+    this.consumedIds.push(task.id)
+    if (this.consumedIds.length === this.paramList.length) {
+      this.endCallback()
+    }
+  }
+
+  _waitConsumeUnderLimit () {
+    return new Promise((resolve, reject) => {
+      return this._consumeLoop(resolve)
+    })
+  }
+
+  async _consumeLoop (resolve) {
+    if (this.taskLivingIds.length < this.limit) {
+      return resolve()
+    } else {
+      if (this.taskQueue.length) {
+        const task = this.taskQueue.shift()
+        await task()
+        this._livingIdReduce(task)
+        return this._consumeLoop(resolve)
+      }
+    }
   }
 
   /**
@@ -102,53 +121,35 @@ class BunchThread {
    * @param { Function } $$task
    * @return { Undefined }
    */
-  async thread ($$task) {
+  async _thread ($$task) {
     try {
       await $$task()
     } catch (error) {
       // 报错了不处理，让每个任务注入前自己处理自己的异常
-      console.log(LogTag, 'thread error:', error)
+      console.log(LogTag, '_thread error:', error)
     }
 
     // 如果是 busy 模式，每个任务执行后需要睡眠指定的时间
     // 默认为 3 秒，可以在 global.config 里面进行配置
     if (global.onBusyNetwork) {
-      await this.sleep(global.sleepTimes * global.bunchLimit)
+      await this._sleep(global.sleepTimes)
     }
     this.taskLiving --
     if (this.taskQueue.length) {
-      return this.thread(this.taskQueue.shift())
+      return this._thread(this.taskQueue.shift())
     } else {
       if (this.taskLiving <= 0) {
         this.taskLiving = 0
-        return this.endCallback && this.endCallback()
+        return this.endCallback()
       }
     }
   }
 
-  finally (callback) {
-    this.endCallback = callback
-  }
-
-  sleep (time) {
+  _sleep (time) {
     return new Promise((s, j) => { 
       setTimeout(s, time)
     })
   }
-
-  livingMap () {
-    for (let i = 0; i < this.limit; i++) {
-      this.taskMark[i] = null
-    }
-  }
-  // updateCPU () {
-  //   setTimeout(() => {
-  //     os.cpuUsage((value) => {
-  //       console.log(value)
-  //       this.updateCPU()
-  //     })
-  //   }, 0)
-  // }
 }
 
 function test () {
