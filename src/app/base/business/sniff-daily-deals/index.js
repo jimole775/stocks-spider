@@ -7,7 +7,7 @@
 const recordDeals = require('./record-deals')
 const recordDeals1 = require('./record-deals1')
 const sniffApiFromWebsite = require('./sniff-api-from-website')
-const { hasUnlinked, recordUsedApi, requestApiInBunch } = require(global.utils)
+const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.utils
 
 const dataPath = `deals/${global.finalDealDate}.json`
 

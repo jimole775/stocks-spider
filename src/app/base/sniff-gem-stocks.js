@@ -8,9 +8,7 @@
  * 过滤掉创业板的股票
  */
 const puppeteer = require('puppeteer')
-const readFileSync = require(`${global.srcRoot}/utils`)
-const urlModel = readFileSync(`${global.srcRoot}/url-model.yml`)
-const url = urlModel.api.GemBoardList
+const url = global.urlModel.api.GemBoardList
 function init() {
 	return new Promise(async (s, j) => {
 		const browser = await puppeteer.launch()

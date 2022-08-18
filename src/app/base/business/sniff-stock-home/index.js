@@ -6,11 +6,11 @@
  */
 const querystring = require('querystring')
 const {
-  readFileSync, BunchLinking, hasUnlinked,
+  BunchLinking, hasUnlinked,
   recordUsedApi, requestApiInBunch
-} = require(global.utils)
+} = global.utils
 
-const urlModel = readFileSync(global.urlModel)
+const urlModel = global.urlModel
 
 const business = {
   kline: {

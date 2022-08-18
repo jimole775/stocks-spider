@@ -3,7 +3,7 @@
  * 初步肯定，这是有庄家的征兆
  */
 const path = require('path')
-const { writeFileSync, StockConnect, isEmptyObject } = require(global.utils)
+const { writeFileSync, StockConnect, isEmptyObject } = global.utils
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
 const price_range = 0.03 // 默认为3%价格间隔
@@ -14,7 +14,7 @@ module.exports = async function vline () {
   //   const result = calculateStorkeline(date, stock, dealData)
   //   if (result && !isEmptyObject(result)) {
   //     console.log(result)
-  //     writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
+  //     writeFileSync(path.join(global.path.db.api, strokeline_dir, date, stock + '.json'), result)
   //   }
   // })
   const connect = new StockConnect(deals_dir)
@@ -22,7 +22,7 @@ module.exports = async function vline () {
     const result = calculateStorkeline(date, stock, dealData)
     if (result && !isEmptyObject(result)) {
       console.log(result)
-      writeFileSync(path.join(global.db_api, strokeline_dir, date, stock + '.json'), result)
+      writeFileSync(path.join(global.path.db.api, strokeline_dir, date, stock + '.json'), result)
     }
   })
   connect.emit()

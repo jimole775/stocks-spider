@@ -33,7 +33,7 @@
 const path = require('path')
 const dirRoot = `deals`
 const targetRoot = `/analyze/deals/shadowline/`
-const { rangeEqual, writeFileSync, readDirSync, StockConnect } = require(global.utils)
+const { rangeEqual, writeFileSync, readDirSync, StockConnect } = global.utils
 module.exports = async function shadowline() {
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
@@ -41,20 +41,20 @@ module.exports = async function shadowline() {
   connect.on('data', (fileData, stock, date) => {
     if (!fileData || !fileData.data) return false
     const analyzeData = calculate(fileData)
-    writeFileSync(path.join(global.db_stocks, stock, targetRoot, date + '.json'), analyzeData)
+    writeFileSync(path.join(global.path.db.stocks, stock, targetRoot, date + '.json'), analyzeData)
   })
   connect.emit()
   // connectStock(dirRoot, ignoreDateFiles, (fileData, stock, date) => {
   //   if (!fileData || !fileData.data) return false
   //   const analyzeData = calculate(fileData)
-  //   writeFileSync(path.join(global.db_stocks, stock, targetRoot, date + '.json'), analyzeData)
+  //   writeFileSync(path.join(global.path.db.stocks, stock, targetRoot, date + '.json'), analyzeData)
   // })
   return Promise.resolve(true)
 }
 
 function unrecordFiles (targetDir) {
-  const dbPath = global.db_stocks
-  const allStocks = require(global.baseData).data
+  const dbPath = global.path.db.stocks
+  const allStocks = require(global.path.db.base_data).data
   const result = {
     // [stockCode]: [unRecoedDateFiles]
   }
