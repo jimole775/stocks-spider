@@ -1,3 +1,4 @@
+const path = require('path')
 const quest = require(`./utils/quest`)
 const cmdParam = require(`./utils/cmd-param`)
 const moment = require('moment')
@@ -34,7 +35,7 @@ module.exports = async function () {
 
   // 资源路径别名
   global.srcRoot = __dirname
-  global.urlModel = `${__dirname}\\url-model.yml`
+  global.urlModel = path.resolve(__dirname, '../', 'url-model.yml')
   global.utils = `${__dirname}\\utils\\index.js`
 
   global.db_utils = `${__dirname}\\utils\\index.js`
