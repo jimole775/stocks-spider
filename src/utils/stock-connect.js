@@ -3,7 +3,9 @@ const readDirSync = require('./read-dir-sync')
 const readFileSync = require('./read-file-sync')
 const diffrence = require('./diffrence')
 const assert = require('./assert')
-const dict_code_name = require(path.join(global.path.db.dict,'code-name.json'))
+const { runInThisContext } = require('vm')
+const BunchThread = require('./bunch-thread')
+const dict_code_name = require(path.join(global.path.db.dict, 'code-name.json'))
 const dbPath = global.path.db.stocks
 const LogTag = 'utils.StockConnect => '
 /**
@@ -11,56 +13,35 @@ const LogTag = 'utils.StockConnect => '
  * 当前仅支持目录结构 `${global.path.db.stocks}/${stock}/${targetDir}/${date}`
  * @param { Array } dict
  * @param { Array | String } ignoreObject
- * @param { Function } callback
  * @return { Promise }
  */
-function StockConnect(targetDir, ignoreObject, callback) {
-  this.eventsParams = []
+function StockConnect(targetDir, ignoreObject) {
+  // this.eventsParams = []
+  this.bunch = new BunchThread(1)
   this.dataEventReceiver = null
   this.endEventReceiver = null
-  if (assert.isFunction(ignoreObject)) {
-    callback = ignoreObject
-    ignoreObject = null
-  }
+  this.targetDir = targetDir
 
   // 不支持 字符串 形式
   if (assert.isString(ignoreObject)) {
     ignoreObject = null
   }
 
-  let ignoreCodes = null
-  let ignoreDates = null
+  this.ignoreCodes = null
+  this.ignoreDates = null
   if (ignoreObject) {
-    ignoreCodes = ignoreObject.codes
-    ignoreDates = ignoreObject.dates
+    this.ignoreCodes = ignoreObject.codes
+    this.ignoreDates = ignoreObject.dates
   }
 
-  let stockCodes = readDirSync(dbPath)
-  if (!stockCodes || stockCodes.length === 0) {
+  this.stockCodes = readDirSync(dbPath)
+  if (!this.stockCodes || this.stockCodes.length === 0) {
     // 项目刚建立，还没有创建表
     throw new Error(LogTag + 'stockCodes directory is not build!')
   }
 
-  if (ignoreCodes) stockCodes = diffrence(stockCodes, ignoreCodes)
+  if (this.ignoreCodes) this.stockCodes = diffrence(this.stockCodes, this.ignoreCodes)
 
-  for (let i = 0; i < stockCodes.length; i += 1) {
-    const stockCode = stockCodes[i]
-    if (global.blackName.test(dict_code_name[stockCode])) continue
-    console.log(LogTag, stockCode, dict_code_name[stockCode])
-    let dateFiles = readDirSync(path.join(dbPath, stockCode, targetDir))
-    if (ignoreDates) dateFiles = cuteIgnoreDates(dateFiles, ignoreDates)
-    for (let j = 0; j < dateFiles.length; j++) {
-      const dateFile = dateFiles[j]
-      const fileData = readFileSync(path.join(dbPath, stockCode, targetDir, dateFile))
-      if (callback) {
-        callback(fileData, stockCode, dateFile.split('.').shift())
-      } else {
-        this.eventsParams.push([fileData, stockCode, dateFile.split('.').shift()])
-      }
-    }
-  }
-
-  return Promise.resolve()
 }
 
 StockConnect.prototype.on = function (option, callback) {
@@ -79,14 +60,29 @@ StockConnect.prototype.on = function (option, callback) {
   return this
 }
 
-StockConnect.prototype.emit = function () {
-  if (this.eventsParams.length && this.dataEventReceiver) {
-    this.eventsParams.forEach((params) => {
-      this.dataEventReceiver.apply(this, params)
-    })
-    this.eventsParams.length = 0
-    this.endEventReceiver && this.endEventReceiver()
+StockConnect.prototype.emit = async function () {
+  for (let i = 0; i < this.stockCodes.length; i++) {
+    const code = this.stockCodes[i]
+
+    // 匹配黑名单
+    if (global.blackName.test(dict_code_name[code])) continue
+
+    console.log(LogTag, code, dict_code_name[code])
+
+    let dateFiles = readDirSync(path.join(dbPath, code, this.targetDir))
+
+    if (this.ignoreDates) dateFiles = cuteIgnoreDates(dateFiles, this.ignoreDates)
+
+    for (let j = 0; j < dateFiles.length; j++) {
+      const dateFile = dateFiles[j]
+      const fileData = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
+      const params = [fileData, code, dateFile.split('.').shift()]
+      await this.dataEventReceiver.apply(this, params)
+    }
   }
+  this.bunch.finally(() => {
+    this.endEventReceiver && this.endEventReceiver()
+  })
   return this
 }
 

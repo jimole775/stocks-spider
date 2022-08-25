@@ -58,7 +58,7 @@ class BunchThread {
   }
 
   /**
-   * 线程调用
+   * 单任务调用方式
    * @param { Function } $$task
    * @return { BunchThread }
    */
@@ -157,7 +157,7 @@ class BunchThread {
 }
 
 function test () {
-  const bunch = new BunchThread(5)
+  const bunch = new BunchThread(1)
   bunch.register(new Array(100).fill(1), (item, i) => {
     return new Promise((s, j) => {
       setTimeout(() => {

@@ -8,7 +8,36 @@ require(`../../../global.config.js`)().then(async () => {
   connect.on('data', async (dealData, stock, date)=> {
     const tableName = 'stock_' + stock
     await mysql.create(tableName, deals_ddl)
+    let start = await mysql.count(tableName)
     if (dealData.dt === 1) {
+      // {
+      //   "code": "000001",
+      //   "market": 0,
+      //   "decimal": 2,
+      //   "prePrice": 12.03,
+      //   "details": [
+      //     "09:15:00,12.09,9,0,4",
+      //     "09:15:09,11.85,6034,0,4",
+      //     "09:15:18,11.85,6154,0,4"
+      //   ]
+      // }
+      const details = createFields(dealData).details || []
+      for (let j = start; j < details.length; j++) {
+        const {time, price, volumn, none, dealType} = details[j].split(',')
+        const record = {}
+        record.price = price
+        record.date = sqlTime(date)
+        record.time = sqlTime(time)
+        record.volumn = volumn * 100
+        record.deal_type = dealType
+        record.data_type = dealData.dt || 0
+        record.market = dealData.market
+        record.highest_price = dealData.hp
+        record.lowest_price = dealData.dp
+        record.end_price = dealData.ep
+        mysql.insert(tableName, record)
+      }
+    } else {
       // c: '000001',
       // m: 0,
       // n: '平安银行',
@@ -22,9 +51,10 @@ require(`../../../global.config.js`)().then(async () => {
       // "dp": 13140, // 当日最低价
       // "ep": 13410 // 当日收盘价
       const data = dealData.data || []
-      data.forEach((deal) => {
-        const {t: time, p: price, v: volumn, bs: dealType} = deal
+      for (let i = start; i < data.length; i++) {
+        const {t: time, p: price, v: volumn, bs: dealType} = data[i]
         const record = {}
+        record.date = sqlTime(date)
         record.price = price / 1000
         record.time = int2time(time)
         record.volumn = volumn * 100
@@ -35,35 +65,10 @@ require(`../../../global.config.js`)().then(async () => {
         record.lowest_price = dealData.dp / 1000
         record.end_price = dealData.ep / 1000
         mysql.insert(tableName, record)
-      })
-    } else {
-      // {
-      //   "code": "000001",
-      //   "market": 0,
-      //   "decimal": 2,
-      //   "prePrice": 12.03,
-      //   "details": [
-      //     "09:15:00,12.09,9,0,4",
-      //     "09:15:09,11.85,6034,0,4",
-      //     "09:15:18,11.85,6154,0,4"
-      //   ]
-      // }
-      const details = createFields(dealData).details || []
-      details.forEach((deal) => {
-        const [time, price, volumn, none, dealType] = deal.split(',')
-        const record = {}
-        record.price = price
-        record.time = time
-        record.volumn = volumn * 100
-        record.deal_type = dealType
-        record.data_type = dealData.dt || 0
-        record.market = dealData.market
-        record.highest_price = dealData.hp
-        record.lowest_price = dealData.dp
-        record.end_price = dealData.ep
-        mysql.insert(tableName, record)
-      })
+      }
     }
+  })
+  connect.on('end', () => {
     mysql.disconnect()
   })
   connect.emit()
@@ -89,6 +94,11 @@ function createFields (data = {}) {
 }
 
 function int2time (src) {
-  src = src.length === 5 ? '0' + src : '' + src
-  return src.replace(/\d{2}/g, (dd, i) => (i !== 4) ? dd + ':' : dd)
+  const timestr = (src + '').length === 5 ? '0' + src : '' + src
+  const time = timestr.replace(/\d{2}/g, (dd, i) => (i !== 4) ? dd + ':' : dd)
+  return sqlTime(time)
+}
+
+function sqlTime (time) {
+  return `'${time}'`
 }
