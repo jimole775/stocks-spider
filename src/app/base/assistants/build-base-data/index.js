@@ -7,14 +7,14 @@
 const puppeteer = require('puppeteer')
 const analyzeStocksPage = require('./analyze-stocks-page')
 const moment = require('moment')
-const { readFileSync, writeFileSync } = require(global.utils)
+const { readFileSync, writeFileSync } = global.utils
 
 module.exports = function buildBaseData () {
   return new Promise(excutes)
 }
 
 async function excutes (resolve, reject) {
-  let alreadyData = readFileSync(global.baseData, 'utf8')
+  let alreadyData = readFileSync(global.path.db.base_data, 'utf8')
   const expired = hasExpired(alreadyData)
   // 数据没过期，就使用已有的数据
   if (!expired) return resolve()
@@ -29,7 +29,7 @@ async function excutes (resolve, reject) {
       // 其他一些数据需要保留，类似“dealApi”之类的
       data: alreadyData ? merge(alreadyData, allStocks) : JSON.stringify(allStocks)
     }
-    writeFileSync(global.baseData, baseData)
+    writeFileSync(global.path.db.base_data, baseData)
     return resolve(baseData)
   } catch (error) {
     console.error('build model error:', error)

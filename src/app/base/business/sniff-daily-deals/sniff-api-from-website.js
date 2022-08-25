@@ -2,8 +2,8 @@
 const querystring = require('querystring')
 const recordDeals = require('./record-deals')
 const recordDeals1 = require('./record-deals1')
-const { BunchLinking, hasUnlinked, readFileSync } = require(global.utils)
-const urlModel = readFileSync(global.urlModel)
+const { BunchLinking, hasUnlinked } = global.utils
+const urlModel = global.urlModel
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const peerDealReg1 = new RegExp(urlModel.api.peerDealReg1, 'g')
 const dataPath = `deals/${global.finalDealDate}.json`

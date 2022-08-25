@@ -1,4 +1,4 @@
-const allStocks = require(global.baseData).data
+const allStocks = require(global.path.db.base_data).data
 const BunchThread = require('./bunch-thread')
 const LogTag = 'utils.requestApiInBunch => '
 /**

@@ -1,8 +1,7 @@
 const fs = require('fs')
 const path = require('path')
-const readFileSync = require('./read-file-sync')
-const urlModel = readFileSync(global.urlModel)
-const allStocks = require(global.baseData).data
+const urlModel = global.urlModel
+const allStocks = require(global.path.db.base_data).data
 const marketMap = { 1: 'sh', 2: 'sz' } // sh: 上海交易所 sz: 深圳交易所
 const spillMap = {
   deal: spillPeerDealApi,
@@ -21,7 +20,7 @@ const spillMap = {
 module.exports = function hasUnlinked(dataPath, chart) {
   const unlinks = []
   allStocks.forEach((stockItem) => {
-    if(!fs.existsSync(path.join(global.db_stocks, stockItem.code, dataPath))) {
+    if(!fs.existsSync(path.join(global.path.db.stocks, stockItem.code, dataPath))) {
       const url = spillMap[chart](stockItem)
       console.log('deals url:', url)
       unlinks.push(url)

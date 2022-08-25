@@ -1,6 +1,7 @@
 const path = require('path')
 const quest = require(`./utils/quest`)
 const cmdParam = require(`./utils/cmd-param`)
+const readFileSync = require(`./utils/read-file-sync`)
 const moment = require('moment')
 module.exports = async function config():Promise<global> {
 
@@ -30,23 +31,40 @@ module.exports = async function config():Promise<global> {
 
   // kline模块配置项
   global.kline = {
-    page_size: 120, // 每次采集多少个交易日的数据
+    page_size: 120 // 每次采集多少个交易日的数据
   }
 
-  // 资源路径别名
-  global.srcRoot = __dirname
-  global.urlModel = path.resolve(__dirname, '../', 'url-model.yml')
-  global.utils = `${__dirname}\\utils\\index.js`
+  global.urlModel = readFileSync(path.resolve(__dirname, '../', 'url-model.yml'))
+  global.Mysql = require(path.join(__dirname, 'db-utils\\mysql\\index.js'))
 
-  global.db_utils = `${__dirname}\\utils\\index.js`
+  // 资源路径别名
+  global.path = {
+    root: path.resolve(__dirname, '../'),
+    src: path.join(__dirname),
+    utils: path.join(__dirname, 'utils'),
+    db_utils: path.join(__dirname, 'db-utils'),
+    db: {
+      home: `G:\\my_db\\stocks-spider`,
+      api: `G:\\my_db\\stocks-spider\\api`,
+      dict: `G:\\my_db\\stocks-spider\\dict`,
+      stocks: `G:\\my_db\\stocks-spider\\stocks`,
+      base_data: `G:\\my_db\\stocks-spider\\base.json`
+    }
+  }
+  // global.srcRoot = __dirname
+  // global.root = path.resolve(global.srcRoot, '../')
+  // global.utils = path.join(global.srcRoot, 'utils\\index.js')
+
+  // global.db_utils = path.join(global.srcRoot, 'db-utils\\mysql\\index.js')
 
   // 数据库别名
-  global.db_home = `G:\\my_db\\stocks-spider`
-  global.db_api = `G:\\my_db\\stocks-spider\\api`
-  global.db_dict = `G:\\my_db\\stocks-spider\\dict`
-  global.db_stocks = `G:\\my_db\\stocks-spider\\stocks`
-  global.baseData = `G:\\my_db\\stocks-spider\\base.json`
+  // global.db_home = `G:\\my_db\\stocks-spider`
+  // global.path.db.api = `G:\\my_db\\stocks-spider\\api`
+  // global.path.db.dict = `G:\\my_db\\stocks-spider\\dict`
+  // global.path.db.stocks = `G:\\my_db\\stocks-spider\\stocks`
+  // global.path.db.base_data = `G:\\my_db\\stocks-spider\\base.json`
 
+  global.utils = require(path.join(__dirname, 'utils\\index.js'))
   return Promise.resolve(global)
 }
 

@@ -4,7 +4,7 @@
  * 数据路径存储：
  */
 const path = require('path')
-const { writeFileSync, StockConnect, isEmptyObject, readDirSync } = require(global.utils)
+const { writeFileSync, StockConnect, isEmptyObject, readDirSync } = global.utils
 const save_vline_dir = `vline`
 const read_peerdeal_dir = `deals`
 const time_dvd = global.vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
@@ -16,14 +16,14 @@ module.exports = async function vline () {
   // connectStock(read_peerdeal_dir, ignoreObj, (dealData, stock, date)=> {
   //   const result = calculateVline(date, stock, dealData)
   //   if (!isEmptyObject(result)) {
-  //     writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
+  //     writeFileSync(path.join(global.path.db.api, save_vline_dir, date, stock + '.json'), result)
   //   }
   // })
   const connect = new StockConnect(read_peerdeal_dir, ignoreObj)
   connect.on('data', (dealData, stock, date)=> {
     const result = calculateVline(date, stock, dealData)
     if (!isEmptyObject(result)) {
-      writeFileSync(path.join(global.db_api, save_vline_dir, date, stock + '.json'), result)
+      writeFileSync(path.join(global.path.db.api, save_vline_dir, date, stock + '.json'), result)
     }
   })
   connect.emit()
@@ -31,7 +31,7 @@ module.exports = async function vline () {
 
 // 只记录 stocks\\deals\\dates.json 近10个交易日的数据
 function hasRecordedDates (save_vline_dir) {
-  let dates = readDirSync(path.join(global.db_api, save_vline_dir))
+  let dates = readDirSync(path.join(global.path.db.api, save_vline_dir))
   dates.pop() // 剔除最后一个日期，避免最后一个日期的处理不饱满，导致数据遗漏
   return { dates }
 }

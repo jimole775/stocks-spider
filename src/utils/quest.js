@@ -2,7 +2,6 @@ const http = require('http')
 const assert = require('./assert')
 const superagent = require('superagent')
 const getPathSeparator = require('./get-path-separator')
-const { EventEmitter } = require('stream')
 /**
  * 伪造随机IP进行接口访问
  * @param { String } url
