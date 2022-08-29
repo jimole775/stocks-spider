@@ -50,7 +50,7 @@ module.exports = function config() {
                     global.blackName = /[ST|退]/;
                     // 命令行参数
                     global.crossEnv = cmdParam();
-                    global.module = global.crossEnv.module;
+                    global.business = global.crossEnv.module;
                     // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
                     // 主要是在公用WIFI中，不造成网络的负担
                     global.onBusyNetwork = global.crossEnv.netstat === 'busy';

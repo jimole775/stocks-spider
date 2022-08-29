@@ -3,7 +3,7 @@ const quest = require(`./utils/quest`)
 const cmdParam = require(`./utils/cmd-param`)
 const readFileSync = require(`./utils/read-file-sync`)
 const moment = require('moment')
-module.exports = async function config():Promise<Object> {
+module.exports = async function config():Promise<typeof globalThis> {
 
   global.env = 'prod'
 
@@ -11,7 +11,7 @@ module.exports = async function config():Promise<Object> {
 
   // 命令行参数
   global.crossEnv = cmdParam()
-  global.module = global.crossEnv.module
+  global.business = global.crossEnv.module
 
   // 如果执行busy指令，那么，每次只有1个web访问，并且需要睡眠3秒
   // 主要是在公用WIFI中，不造成网络的负担

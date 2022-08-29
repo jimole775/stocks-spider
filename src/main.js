@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -38,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 ;
 (function () {
     return __awaiter(this, void 0, void 0, function () {
-        var sniffStockHome, sniffDailyDeals, analyzerDeals, analyzerKlines, fs, path_1, base, codeMap_1, nameMap_1;
+        var sniffStockHome, sniffDailyDeals, analyzerDeals, analyzerKlines, fs, path, base, codeMap_1, nameMap_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, require('./global.config')()];
@@ -107,7 +106,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 case 17:
                     if (['test'].includes(global.business)) {
                         fs = require('fs');
-                        path_1 = require('path');
+                        path = require('path');
                         base = require(global.path.db.base_data);
                         codeMap_1 = {};
                         nameMap_1 = {};
@@ -115,8 +114,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             codeMap_1[stockItem.code] = stockItem.name;
                             nameMap_1[stockItem.name] = stockItem.code;
                         });
-                        fs.writeFileSync(path_1.join(global.path.db.dict, 'code-name.json'), JSON.stringify(codeMap_1));
-                        fs.writeFileSync(path_1.join(global.path.db.dict, 'name-code.json'), JSON.stringify(nameMap_1));
+                        fs.writeFileSync(path.join(global.path.db.dict, 'code-name.json'), JSON.stringify(codeMap_1));
+                        fs.writeFileSync(path.join(global.path.db.dict, 'name-code.json'), JSON.stringify(nameMap_1));
                         // fs.writeFileSync(global.path.db.base_data, JSON.stringify(base))
                     }
                     console.log('Process was end!');

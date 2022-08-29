@@ -1,4 +1,4 @@
-;(async function ():void {
+;(async function () {
   await require('./global.config')()
   await require('./app/base/assistants/build-base-data')()
   await require('./app/base/assistants/build-dict')()
@@ -6,46 +6,46 @@
 
   const sniffStockHome: Function = require('./app/base/business/sniff-stock-home')
   const sniffDailyDeals: Function = require('./app/base/business/sniff-daily-deals')
-  const analyzerDeals: Object = require('./app/analyze/deals')
-  const analyzerKlines: Object = require('./app/analyze/klines')
+  const analyzerDeals = require('./app/analyze/deals')
+  const analyzerKlines = require('./app/analyze/klines')
   console.log('Main function was mounted!')
 
-  if (['kline', 'quote', 'all'].includes(global.module)) {
+  if (['kline', 'quote', 'all'].includes(global.business)) {
     console.log('Sniff stock home!')
-    await sniffStockHome(global.module)
+    await sniffStockHome(global.business)
   }
 
-  if (['deal', 'all'].includes(global.module)) {
+  if (['deal', 'all'].includes(global.business)) {
     console.log('Sniff daily deals!')
     await sniffDailyDeals()
   }
 
-  if (['shadowline', 'all'].includes(global.module)) {
+  if (['shadowline', 'all'].includes(global.business)) {
     console.log('Analyzes deals into shadowline!')
     await analyzerDeals.shadowline()
   }
 
-  if (['vline', 'all'].includes(global.module)) {
+  if (['vline', 'all'].includes(global.business)) {
     console.log('Analyzes deals into vline!')
     await analyzerDeals.vline()
   }
 
-  if (['strokeline', 'all'].includes(global.module)) {
+  if (['strokeline', 'all'].includes(global.business)) {
     console.log('Analyzes deals into strokeline!')
     await analyzerDeals.strokeline()
   }
 
-  if (['uline', 'all'].includes(global.module)) {
+  if (['uline', 'all'].includes(global.business)) {
     console.log('Analyzes klines into uline!')
     await analyzerKlines.uline()
   }
   
-  if (['lowerpoint', 'all'].includes(global.module)) {
+  if (['lowerpoint', 'all'].includes(global.business)) {
     console.log('Analyzes klines into lowerpoint!')
     await analyzerKlines.lowerpoint()
   }
 
-  if (['test'].includes(global.module)) {
+  if (['test'].includes(global.business)) {
     const fs = require('fs')
     const path = require('path')
     const base = require(global.path.db.base_data)
