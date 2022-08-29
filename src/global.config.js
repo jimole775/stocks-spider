@@ -3,7 +3,7 @@ const quest = require(`./utils/quest`)
 const cmdParam = require(`./utils/cmd-param`)
 const readFileSync = require(`./utils/read-file-sync`)
 const moment = require('moment')
-module.exports = async function config():Promise<global> {
+module.exports = async function config() {
 
   global.env = 'prod'
 
@@ -68,7 +68,7 @@ module.exports = async function config():Promise<global> {
   return Promise.resolve(global)
 }
 
-function getDate ():Promise<String> {
+function getDate () {
   // # 上证指数的数据，可以从里面筛出交易的时间
   // date: "http://push2his.eastmoney.com/api/qt/stock/trends2/get?cb=jQuery1124012891801110637102_1584422853173&secid=1.000001&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11&fields2=f51%2Cf53%2Cf56%2Cf58&iscr=0&ndays=1&_=1584422853176"
   // dateReg: "push2his\\.eastmoney\\.com\\/api\\/qt\\/stock\\/trends2\\/get\\?"
