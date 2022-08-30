@@ -5,8 +5,8 @@ const diffrence = require('./diffrence')
 const assert = require('./assert')
 const { runInThisContext } = require('vm')
 const BunchThread = require('./bunch-thread')
-const dict_code_name = require(path.join(global.path.db.dict, 'code-name.json'))
-const dbPath = global.path.db.stocks
+const dict_code_name = require(path.join(global.$path.db.dict, 'code-name.json'))
+const dbPath = global.$path.db.stocks
 const LogTag = 'utils.StockConnect => '
 /**
  * 读取指定存储目录的stock
@@ -65,7 +65,7 @@ StockConnect.prototype.emit = async function () {
     const code = this.stockCodes[i]
 
     // 匹配黑名单
-    if (global.blackName.test(dict_code_name[code])) continue
+    if (global.$blackName.test(dict_code_name[code])) continue
 
     console.log(LogTag, code, dict_code_name[code])
 

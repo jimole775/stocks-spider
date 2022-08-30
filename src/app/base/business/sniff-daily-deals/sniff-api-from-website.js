@@ -2,11 +2,11 @@
 const querystring = require('querystring')
 const recordDeals = require('./record-deals')
 const recordDeals1 = require('./record-deals1')
-const { BunchLinking, hasUnlinked } = global.utils
-const urlModel = global.urlModel
+const { BunchLinking, hasUnlinked } = global.$utils
+const urlModel = global.$urlModel
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
 const peerDealReg1 = new RegExp(urlModel.api.peerDealReg1, 'g')
-const dataPath = `deals/${global.finalDealDate}.json`
+const dataPath = `deals/${global.$finalDealDate}.json`
 /**
  * 从交易详情主页中嗅探 api
  * @param { Array<String> } dealsURLs deals交易详情主页的地址

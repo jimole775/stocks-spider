@@ -1,7 +1,7 @@
 
 const urlPool = [
-  global.urlModel.page.SHStockList,
-  global.urlModel.page.SZStockList
+  global.$urlModel.page.SHStockList,
+  global.$urlModel.page.SZStockList
 ]
 /**
  * 

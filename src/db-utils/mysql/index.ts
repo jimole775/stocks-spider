@@ -1,69 +1,54 @@
-const mysql      = require('mysql')
-const assert     = require('../../utils/assert')
-function Mysql (option) {
-  this.connection = mysql.createConnection({
-    host     : option.host,
-    user     : option.user,
-    password : option.password
-  })
-  this.connection.connect()
-  this.connection.query(`CREATE DATABASE IF NOT EXISTS ${option.database};`)
-  this.connection.query(`USE ${option.database};`)
+const mysql = require('mysql')
+const assert = require('../../utils/assert')
+import { MysqlInterface } from '../../interfaces/Mysql.if'
+class Mysql implements MysqlInterface {
+  connection: typeof mysql
+  create = create.bind(this)
+  insert = insert.bind(this)
+  del = del.bind(this)
+  query = query.bind(this)
+  update = update.bind(this)
+  count = count.bind(this)
+  custom = custom.bind(this)
+  disconnect = disconnect.bind(this)
+  constructor (option: { host: string, user: string, password: string, database: string }) {
+    this.connection = mysql.createConnection({
+      host     : option.host,
+      user     : option.user,
+      password : option.password
+    })
+    this.connection.connect()
+    this.connection.query(`CREATE DATABASE IF NOT EXISTS ${option.database};`)
+    this.connection.query(`USE ${option.database};`)
+    return this
+  }
 }
 
-// Mysql.prototype.connection = {}
-
-// Mysql.prototype.connect = function (option) {
-// }
-
-Mysql.prototype.create = function (table, map, callback) {
-  if (!table) return new Error('创建表需要确认表名!')
-  const keys   = Object.keys(map)
-  const values = Object.values(map)
-  const entities = []
-  keys.forEach((key) => {
-    entities.push(`${key} ${map[key]} DEFAULT NULL`)
+function create (table: string, map: object, callback: Function): Promise<string> {
+  if (!table) return Promise.reject('创建表需要确认表名!')
+  const entries: Array<Array<string>> = Object.entries(map)
+  const sentences: Array<string> = []
+  entries.forEach((entr) => {
+    sentences.push(`${entr[0]} ${entr[1]} DEFAULT NULL`)
   })
   const sql = `CREATE TABLE IF NOT EXISTS ${table} (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    ${entities.join(',\n')},
+    ${sentences.join(',\n')},
     PRIMARY KEY(id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-  return new Promise((resolve, reject) => {
-    try {
-      this.connection.query(sql, (err, result) => {
-        if (err) return reject(err)
-        if (callback) callback(result)
-        resolve(result)
-      })
-    } catch (error) {
-      console.log(error)
-      reject(error)
-    }
-  })
+  return handResult(sql, callback)
 }
 
-Mysql.prototype.insert = function (table, map, callback) {
-  if (!table) return new Error('插入表单数据需要确认表单名!')
+function insert (table: string, map: object, callback: Function): Promise<string> {
+  // if (!table) return new Error('插入表单数据需要确认表单名!')
   const keys   = Object.keys(map)
   const values = Object.values(map)
   const sql    = `INSERT INTO ${table} (${keys}) VALUES (${values});`
-  return new Promise((resolve, reject) => {
-    try {
-      this.connection.query(sql, (err, result) => {
-        if (err) return reject(err)
-        if (callback) callback(result)
-        resolve(result)
-      })
-    } catch (error) {
-      console.log(error)
-      reject(error)
-    }
-  })
+  return handResult(sql, callback)
 }
 
-Mysql.prototype.delete = function (table, map) {
-  if (!table) return new Error('删除表单数据需要确认表单名!')
+function del (table: string, map: object, callback: Function): Promise<string> {
+  if (!table) return Promise.reject('删除表单数据需要确认表单名!')
   let sql = ``
   if (map) {
     const entities = Object.entries(map).map(entries => entries.join('='))
@@ -71,19 +56,16 @@ Mysql.prototype.delete = function (table, map) {
   } else {
     sql =`DROP TABLE ${table}`
   }
-  try {
-    this.connection.query(sql)
-  } catch (error) {
-    console.log(error)
-  }
+  return handResult(sql, callback)
 }
 
-Mysql.prototype.query = function (table, map, callback) {
-  if (!table) return new Error('查询表单数据需要确认表单名!')
-  let limit = ''
-  let query = []
-  Object.keys(map).forEach(key => {
-    const value = map[key]
+function query (table: string, map: { page: number, size: number }, callback: Function): Promise<string> {
+  if (!table) return Promise.reject('查询表单数据需要确认表单名!')
+  let limit:string = ''
+  let query:Array<string> = []
+  Object.entries(map).forEach(entries => {
+    const key = entries[0]
+    const value = entries[1]
     if (assert.isDate(value)) {
       if (/start/.test(key)) {
         const startKey = key.replace(/start/, '').replace(/^\w/, (a) => a.toLocaleLowerCase())
@@ -101,50 +83,27 @@ Mysql.prototype.query = function (table, map, callback) {
     }
   })
   let sql = `SELECT * FROM ${table}`
-  if (query.length) {
+  if ((<Array<string>>query).length) {
     sql += ` WHERE ${query.join(' AND ')}`
   }
   if (limit) {
     sql += ` LIMIT ${limit}`
   }
-  console.log('asdasd', table, map, sql)
-  return new Promise((resolve, reject) => {
-    try {
-      this.connection.query(sql, (err, result) => {
-        console.log('1111', err, result)
-        if (err) return reject(err)
-        if (callback) callback(result)
-        resolve(result)
-      })
-    } catch (error) {
-      console.log(error)
-      reject(error)
-    }
-  })
+  return handResult(sql, callback)
 }
 
-Mysql.prototype.update = function (table, map, callback) {
-  if (!table) return new Error('更新表单数据需要确认表单名!')
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE ${table} SET (${mapToUpdateSql(map)}) WHERE id=${map.id};`
-    try {
-      this.connection.query(sql, (err, result) => {
-        if (err) return reject(err)
-        if (callback) callback(result)
-        resolve(result)
-      })
-    } catch (error) {
-      console.log(error)
-      reject(error)
-    }
-  })
+function update (table: string, map: { id: number }, callback: Function): Promise<string>  {
+  if (!table) return Promise.reject('更新表单数据需要确认表单名!')
+  const sql = `UPDATE ${table} SET (${mapToUpdateSql(map)}) WHERE id=${map.id};`
+  return handResult(sql, callback)
 }
 
-Mysql.prototype.count = function (table, callback) {
-  if (!table) return new Error('需要确认表单名!')
-  return new Promise((resolve, reject) => {
+function count (table: string, callback: Function):Promise<number> {
+  if (!table) return Promise.reject('需要确认表单名!')
+  const sql = `SELECT count(*) FROM ${table}`
+  return new Promise(function (this: Mysql, resolve, reject) {
     try {
-      this.connection.query(`SELECT count(*) FROM ${table}`, (err, result) => {
+      this.connection.query(sql, (err: string, result: Array<{'count(*)': number}>) => {
         if (err) return reject(err)
         const [row] = result || [{}]
         if (callback) callback(row['count(*)'])
@@ -157,11 +116,41 @@ Mysql.prototype.count = function (table, callback) {
   })
 }
 
-Mysql.prototype.custom = function (table, sql, callback) {
-  if (!table) return new Error('需要确认表单名!')
-  return new Promise((resolve, reject) => {
+function custom (table: string, sql: string, callback: Function):Promise<string>   {
+  if (!table) return Promise.reject('需要确认表单名!')
+  return handResult(sql, callback)
+}
+
+function disconnect (callback: Function):Promise<string> {
+  return new Promise(function (this: Mysql, resolve, reject) {
+    this.connection.end(function(err: string) {
+      if (err) return reject(err)
+      if (callback) callback()
+      resolve('')
+    })
+  })
+}
+
+function mapToUpdateSql (map: object) {
+  const res: Array<string> = []
+  Object.entries(map).forEach(entries => {
+    const key = entries[0]
+    const val = entries[1]
+    if (key !== 'id') {
+      res.push(`${key}='${val}'`)
+    }
+  })
+  return res.join(',')
+}
+
+function validateTableName (tip: string, table: string) {
+  if (!table) return Promise.reject(`${tip}需要确认表单名!`)
+}
+
+function handResult (sql: string, callback: Function): Promise<string> {
+  return new Promise(function (this: Mysql, resolve, reject) {
     try {
-      this.connection.query(sql, (err, result) => {
+      this.connection.query(sql, (err: string, result: string) => {
         if (err) return reject(err)
         if (callback) callback(result)
         resolve(result)
@@ -173,24 +162,4 @@ Mysql.prototype.custom = function (table, sql, callback) {
   })
 }
 
-Mysql.prototype.disconnect = function (callback) {
-  return new Promise((resolve, reject) => {
-    this.connection.end(function(err) {
-      if (err) return reject(err)
-      if (callback) callback()
-      resolve()
-    })
-  })
-}
-
-function mapToUpdateSql (map) {
-  const cmap = { ...map }
-  delete cmap.id // 去掉 id 字段
-  const res = []
-  Object.keys(cmap).forEach(key => {
-    res.push(`${key}='${cmap[key]}'`)
-  })
-  return res.join(',')
-}
-
-module.exports = Mysql
+export default Mysql

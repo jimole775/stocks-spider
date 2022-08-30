@@ -16,7 +16,7 @@ module.exports = function hasRefreshLinks(links, recordDir) {
   for (const file of files) {
     const recordedDate = file.split('.').shift()
     // 已保存文件的日期，超过最后交易日1天，就需要重新采集
-    if ((new Date(recordedDate).getTime() + 24 * 60 * 60 * 1000) < (new Date(global.finalDealDate).getTime())) {
+    if ((new Date(recordedDate).getTime() + 24 * 60 * 60 * 1000) < (new Date(global.$finalDealDate).getTime())) {
       expireFiles.push(file)
     }
   }

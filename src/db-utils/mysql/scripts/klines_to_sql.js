@@ -1,8 +1,8 @@
 require(`../../../global.config.js`)().then(() => {
   // const Mysql = require(`${global.db_utils}/mysql/index.js`)
-  const db_config = require(`${global.path.root}/db_config.json`)
-  const ddl = require(`${global.path.db_utils}/mysql/ddl/klines.json`)
-  const { StockConnect } = global.utils
+  const db_config = require(`${global.$path.root}/db_config.json`)
+  const ddl = require(`${global.$path.db_utils}/mysql/ddl/klines.json`)
+  const { StockConnect } = global.$utils
 
   const mysql_klines = new global.Mysql(db_config.klines)
   const mysql_frKlines = new global.Mysql(db_config.fr_klines)

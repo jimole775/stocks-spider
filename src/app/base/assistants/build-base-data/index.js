@@ -7,14 +7,14 @@
 const puppeteer = require('puppeteer')
 const analyzeStocksPage = require('./analyze-stocks-page')
 const moment = require('moment')
-const { readFileSync, writeFileSync } = global.utils
+const { readFileSync, writeFileSync } = global.$utils
 
 module.exports = function buildBaseData () {
   return new Promise(excutes)
 }
 
 async function excutes (resolve, reject) {
-  let alreadyData = readFileSync(global.path.db.base_data, 'utf8')
+  let alreadyData = readFileSync(global.$path.db.base_data, 'utf8')
   const expired = hasExpired(alreadyData)
   // 数据没过期，就使用已有的数据
   if (!expired) return resolve()
@@ -29,7 +29,7 @@ async function excutes (resolve, reject) {
       // 其他一些数据需要保留，类似“dealApi”之类的
       data: alreadyData ? merge(alreadyData, allStocks) : JSON.stringify(allStocks)
     }
-    writeFileSync(global.path.db.base_data, baseData)
+    writeFileSync(global.$path.db.base_data, baseData)
     return resolve(baseData)
   } catch (error) {
     console.error('build model error:', error)
@@ -59,10 +59,10 @@ function hasExpired (alreadyData) {
   // 数据库没有原始数据，就当作过期处理
   if (!alreadyData) return true
   let expired = false
-  // 如果现实时间和global.finalDealDate相同，则证明是非假日或者周末
+  // 如果现实时间和global.$finalDealDate相同，则证明是非假日或者周末
   // 这样可以用24小时论做判断
   const reality = moment(new Date()).format('YYYY-MM-DD')
-  if (reality !== global.finalDealDate) {
+  if (reality !== global.$finalDealDate) {
     expired = true
   }
   return expired

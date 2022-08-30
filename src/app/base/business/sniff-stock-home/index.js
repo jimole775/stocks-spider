@@ -8,22 +8,22 @@ const querystring = require('querystring')
 const {
   BunchLinking, hasUnlinked,
   recordUsedApi, requestApiInBunch
-} = global.utils
+} = global.$utils
 
-const urlModel = global.urlModel
+const urlModel = global.$urlModel
 
 const business = {
   kline: {
     api: 'klineApi',
     decompose: require(`./klines/uri`).decompose,
-    dataPath: `fr-klines/daily/${global.finalDealDate}.json`,
+    dataPath: `fr-klines/daily/${global.$finalDealDate}.json`,
     record: require(`./klines/record`),
     reg: new RegExp(urlModel.api.dailyKlineReg, 'ig')
   },
   quote: {
     api: 'quoteApi',
     decompose: require(`./quotes/uri`).decompose,
-    dataPath: `quotes/${global.finalDealDate}.json`,
+    dataPath: `quotes/${global.$finalDealDate}.json`,
     record: require(`./quotes/record`),
     reg: new RegExp(urlModel.api.quoteReg, 'ig')
   }

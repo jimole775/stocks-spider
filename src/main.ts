@@ -3,61 +3,60 @@
   await require('./app/base/assistants/build-base-data')()
   await require('./app/base/assistants/build-dict')()
   console.log('Base info was loaded!')
-
   const sniffStockHome: Function = require('./app/base/business/sniff-stock-home')
   const sniffDailyDeals: Function = require('./app/base/business/sniff-daily-deals')
   const analyzerDeals = require('./app/analyze/deals')
   const analyzerKlines = require('./app/analyze/klines')
   console.log('Main function was mounted!')
 
-  if (['kline', 'quote', 'all'].includes(global.business)) {
+  if (['kline', 'quote', 'all'].includes(global.$module)) {
     console.log('Sniff stock home!')
-    await sniffStockHome(global.business)
+    await sniffStockHome(global.$module)
   }
 
-  if (['deal', 'all'].includes(global.business)) {
+  if (['deal', 'all'].includes(global.$module)) {
     console.log('Sniff daily deals!')
     await sniffDailyDeals()
   }
 
-  if (['shadowline', 'all'].includes(global.business)) {
+  if (['shadowline', 'all'].includes(global.$module)) {
     console.log('Analyzes deals into shadowline!')
     await analyzerDeals.shadowline()
   }
 
-  if (['vline', 'all'].includes(global.business)) {
+  if (['vline', 'all'].includes(global.$module)) {
     console.log('Analyzes deals into vline!')
     await analyzerDeals.vline()
   }
 
-  if (['strokeline', 'all'].includes(global.business)) {
+  if (['strokeline', 'all'].includes(global.$module)) {
     console.log('Analyzes deals into strokeline!')
     await analyzerDeals.strokeline()
   }
 
-  if (['uline', 'all'].includes(global.business)) {
+  if (['uline', 'all'].includes(global.$module)) {
     console.log('Analyzes klines into uline!')
     await analyzerKlines.uline()
   }
   
-  if (['lowerpoint', 'all'].includes(global.business)) {
+  if (['lowerpoint', 'all'].includes(global.$module)) {
     console.log('Analyzes klines into lowerpoint!')
     await analyzerKlines.lowerpoint()
   }
 
-  if (['test'].includes(global.business)) {
+  if (['test'].includes(global.$module)) {
     const fs = require('fs')
     const path = require('path')
-    const base = require(global.path.db.base_data)
+    const base = require(global.$path.db.base_data)
     const codeMap = {}
     const nameMap = {}
     base.data.forEach((stockItem) => {
       codeMap[stockItem.code] = stockItem.name
       nameMap[stockItem.name] = stockItem.code
     })
-    fs.writeFileSync(path.join(global.path.db.dict, 'code-name.json'), JSON.stringify(codeMap))
-    fs.writeFileSync(path.join(global.path.db.dict, 'name-code.json'), JSON.stringify(nameMap))
-    // fs.writeFileSync(global.path.db.base_data, JSON.stringify(base))
+    fs.writeFileSync(path.join(global.$path.db.dict, 'code-name.json'), JSON.stringify(codeMap))
+    fs.writeFileSync(path.join(global.$path.db.dict, 'name-code.json'), JSON.stringify(nameMap))
+    // fs.writeFileSync(global.$path.db.base_data, JSON.stringify(base))
   }
 
   console.log('Process was end!')

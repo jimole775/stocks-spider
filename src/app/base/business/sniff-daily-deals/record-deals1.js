@@ -11,8 +11,8 @@
  */
 const path = require('path')
 const querystring = require('querystring')
-const { writeFileSync, quest } = global.utils
-const fileModel = `deals/${global.finalDealDate}.json`
+const { writeFileSync, quest } = global.$utils
+const fileModel = `deals/${global.$finalDealDate}.json`
 
 module.exports = async function recordDeals({ secid }) {
   return new Promise((resolve) => excutes({ secid }, resolve, 0))
@@ -22,7 +22,7 @@ module.exports = async function recordDeals({ secid }) {
 async function excutes ({ secid }, resolve, loopTimes) {
   const api = dealApiFactory({ secid })
   const code = secid.split('.').pop()
-  const savePath = path.join(global.path.db.stocks, code, fileModel)
+  const savePath = path.join(global.$path.db.stocks, code, fileModel)
   try {
     console.log('正在探测：', code)
     // 'data: {"rc":0,"rt":12,"svr":182995883,"lt":1,"full":1,"dlmkts":"","data":{"code":"000667","market":0,"decimal":2,"prePrice":1.6,"details":[]}'

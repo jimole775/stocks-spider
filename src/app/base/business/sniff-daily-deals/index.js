@@ -7,9 +7,9 @@
 const recordDeals = require('./record-deals')
 const recordDeals1 = require('./record-deals1')
 const sniffApiFromWebsite = require('./sniff-api-from-website')
-const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.utils
+const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
 
-const dataPath = `deals/${global.finalDealDate}.json`
+const dataPath = `deals/${global.$finalDealDate}.json`
 
 module.exports = function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)

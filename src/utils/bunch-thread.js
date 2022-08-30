@@ -8,7 +8,7 @@ class BunchThread {
    * @param { Number } limit
    * @return { BunchThread }
    */
-  constructor (limit = global.bunchLimit) {
+  constructor (limit = global.$bunchLimit) {
     this.limit = limit
     this.paramList = []
     this.taskQueue = []
@@ -135,8 +135,8 @@ class BunchThread {
 
     // 如果是 busy 模式，每个任务执行后需要睡眠指定的时间
     // 默认为 3 秒，可以在 global.config 里面进行配置
-    if (global.onBusyNetwork) {
-      await this._sleep(global.sleepTimes)
+    if (global.$onBusyNetwork) {
+      await this._sleep(global.$sleepTimes)
     }
     this.taskLiving --
     if (this.taskQueue.length) {
@@ -169,10 +169,10 @@ function test () {
   bunch.emit()
 }
 
-if (!global.env) {
-  global.sleepTimes = 3000
-  global.bunchLimit = 10
-  global.onBusyNetwork = false
+if (!global.$env) {
+  global.$sleepTimes = 3000
+  global.$bunchLimit = 10
+  global.$onBusyNetwork = false
   test()
 }
 

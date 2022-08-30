@@ -1,8 +1,8 @@
 require(`../../../global.config.js`)().then(async () => {
   // const Mysql = require(`${global.db_utils}/mysql/index.js`)
-  const db_config = require(`${global.path.root}/db_config.json`)
-  const deals_ddl = require(`${global.path.db_utils}/mysql/ddl/deals.json`)
-  const { StockConnect } = global.utils
+  const db_config = require(`${global.$path.root}/db_config.json`)
+  const deals_ddl = require(`${global.$path.db_utils}/mysql/ddl/deals.json`)
+  const { StockConnect } = global.$utils
   const mysql = new global.Mysql(db_config.deals)
   const connect = new StockConnect('deals')
   connect.on('data', async (dealData, stock, date)=> {

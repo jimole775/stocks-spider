@@ -15,7 +15,7 @@ const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.utils
+const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.$utils
 const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 module.exports = function uline () {
@@ -41,7 +41,7 @@ module.exports = function uline () {
   // })
   const connect = new StockConnect(read_dir)
   connect.on('data', (fileData, stock, date) => {
-    if (global.blackName.test(fileData.name)) return
+    if (global.$blackName.test(fileData.name)) return
     let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
     // console.log(ulineLeftItems, ulineBottomItems, ulineRightItems)
     // const dateRange = moment(moment(global.finalDealDate) - 3 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
@@ -49,7 +49,7 @@ module.exports = function uline () {
       ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
       ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
       ulineRightItems = ulineRightItems ? ulineRightItems : []
-      writeFileSync(path.join(global.path.db.api, save_dir, global.finalDealDate, stock + '.json'), {
+      writeFileSync(path.join(global.$path.db.api, save_dir, global.$finalDealDate, stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
         klines: [

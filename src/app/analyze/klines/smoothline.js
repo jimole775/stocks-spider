@@ -11,7 +11,7 @@ const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.utils
+const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.$utils
 const save_dir = `smoothline`
 const read_dir = `fr-klines/daily`
 var a = {
@@ -39,7 +39,7 @@ module.exports = function smoothline () {
     const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
     console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
     if (ulineBeginDaily && ulineEndDaily) {
-      writeFileSync(path.join(global.path.db.api, save_dir, stock + '.json'), {
+      writeFileSync(path.join(global.$path.db.api, save_dir, stock + '.json'), {
         code: fileData.code,
         name: fileData.name,
         ulineLeftItems,

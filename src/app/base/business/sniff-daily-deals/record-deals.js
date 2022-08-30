@@ -11,8 +11,8 @@
  */
 const path = require('path')
 const querystring = require('querystring')
-const { writeFileSync, quest } = global.utils
-const fileModel = `deals/${global.finalDealDate}.json`
+const { writeFileSync, quest } = global.$utils
+const fileModel = `deals/${global.$finalDealDate}.json`
 
 module.exports = async function recordDeals(recordItem) {
   return new Promise((resolve) => excutes(recordItem, resolve, 0))
@@ -23,7 +23,7 @@ async function excutes (recordItem, resolve, loopTimes) {
   const id = (recordItem.id || recordItem.secid) + '' // 保持id为字符串
   const stockCode = id.substring(0, id.length - 1)
   const api = dealApiFactory(recordItem)
-  const savePath = path.join(global.path.db.stocks, stockCode, fileModel)
+  const savePath = path.join(global.$path.db.stocks, stockCode, fileModel)
   try {
     const res = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
     if (res.code === 200) {

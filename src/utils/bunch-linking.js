@@ -11,7 +11,7 @@ module.exports = class BunchLinking {
    * @param { Number } limit 默认3条
    * @return { BunchLinking }
    */
-  constructor (urls = [], limit = global.bunchLimit) {
+  constructor (urls = [], limit = global.$bunchLimit) {
     this.limitBunch = limit
     this.urls = urls
     this.pages = []
