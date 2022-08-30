@@ -1,8 +1,8 @@
-const path = require('path')
-const quest: Function = require('./utils/quest')
-const cmdParam: Function = require('./utils/cmd-param')
-const readFileSync: Function = require('./utils/read-file-sync')
-const moment: Function = require('moment')
+import path from 'path'
+import moment from 'moment'
+import quest from './utils/quest'
+import cmdParam from './utils/cmd-param'
+import readFileSync from './utils/read-file-sync'
 module.exports = async function config():Promise<typeof globalThis> {
 
   global.$env = 'prod'

@@ -5,8 +5,8 @@
   console.log('Base info was loaded!')
   const sniffStockHome: Function = require('./app/base/business/sniff-stock-home')
   const sniffDailyDeals: Function = require('./app/base/business/sniff-daily-deals')
-  const analyzerDeals = require('./app/analyze/deals')
-  const analyzerKlines = require('./app/analyze/klines')
+  const analyzerDeals: { shadowline: Function, vline: Function, strokeline: Function } = require('./app/analyze/deals')
+  const analyzerKlines: { uline: Function, lowerpoint: Function } = require('./app/analyze/klines')
   console.log('Main function was mounted!')
 
   if (['kline', 'quote', 'all'].includes(global.$module)) {
@@ -50,9 +50,13 @@
     const base = require(global.$path.db.base_data)
     const codeMap = {}
     const nameMap = {}
-    base.data.forEach((stockItem) => {
-      codeMap[stockItem.code] = stockItem.name
-      nameMap[stockItem.name] = stockItem.code
+    base.data.forEach((stockItem: {name: string, code: string}) => {
+      Object.defineProperty(codeMap, stockItem.code, {
+        value: stockItem.name
+      })
+      Object.defineProperty(nameMap, stockItem.name, {
+        value: stockItem.code
+      })
     })
     fs.writeFileSync(path.join(global.$path.db.dict, 'code-name.json'), JSON.stringify(codeMap))
     fs.writeFileSync(path.join(global.$path.db.dict, 'name-code.json'), JSON.stringify(nameMap))

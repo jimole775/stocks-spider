@@ -1,7 +1,7 @@
-const path = require('path')
-const readDirSync = require('./read-dir-sync')
-const utilDir = path.join(__dirname, './')
-const utilFiles = readDirSync(utilDir)
+const path:any = require('path')
+const readDirSync:Function = require('./read-dir-sync')
+const utilDir:string = path.join(__dirname, './')
+const utilFiles:string[] = readDirSync(utilDir)
 const res = {}
 utilFiles.forEach((file) => {
   if (file === 'index.js') return false
