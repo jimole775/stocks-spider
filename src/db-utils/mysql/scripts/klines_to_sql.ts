@@ -43,5 +43,5 @@ function dataHandler (mysql, klineData, stock, date) {
     const record = { date, start_price, end_price, highest_price, lowest_price, volumn: volumn * 100, amount, divid_rate, market }
     mysql.insert(tableName, record)
   })
-  mysql.disconnect()
+  mysql.finish()
 }

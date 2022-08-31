@@ -1,8 +1,8 @@
 import path from 'path'
 import moment from 'moment'
 import quest from './utils/quest'
-import cmdParam from './utils/cmd-param'
-import readFileSync from './utils/read-file-sync'
+import cmdParam from './utils/cmd_param'
+import readFileSync from './utils/read_file_sync'
 module.exports = async function config():Promise<typeof globalThis> {
 
   global.$env = 'prod'

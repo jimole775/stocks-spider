@@ -1,6 +1,6 @@
-import MysqlInterface from '../interfaces/Mysql.if'
+import MysqlInterface from '../interfaces/mysql.if'
 declare global {
-  var Mysql: MysqlInterface
+  var Mysql: typeof MysqlInterface
   var $env: string
   var $module: string
 

@@ -2,7 +2,8 @@ import _type from 'E:/py_pro/stocks-spider/src/types/global'
 function dec ():Function {
   console.log('dec origin')
   return function (a:any, b:any, c:any) {
-    console.log('dec return', a, b, c)
+    console.log('dec return')
+    return false
   }
 }
 

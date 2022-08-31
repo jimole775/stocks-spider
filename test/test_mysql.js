@@ -9,4 +9,4 @@ mysql.query('orders', {
 }).then((res) => {
   console.log(res)
 })
-mysql.disconnect()
+mysql.finish()

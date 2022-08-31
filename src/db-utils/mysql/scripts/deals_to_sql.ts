@@ -69,7 +69,7 @@ require(`../../../global.config.js`)().then(async () => {
     }
   })
   connect.on('end', () => {
-    mysql.disconnect()
+    mysql.finish()
   })
   connect.emit()
 })

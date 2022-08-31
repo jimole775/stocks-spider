@@ -1,6 +1,9 @@
 const mysql = require('mysql')
 const assert = require('../../utils/assert')
-import { MysqlInterface } from '../../interfaces/Mysql.if'
+import MysqlInterface from '../../interfaces/mysql.if'
+
+type Callback = (result: string) => any
+type Sqlmap = { [key: string]: number | string }
 class Mysql implements MysqlInterface {
   connection: typeof mysql
   create = create.bind(this)
@@ -24,7 +27,7 @@ class Mysql implements MysqlInterface {
   }
 }
 
-function create (table: string, map: object, callback: Function): Promise<string> {
+function create (table: string, map: object, callback: Callback): Promise<string> {
   if (!table) return Promise.reject('创建表需要确认表名!')
   const entries: Array<Array<string>> = Object.entries(map)
   const sentences: Array<string> = []
@@ -39,15 +42,15 @@ function create (table: string, map: object, callback: Function): Promise<string
   return handResult(sql, callback)
 }
 
-function insert (table: string, map: object, callback: Function): Promise<string> {
-  // if (!table) return new Error('插入表单数据需要确认表单名!')
+function insert (table: string, map: Sqlmap, callback: Callback): Promise<string> {
+  if (!table) return Promise.reject('插入表单数据需要确认表单名!')
   const keys   = Object.keys(map)
   const values = Object.values(map)
   const sql    = `INSERT INTO ${table} (${keys}) VALUES (${values});`
   return handResult(sql, callback)
 }
 
-function del (table: string, map: object, callback: Function): Promise<string> {
+function del (table: string, map: Sqlmap, callback: Callback): Promise<string> {
   if (!table) return Promise.reject('删除表单数据需要确认表单名!')
   let sql = ``
   if (map) {
@@ -59,10 +62,10 @@ function del (table: string, map: object, callback: Function): Promise<string> {
   return handResult(sql, callback)
 }
 
-function query (table: string, map: { page: number, size: number }, callback: Function): Promise<string> {
+function query (table: string, map: Sqlmap, callback: Callback): Promise<string> {
   if (!table) return Promise.reject('查询表单数据需要确认表单名!')
   let limit:string = ''
-  let query:Array<string> = []
+  let query:string[] = []
   Object.entries(map).forEach(entries => {
     const key = entries[0]
     const value = entries[1]
@@ -77,7 +80,9 @@ function query (table: string, map: { page: number, size: number }, callback: Fu
         query.push(`${key}='${value}'`)
       }
     } else if (key === 'page' || key === 'size') {
-      limit = `${map.page*map.size},${map.size}`
+      const page = (map.page as number) || 1
+      const size = (map.size as number) || 10
+      limit = `${page*size},${size}`
     } else {
       query.push(`${key}=${value}`)
     }
@@ -92,13 +97,13 @@ function query (table: string, map: { page: number, size: number }, callback: Fu
   return handResult(sql, callback)
 }
 
-function update (table: string, map: { id: number }, callback: Function): Promise<string>  {
+function update (table: string, map: Sqlmap, callback: Callback): Promise<string>  {
   if (!table) return Promise.reject('更新表单数据需要确认表单名!')
   const sql = `UPDATE ${table} SET (${mapToUpdateSql(map)}) WHERE id=${map.id};`
   return handResult(sql, callback)
 }
 
-function count (table: string, callback: Function):Promise<number> {
+function count (table: string, callback: (result: number) => any):Promise<number> {
   if (!table) return Promise.reject('需要确认表单名!')
   const sql = `SELECT count(*) FROM ${table}`
   return new Promise(function (this: Mysql, resolve, reject) {
@@ -107,32 +112,32 @@ function count (table: string, callback: Function):Promise<number> {
         if (err) return reject(err)
         const [row] = result || [{}]
         if (callback) callback(row['count(*)'])
-        resolve(row['count(*)'])
+        return resolve(row['count(*)'])
       })
     } catch (error) {
       console.log(error)
-      reject(error)
+      return reject(error)
     }
   })
 }
 
-function custom (table: string, sql: string, callback: Function):Promise<string>   {
+function custom (table: string, sql: string, callback: Callback):Promise<string> {
   if (!table) return Promise.reject('需要确认表单名!')
   return handResult(sql, callback)
 }
 
-function disconnect (callback: Function):Promise<string> {
+function disconnect (callback: () => any):Promise<string> {
   return new Promise(function (this: Mysql, resolve, reject) {
     this.connection.end(function(err: string) {
       if (err) return reject(err)
       if (callback) callback()
-      resolve('')
+      return resolve('')
     })
   })
 }
 
-function mapToUpdateSql (map: object) {
-  const res: Array<string> = []
+function mapToUpdateSql (map: Sqlmap): string {
+  const res: string[] = []
   Object.entries(map).forEach(entries => {
     const key = entries[0]
     const val = entries[1]
@@ -143,21 +148,17 @@ function mapToUpdateSql (map: object) {
   return res.join(',')
 }
 
-function validateTableName (tip: string, table: string) {
-  if (!table) return Promise.reject(`${tip}需要确认表单名!`)
-}
-
-function handResult (sql: string, callback: Function): Promise<string> {
+function handResult (sql: string, callback: Callback): Promise<string> {
   return new Promise(function (this: Mysql, resolve, reject) {
     try {
       this.connection.query(sql, (err: string, result: string) => {
         if (err) return reject(err)
         if (callback) callback(result)
-        resolve(result)
+        return resolve(result)
       })
     } catch (error) {
       console.log(error)
-      reject(error)
+      return reject(error)
     }
   })
 }
