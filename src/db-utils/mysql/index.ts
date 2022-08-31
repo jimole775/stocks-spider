@@ -1,6 +1,6 @@
 const mysql = require('mysql')
 const assert = require('../../utils/assert')
-import MysqlInterface from '../../interfaces/mysql.if'
+import MysqlInterface from '../../interfaces/_mysql.if'
 
 type Callback = (result: string) => any
 type Sqlmap = { [key: string]: number | string }

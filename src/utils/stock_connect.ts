@@ -22,6 +22,8 @@ class StockConnect implements StockConnectInterface {
   ignoreCodes: string[] = []
   ignoreDates: string[] = []
   stockCodes: string[] = []
+  dataEventReceiver: () => this = () => this
+  endEventReceiver: () => this = () => this
   constructor (targetDir: string, ignoreObject?: { codes: string[], dates: string[] } ) {
     // this.eventsParams = []
     this.targetDir = targetDir
@@ -39,49 +41,11 @@ class StockConnect implements StockConnectInterface {
       this.stockCodes = diffrence(this.stockCodes, this.ignoreCodes)
     }
   }
-  on (this: StockConnect, option, callback) {
-    if (assert.isObject(option)) {
-      this.dataEventReceiver = option['data']
-      this.endEventReceiver = option['end']
-    }
-    if (assert.isString(option) && callback) {
-      if (option === 'data') {
-        this.dataEventReceiver = callback
-      }
-      if (option === 'end') {
-        this.endEventReceiver = callback
-      }
-    }
-    return this
-  }
-  emit () {
-    for (let i = 0; i < this.stockCodes.length; i++) {
-      const code = this.stockCodes[i]
-  
-      // 匹配黑名单
-      if (global.$blackName.test(dict_code_name[code])) continue
-  
-      console.log(LogTag, code, dict_code_name[code])
-  
-      let dateFiles = readDirSync(path.join(dbPath, code, this.targetDir))
-  
-      if (this.ignoreDates) dateFiles = cuteIgnoreDates(dateFiles, this.ignoreDates)
-  
-      for (let j = 0; j < dateFiles.length; j++) {
-        const dateFile = dateFiles[j]
-        const fileData = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
-        const params = [fileData, code, dateFile.split('.').shift()]
-        await this.dataEventReceiver.apply(this, params)
-      }
-    }
-    this.bunch.finally(() => {
-      this.endEventReceiver && this.endEventReceiver()
-    })
-    return this
-  }
+  on = on.bind(this)
+  emit= emit.bind(this)
 }
 
-function on (this: StockConnect, option, callback) {
+function on (this: StockConnect, option:{ data: Function, end: Function }, callback: Function) {
   if (assert.isObject(option)) {
     this.dataEventReceiver = option['data']
     this.endEventReceiver = option['end']
@@ -97,7 +61,7 @@ function on (this: StockConnect, option, callback) {
   return this
 }
 
-async function emit () {
+async function emit (this: StockConnect) {
   for (let i = 0; i < this.stockCodes.length; i++) {
     const code = this.stockCodes[i]
 
