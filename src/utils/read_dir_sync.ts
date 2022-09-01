@@ -5,8 +5,8 @@ import fs from 'fs'
  * @return { Array<String> } 可能返回目录名和文件名的混合类型
  * @template readDirSync('xxx/xxx/') => ['xx.xx', 'xxx.xx', ['xxxx']]
  */
-export = function readDirSync(dir): Array<String> {
-  let folderOrFiles = []
+export default function readDirSync(dir: fs.PathLike): string[] {
+  let folderOrFiles:string[] = []
   try {
     const isExist = fs.existsSync(dir)
     if (!isExist) return folderOrFiles

@@ -1,16 +1,16 @@
 const mysql = require('mysql')
 const assert = require('../../utils/assert')
-import MysqlInterface from '../../interfaces/mysql.if'
+import { MysqlInterface, QueryMethod } from '../../interfaces/mysql.if'
 
 type Callback = (result: string) => any
 type Sqlmap = { [key: string]: number | string }
 class Mysql implements MysqlInterface {
   connection: typeof mysql
-  create = create.bind(this)
-  insert = insert.bind(this)
-  del = del.bind(this)
-  query = query.bind(this)
-  update = update.bind(this)
+  create: QueryMethod = create.bind(this)
+  insert: QueryMethod = insert.bind(this)
+  del : QueryMethod= del.bind(this)
+  query: QueryMethod = query.bind(this)
+  update: QueryMethod = update.bind(this)
   count = count.bind(this)
   custom = custom.bind(this)
   disconnect = disconnect.bind(this)

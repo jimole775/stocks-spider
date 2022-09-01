@@ -6,19 +6,19 @@ const { isCSSUrl, isImgUrl } = require('./assert')
  * @param { Function } responseCallback 响应时的回调
  * @return { Promise[browser.Page] }
  */
-module.exports = function initPage(requestCallback, responseCallback) {
-  return new Promise(async (s, j) => {
-    return loop(requestCallback, responseCallback, s, j)
+export function initPage(requestCallback: Function, responseCallback: Function): any {
+  return new Promise(async (resolve, reject) => {
+    return loop(requestCallback, responseCallback, resolve, reject)
   })
 }
 
-async function loop (requestCallback, responseCallback, s, j) {
+async function loop (requestCallback: Function, responseCallback: Function, resolve: Function, reject: Function) {
   try {
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setRequestInterception(true)
-    page.on('request', interceptedRequest => {
-      if ( isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
+    page.on('request', (interceptedRequest: { url: () => string; abort: () => void; continue: () => void }) => {
+      if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
         interceptedRequest.abort()
       } else {
         interceptedRequest.continue()
@@ -26,13 +26,13 @@ async function loop (requestCallback, responseCallback, s, j) {
       requestCallback && requestCallback(interceptedRequest)
     })
     if (responseCallback) {
-      page.on('response', response => {
+      page.on('response', (response: any) => {
         responseCallback(response)
       })
     }
-    return s(page)
+    return resolve(page)
   } catch (error) {
     console.log(error)
-    return setTimeout(() => { loop(requestCallback, responseCallback, s, j) }, 15)
+    return setTimeout(() => { loop(requestCallback, responseCallback, resolve, reject) }, 15)
   }
 }

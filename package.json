@@ -31,6 +31,7 @@
     "@babel/register": "^7.8.6",
     "@babel/runtime": "^7.5.5",
     "@types/node": "^18.7.13",
+    "@types/puppeteer": "^5.4.6",
     "babel-loader": "^8.0.6",
     "babelify": "^10.0.0",
     "body-parser": "^1.19.0",
@@ -71,7 +72,6 @@
     "webpack": "^4.42.0"
   },
   "dependencies": {
-    "@types/puppeteer": "^5.4.6",
     "browserify-shim": "^3.8.14",
     "cheerio": "^1.0.0-rc.3",
     "js-yaml": "^3.13.1",

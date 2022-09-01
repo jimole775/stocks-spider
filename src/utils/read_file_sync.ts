@@ -6,7 +6,7 @@ const yaml = require('js-yaml')
  * @return { any } 根据读取的文件类型返回不同的数据
  * @template readFileSync('xxx/xxx/xxx.xx') => any
  */
-module.exports = function readFileSync(filePath) {
+export default function readFileSync(filePath: string): any {
   let data = null
   try {
     const isExist = fs.existsSync(filePath)
