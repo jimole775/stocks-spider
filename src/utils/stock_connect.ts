@@ -1,11 +1,26 @@
-import StockConnectInterface from '../interfaces/stock_connect.if'
+import {
+  StockConnectInterface,
+  DataEventReceiver,
+  EndEventReceiver,
+  OnEvent,
+  EmitEvent,
+  EventOption
+} from '../interfaces/stock_connect.if'
+export {
+  StockConnectInterface,
+  DataEventReceiver,
+  EndEventReceiver,
+  OnEvent,
+  EmitEvent,
+  EventOption
+} from '../interfaces/stock_connect.if'
 const path = require('path')
 const readDirSync = require('./read-dir-sync')
 const readFileSync = require('./read-file-sync')
 const diffrence = require('./diffrence')
 const assert = require('./assert')
 const BunchThread = require('./bunch-thread')
-const dict_code_name:{[key: string]: [value: string]} = require(path.join(global.$path.db.dict, 'code-name.json'))
+const dict_code_name:{[key: string]: string} = require(path.join(global.$path.db.dict, 'code-name.json'))
 const dbPath:string = global.$path.db.stocks
 const LogTag:string = 'utils.StockConnect => '
 /**
@@ -15,17 +30,17 @@ const LogTag:string = 'utils.StockConnect => '
  * @param { Object } ignoreObject
  * @return { Promise }
  */
-
-class StockConnect implements StockConnectInterface {
+export class StockConnect implements StockConnectInterface {
   bunch = new BunchThread(1)
   targetDir = ''
-  ignoreCodes: string[] = []
-  ignoreDates: string[] = []
-  stockCodes: string[] = []
-  dataEventReceiver: () => this = () => this
-  endEventReceiver: () => this = () => this
-  constructor (targetDir: string, ignoreObject?: { codes: string[], dates: string[] } ) {
-    // this.eventsParams = []
+  ignoreCodes:string[] = []
+  ignoreDates:string[] = []
+  stockCodes:string[] = []
+  dataEventReceiver: DataEventReceiver = () => Promise.resolve()
+  endEventReceiver: EndEventReceiver = () => Promise.resolve()
+  on:OnEvent = on.bind(this)
+  emit:EmitEvent = emit.bind(this)
+  constructor (targetDir:string, ignoreObject?: { codes:string[], dates:string[] } ) {
     this.targetDir = targetDir
     if (ignoreObject) {
       this.ignoreCodes = ignoreObject.codes
@@ -41,55 +56,59 @@ class StockConnect implements StockConnectInterface {
       this.stockCodes = diffrence(this.stockCodes, this.ignoreCodes)
     }
   }
-  on = on.bind(this)
-  emit= emit.bind(this)
 }
 
-function on (this: StockConnect, option:{ data: Function, end: Function }, callback: Function) {
+function on (this: StockConnect, option: EventOption | string, callback: Function): StockConnect {
   if (assert.isObject(option)) {
-    this.dataEventReceiver = option['data']
-    this.endEventReceiver = option['end']
+    if (option.hasOwnProperty('data')) {
+      this.dataEventReceiver = (option as EventOption).data as DataEventReceiver
+    }
+    if (option.hasOwnProperty('end')) {
+      this.endEventReceiver = (option as EventOption).end as EndEventReceiver
+    }
   }
   if (assert.isString(option) && callback) {
-    if (option === 'data') {
-      this.dataEventReceiver = callback
+    const eventType: string = option as string
+    if (eventType === 'data') {
+      this.dataEventReceiver = callback as DataEventReceiver
     }
-    if (option === 'end') {
-      this.endEventReceiver = callback
+    if (eventType === 'end') {
+      this.endEventReceiver = callback as EndEventReceiver
     }
   }
   return this
 }
 
-async function emit (this: StockConnect) {
+async function emit (this: StockConnect): Promise<any> {
   for (let i = 0; i < this.stockCodes.length; i++) {
-    const code = this.stockCodes[i]
+    const code:string = this.stockCodes[i]
 
     // 匹配黑名单
     if (global.$blackName.test(dict_code_name[code])) continue
 
     console.log(LogTag, code, dict_code_name[code])
 
-    let dateFiles = readDirSync(path.join(dbPath, code, this.targetDir))
+    let dateFiles: string[] = readDirSync(path.join(dbPath, code, this.targetDir))
 
     if (this.ignoreDates) dateFiles = cuteIgnoreDates(dateFiles, this.ignoreDates)
 
     for (let j = 0; j < dateFiles.length; j++) {
-      const dateFile = dateFiles[j]
-      const fileData = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
-      const params = [fileData, code, dateFile.split('.').shift()]
+      const dateFile:string = dateFiles[j]
+      const fileData:string[] = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
+      const params:[string[], string, string] = [fileData, code, dateFile.split('.').shift() as string]
       await this.dataEventReceiver.apply(this, params)
     }
   }
+
   this.bunch.finally(() => {
     this.endEventReceiver && this.endEventReceiver()
   })
-  return this
+  return Promise.resolve()
 }
 
-function cuteIgnoreDates (dateFiles, ignoreDates) {
-  const res = []
-  const copyDates = ignoreDates.concat([])
+function cuteIgnoreDates (dateFiles: string[], ignoreDates: string[]): string[] {
+  const res:string[] = []
+  const copyDates:string[] = ignoreDates.concat([])
   dateFiles.forEach((dateFile) => {
     res.push(dateFile)
     for (let index = 0; index < copyDates.length; index++) {
@@ -103,5 +122,3 @@ function cuteIgnoreDates (dateFiles, ignoreDates) {
   })
   return res
 }
-
-export default StockConnect

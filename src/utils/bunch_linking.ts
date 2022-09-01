@@ -1,31 +1,38 @@
+import { Page } from 'puppeteer'
 const initPage = require('./init-page')
-const BunchThread = require('./bunch-thread')
 const LogTag = 'utils.BunchLinking => '
+
+export interface BrowserPage extends Page {
+  idl: boolean,
+  id: string
+}
 /**
  * 并发请求，html类型
  * 主要是访问一个主页，然后从页面上探测所有接口
  */
-module.exports = class BunchLinking {
-  /**
-   * @param { Array<String> } urls
-   * @param { Number } limit 默认3条
-   * @return { BunchLinking }
-   */
+export class BunchLinking {
+  limitBunch: number
+  bunch: typeof BunchThread
+  pages: BrowserPage[]
+  urls: string[]
+  request: Function
+  response: Function
+  end: Function
   constructor (urls = [], limit = global.$bunchLimit) {
     this.limitBunch = limit
     this.urls = urls
-    this.pages = []
     this.bunch = new BunchThread(limit)
+    this.pages = []
     this.request = () => { return [] }
     this.response = () => { return [] }
     this.end = () => { return [] }
     return this
   }
 
-  on ({ request, response, end }) {
-    if (request) this.request = request
-    if (response) this.response = response
-    if (end) this.end = end
+  on (option: { request?: Function, response?: Function, end?: Function }) {
+    if (option.request) this.request = option.request
+    if (option.response) this.response = option.response
+    if (option.end) this.end = option.end
     return this
   }
 
@@ -36,16 +43,10 @@ module.exports = class BunchLinking {
     })
   }
 
-  _loop (urls, resolve, reject) {
-    // urls.forEach((url) => {
-    //   this.bunch.taskCalling(() => {
-    //     return this._taskEntity(url)
-    //   })
-    // })
-    this.bunch.register(urls, (url) => {
-      // this.bunch.taskCalling(() => {
-      return this._taskEntity(url)
-      // })
+  _loop (urls: string[], resolve: Function, reject: Function) {
+    this.bunch.register(urls, async (url: string): Promise<void> => {
+      await this._taskEntity(url)
+      return Promise.resolve()
     })
     .finally(async () => {
       let remainUrls = this.end()
@@ -61,20 +62,27 @@ module.exports = class BunchLinking {
     .emit()
   }
 
-  _taskEntity (url) {
+  _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      const idlPage = this._pickIdlPage()
-      idlPage.idl = false
-      await idlPage.goto(url, { timeout: 0 }).catch((err) => console.log(LogTag, 'idlPage.goto:', err))
-      idlPage.idl = true
-      return resolve(true)
+      const idlPage: BrowserPage = this._pickIdlPage()
+      if (idlPage.goto) {
+        idlPage.idl = false
+        await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
+          console.log(LogTag, 'idlPage.goto:', err)
+          return reject()
+        })
+        idlPage.idl = true
+        return resolve()
+      } else {
+        return reject()
+      }
     })
   }
 
-  _buildPage () {
+  _buildPage (): Promise<void> {
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < this.limitBunch; i++) {
-        const idlPage = await initPage(this.request, this.response)
+        const idlPage: BrowserPage = await initPage(this.request, this.response)
         idlPage.id = '_id_' + i
         idlPage.idl = true
         this.pages.push(idlPage)
@@ -83,10 +91,10 @@ module.exports = class BunchLinking {
     })
   }
 
-  _shutdownPages () {
+  _shutdownPages (): Promise<void> {
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < this.pages.length; i++) {
-        const page = this.pages[i]
+        const page: Page = this.pages[i]
         await page.close().catch(() => { i - 1 })
       }
       this.pages = []
@@ -94,8 +102,8 @@ module.exports = class BunchLinking {
     })
   }
 
-  _pickIdlPage () {
-    let idlPage
+  _pickIdlPage (): BrowserPage {
+    let idlPage: BrowserPage = {} as BrowserPage
     for (const page of this.pages) {
       if (page.idl) {
         idlPage = page

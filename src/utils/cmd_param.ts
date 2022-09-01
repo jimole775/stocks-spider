@@ -1,5 +1,5 @@
-module.exports = function queryParam (getKey) {
-  const res = {}
+export default function queryParam (getKey?: string) {
+  const res: { [key: string]: string } = {}
   if (process.argv && process.argv.length) {
     process.argv.forEach((item) => {
       if (item && /^\-\-.+/.test(item)) {

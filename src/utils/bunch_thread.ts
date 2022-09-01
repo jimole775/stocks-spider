@@ -1,33 +1,39 @@
-const LogTag = 'utils.BunchThread => '
+import { BunchThreadInterface, Task, TaskEntity } from '../interfaces/bunch_thread.if'
+export { BunchThreadInterface, Task, TaskEntity } from '../interfaces/bunch_thread.if'
+const bunch_log_prev: string = 'utils.BunchThread => '
 /**
  * 并发线程
  */
-class BunchThread {
-  /**
-   * 构造函数
-   * @param { Number } limit
-   * @return { BunchThread }
-   */
-  constructor (limit = global.$bunchLimit) {
-    this.limit = limit
+export class BunchThread implements BunchThreadInterface {
+  limit: number
+  paramList: any[]
+  taskQueue: Task[]
+  taskLivingIds: number[]
+  consumedIds: number[]
+  taskLiving: number
+  taskEntity: TaskEntity
+  endCallback: Function
+  constructor(limit?: number) {
+    this.limit = limit ? limit : global.$bunchLimit
     this.paramList = []
     this.taskQueue = []
     this.taskLivingIds = []
     this.consumedIds = []
     this.taskLiving = 0
+    this.taskEntity = () => Promise.resolve()
     this.endCallback = () => console.log('Bunch End!')
     return this
   }
 
   /**
    * 注册执行函数
-   * @param { Array } paramList
+   * @param { Array<any> } paramList
    * @param { Function } taskEntity
    * @return { BunchThread }
    */
-  register (paramList, taskEntity) {
-    this.paramList = paramList || []
-    this.taskEntity = taskEntity || function () {}
+  register(paramList: any[], taskEntity: TaskEntity): BunchThread {
+    this.paramList = paramList
+    this.taskEntity = taskEntity
     return this
   }
 
@@ -35,13 +41,14 @@ class BunchThread {
    * 并发发起
    * @return { BunchThread }
    */
-  async emit () {
+  async emit(): Promise<BunchThread> {
     if (this.paramList && this.paramList.length) {
       const max = this.paramList.length
       for (let i = 0; i < max; i++) {
-        const param = this.paramList[i]
-        const task = async () => {
+        const param: any = this.paramList[i]
+        const task: Task = async () => {
           await this.taskEntity(param, i)
+          return Promise.resolve()
         }
         task.id = i
         this.taskQueue.push(task)
@@ -54,7 +61,7 @@ class BunchThread {
         }
       }
     }
-    return this
+    return Promise.resolve(this)
   }
 
   /**
@@ -62,13 +69,13 @@ class BunchThread {
    * @param { Function } $$task
    * @return { BunchThread }
    */
-   taskCalling ($$task) {
+  taskCalling($$task: Task): BunchThread {
     if (this.taskLiving >= this.limit) {
       this.taskQueue.push($$task)
     } else {
       this._thread($$task)
     }
-    this.taskLiving ++
+    this.taskLiving++
     return this
   }
 
@@ -77,20 +84,20 @@ class BunchThread {
    * @param { Function } callback
    * @return { BunchThread }
    */
-  finally (callback) {
+  finally(callback: Function): BunchThread {
     this.endCallback = callback
     return this
   }
 
-  async _taskNormalConsume () {
+  async _taskNormalConsume() {
     if (this.taskQueue.length) {
-      const task = this.taskQueue.shift()
+      const task: Task = <Task>this.taskQueue.shift()
       await task()
       this._livingIdReduce(task)
     }
   }
 
-  _livingIdReduce (task) {
+  _livingIdReduce(task: Task) {
     const idIndex = this.taskLivingIds.indexOf(task.id)
     this.taskLivingIds.splice(idIndex, 1)
     this.consumedIds.push(task.id)
@@ -99,18 +106,18 @@ class BunchThread {
     }
   }
 
-  _waitConsumeUnderLimit () {
+  _waitConsumeUnderLimit(): Promise<any> {
     return new Promise((resolve, reject) => {
       return this._consumeLoop(resolve)
     })
   }
 
-  async _consumeLoop (resolve) {
+  async _consumeLoop(resolve: Function): Promise<any> {
     if (this.taskLivingIds.length < this.limit) {
       return resolve()
     } else {
       if (this.taskQueue.length) {
-        const task = this.taskQueue.shift()
+        const task: Task = <Task>this.taskQueue.shift()
         await task()
         this._livingIdReduce(task)
         return this._consumeLoop(resolve)
@@ -125,12 +132,12 @@ class BunchThread {
    * @param { Function } $$task
    * @return { Undefined }
    */
-  async _thread ($$task) {
+  async _thread($$task: Task): Promise<any> {
     try {
       await $$task()
     } catch (error) {
       // 报错了不处理，让每个任务注入前自己处理自己的异常
-      console.log(LogTag, '_thread error:', error)
+      console.log(bunch_log_prev, '_thread error:', error)
     }
 
     // 如果是 busy 模式，每个任务执行后需要睡眠指定的时间
@@ -138,9 +145,9 @@ class BunchThread {
     if (global.$onBusyNetwork) {
       await this._sleep(global.$sleepTimes)
     }
-    this.taskLiving --
+    this.taskLiving--
     if (this.taskQueue.length) {
-      return this._thread(this.taskQueue.shift())
+      return this._thread(<Task>this.taskQueue.shift())
     } else {
       if (this.taskLiving <= 0) {
         this.taskLiving = 0
@@ -149,8 +156,8 @@ class BunchThread {
     }
   }
 
-  _sleep (time) {
-    return new Promise((s, j) => { 
+  _sleep(time: number): Promise<any> {
+    return new Promise((s, j) => {
       setTimeout(s, time)
     })
   }
@@ -158,11 +165,12 @@ class BunchThread {
 
 function test () {
   const bunch = new BunchThread(1)
-  bunch.register(new Array(100).fill(1), (item, i) => {
-    return new Promise((s, j) => {
+  const temps: any[] = new Array(100).fill(1)
+  bunch.register(temps, (item, i) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         console.log(i)
-        s()
+        return resolve('')
       }, Math.random() * 3000)
     })
   })
@@ -175,5 +183,3 @@ if (!global.$env) {
   global.$onBusyNetwork = false
   test()
 }
-
-module.exports = BunchThread
