@@ -8,8 +8,8 @@
  * @template diffrence([{ a: 1}, { b: 2 }], { a: 1 }) => [{ b: 2 }]
  * @template diffrence([{ a: 1}, { b: 2 }, { c: 3 }], [{ a: 1 }, { b: 2 }]) => [{ c: 3 }]
  */
-const { isArray, isObject, isString, isNumber } = require('./assert')
-module.exports = function diffrence (src, eliminateItems) {
+import { isArray, isObject, isString, isNumber } from './assert'
+export default function diffrence (src: any, eliminateItems: any): any | null {
   if (isString(eliminateItems) || isNumber(eliminateItems)) eliminateItems = [eliminateItems]
   if (isArray(src) && isObject(eliminateItems)) eliminateItems = [eliminateItems]
 
@@ -17,7 +17,7 @@ module.exports = function diffrence (src, eliminateItems) {
   if (isArray(src) && !isArray(eliminateItems)) return src
   if (isObject(src) && !isObject(eliminateItems)) return src
 
-  let result = null
+  let result:any = null
   if (isArray(src)) {
     result = []
     for (let index = 0; index < src.length; index++) {

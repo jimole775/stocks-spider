@@ -1,23 +1,31 @@
-const puppeteer = require('puppeteer')
-const { isCSSUrl, isImgUrl } = require('./assert')
+
+import puppeteer, { Request, Response } from 'puppeteer'
+import { isCSSUrl, isImgUrl } from './assert'
+import { Page } from '../types/common'
+export type RequestCallback = (option: Request) => void
+export type ResponseCallback = (option: Response) => void
 /**
  * 打开一个目标页面，然后探测所有请求
  * @param { Function } requestCallback 请求时的回调
  * @param { Function } responseCallback 响应时的回调
  * @return { Promise[browser.Page] }
  */
-export function initPage(requestCallback: Function, responseCallback: Function): any {
+export default function initPage(requestCallback?: RequestCallback, responseCallback?: ResponseCallback): Promise<Page> {
   return new Promise(async (resolve, reject) => {
-    return loop(requestCallback, responseCallback, resolve, reject)
+    return loop(resolve, reject, requestCallback, responseCallback)
   })
 }
 
-async function loop (requestCallback: Function, responseCallback: Function, resolve: Function, reject: Function) {
+async function loop (
+  resolve: Function, reject: Function,
+  requestCallback?: RequestCallback,
+  responseCallback?: ResponseCallback
+): Promise<any> {
   try {
     const browser = await puppeteer.launch()
-    const page = await browser.newPage()
+    const page: Page = await browser.newPage()
     await page.setRequestInterception(true)
-    page.on('request', (interceptedRequest: { url: () => string; abort: () => void; continue: () => void }) => {
+    page.on('request', (interceptedRequest: Request) => {
       if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
         interceptedRequest.abort()
       } else {
@@ -26,13 +34,13 @@ async function loop (requestCallback: Function, responseCallback: Function, reso
       requestCallback && requestCallback(interceptedRequest)
     })
     if (responseCallback) {
-      page.on('response', (response: any) => {
+      page.on('response', (response: Response) => {
         responseCallback(response)
       })
     }
     return resolve(page)
   } catch (error) {
     console.log(error)
-    return setTimeout(() => { loop(requestCallback, responseCallback, resolve, reject) }, 15)
+    return setTimeout(() => { loop(resolve, reject, requestCallback, responseCallback) }, 15)
   }
 }

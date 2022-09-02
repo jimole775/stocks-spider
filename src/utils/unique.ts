@@ -6,7 +6,7 @@ const { isArray, isObject } = require('./assert')
  * @template unique([1, 2, 3, 3]) => [1, 2, 3]
  * @template unique([{a: 1}, {a: 1}, {b: 2}]) => [{a: 1}, {b: 2}]
  */
-module.exports = function unique (arrays) {
+ export default function unique<T> (arrays: T[]): T[] {
   if (!isArray(arrays)) return arrays
 
   let loopIndex = 0
@@ -18,7 +18,7 @@ module.exports = function unique (arrays) {
   return arrays
 }
 
-function kickout (leftIndex, leftItem, arrays, loopIndex) {
+function kickout (leftIndex: number, leftItem: any, arrays: any[], loopIndex: number): void {
   while(loopIndex > leftIndex) {
     let rightItem = arrays[loopIndex]
     leftItem = isObject(leftItem) ? Object.entries(leftItem).toString() : leftItem

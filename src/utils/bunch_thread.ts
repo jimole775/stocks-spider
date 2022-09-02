@@ -4,7 +4,7 @@ const bunch_log_prev: string = 'utils.BunchThread => '
 /**
  * 并发线程
  */
-export class BunchThread implements BunchThreadInterface {
+export default class BunchThread implements BunchThreadInterface {
   limit: number
   paramList: any[]
   taskQueue: Task[]

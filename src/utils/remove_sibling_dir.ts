@@ -7,12 +7,12 @@ const getPathSeparator = require('./get-path-separator')
  * @param { String } asbFilePath 绝对路径
  * @return { undefined }
  */
-module.exports = function removeSiblingDir(asbFilePath) {
+ export default function removeSiblingDir (asbFilePath: string): void {
   const pathMark = getPathSeparator(asbFilePath)
   const pathArrs = asbFilePath.split(pathMark)
   const targetFlodar = pathArrs.pop()
   const parentDir = pathArrs.join(pathMark)
   const curLevelFlodars = fs.readdirSync(parentDir)
-  const sibilingFlodars = curLevelFlodars.filter(dir => dir !== targetFlodar)
-  sibilingFlodars.forEach(sibFlodar => removeDir(path.join(parentDir, sibFlodar)))
+  const sibilingFlodars = curLevelFlodars.filter((dir: string) => dir !== targetFlodar)
+  sibilingFlodars.forEach((sibFlodar: string) => removeDir(path.join(parentDir, sibFlodar)))
 }

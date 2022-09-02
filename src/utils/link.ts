@@ -1,55 +1,62 @@
-const initPage = require('./init-page')
+import initPage, { RequestCallback, ResponseCallback } from './init_page'
+import { Page } from "../types/common"
+
+export interface LinkInterface {
+
+}
 /**
  * 单线程
  */
-module.exports = class Link {
-  /**
-   * @param { String } url
-   */
-  constructor (url) {
+export default class Link implements LinkInterface {
+  url: string
+  page: Page
+  request: RequestCallback
+  response: ResponseCallback
+  end: Function
+  constructor (url: string) {
     this.url = url
-    this.page = {}
+    this.page = {} as Page
     this.request = () => {}
     this.response = () => {}
     this.end = () => {}
   }
 
-  on ({ request, response, end }) {
-    if (request) this.request = request
-    if (response) this.response = response
-    if (end) this.end = end
+  on (option: { request?: RequestCallback, response?: ResponseCallback, end?: Function }) {
+    if (option.request) this.request = option.request
+    if (option.response) this.response = option.response
+    if (option.end) this.end = option.end
     return this
   }
 
   async emit () {
     this.page = await initPage(this.request, this.response)
-    return new Promise((s, j) => {
-      return this.emitHandler(this.url, s, j)
+    return new Promise((resolve: Function, reject: Function) => {
+      return this.emitHandler(this.url, resolve, reject)
     })
   }
 
-  async emitHandler (url, s, j) {
+  async emitHandler (url: string, resolve: Function, reject: Function): Promise<void> {
     try {
       await this.page.goto(url, { timeout: 0 })
       await this.shutdownPage()
-      return s()
+      return resolve()
     } catch (error) {
       console.log(error)
-      return this.emitHandler (url, s, j)
+      return this.emitHandler (url, resolve, reject)
     }
   }
 
   shutdownPage () {
-    return new Promise((s, j) => {
-     return this.shutdownHandler(s, j)
+    return new Promise((resolve, reject) => {
+     return this.shutdownHandler(resolve, reject)
     })
   }
 
-  async shutdownHandler (s, j) {
+  async shutdownHandler (resolve: Function, reject: Function): Promise<any> {
     try {
-      return s(await this.page.close())
+      return resolve(await this.page.close())
     } catch (error) {
-      return setTimeout(() => this.shutdownHandler(s, j), 15)
+      return setTimeout(() => this.shutdownHandler(resolve, reject), 15)
     }
   }
 }

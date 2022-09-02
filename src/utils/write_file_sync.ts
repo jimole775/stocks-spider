@@ -10,7 +10,7 @@ const { isArray, isObject } = require('./assert')
  * @template writeFileSync('xxx/xxx.xx', [...])
  * @template writeFileSync('xxx/xxx.xx', {...})
  */
-module.exports = function writeFileSync(asbFilePath, data) {
+ export default function writeFileSync (asbFilePath: string, data: any): void {
   try {
     buildPath(asbFilePath)
     if (isArray(data) || isObject(data)) {

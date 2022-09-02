@@ -5,7 +5,7 @@ const fs = require('fs')
  * @param { String } recordDir 目录下的文件，必须确保能取到【股票代码】
  * @return { Array<String> } 
  */
-module.exports = function hasRefreshLinks(links, recordDir) {
+export default function hasRefreshLinks(links: string[], recordDir: string[]): string[] {
   const files = fs.readdirSync(recordDir)
   if (files.length === 0) return []
   if (links.length === 0) return []
@@ -30,7 +30,7 @@ module.exports = function hasRefreshLinks(links, recordDir) {
  * @param { Array<String> } expireFiles
  * @return { Array<String> }
  */
-function matchURL(links, expireFiles) {
+function matchURL(links: string[], expireFiles: string[]): string[] {
   const refreshLinks = []
   let l = links.length
   while (l--) {

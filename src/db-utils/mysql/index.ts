@@ -1,11 +1,12 @@
-const mysql = require('mysql')
-const assert = require('../../utils/assert')
-import { MysqlInterface, QueryMethod } from '../../interfaces/mysql.if'
+import mysql, { Connection } from 'mysql'
+import { isDate } from '../../utils/assert'
+import { MysqlPrototype, QueryMethod } from '../../interfaces/mysql.if'
 
 type Callback = (result: string) => any
 type Sqlmap = { [key: string]: number | string }
-class Mysql implements MysqlInterface {
-  connection: typeof mysql
+
+export default class Mysql implements MysqlPrototype {
+  connection: Connection
   create: QueryMethod = create.bind(this)
   insert: QueryMethod = insert.bind(this)
   del : QueryMethod= del.bind(this)
@@ -23,7 +24,6 @@ class Mysql implements MysqlInterface {
     this.connection.connect()
     this.connection.query(`CREATE DATABASE IF NOT EXISTS ${option.database};`)
     this.connection.query(`USE ${option.database};`)
-    return this
   }
 }
 
@@ -69,7 +69,7 @@ function query (table: string, map: Sqlmap, callback: Callback): Promise<string>
   Object.entries(map).forEach(entries => {
     const key = entries[0]
     const value = entries[1]
-    if (assert.isDate(value)) {
+    if (isDate(value)) {
       if (/start/.test(key)) {
         const startKey = key.replace(/start/, '').replace(/^\w/, (a) => a.toLocaleLowerCase())
         query.push(`${startKey}>='${value}'`)
@@ -126,12 +126,12 @@ function custom (table: string, sql: string, callback: Callback):Promise<string>
   return handResult(sql, callback)
 }
 
-function disconnect (callback: () => any):Promise<string> {
+function disconnect (callback: () => any):Promise<void> {
   return new Promise(function (this: Mysql, resolve, reject) {
-    this.connection.end(function(err: string) {
+    this.connection.end((err: any) => {
       if (err) return reject(err)
       if (callback) callback()
-      return resolve('')
+      return resolve()
     })
   })
 }
@@ -163,4 +163,3 @@ function handResult (sql: string, callback: Callback): Promise<string> {
   })
 }
 
-export default Mysql

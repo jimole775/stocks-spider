@@ -1,7 +1,8 @@
 const http = require('http')
 const assert = require('./assert')
 const superagent = require('superagent')
-const getPathSeparator = require('./get-path-separator')
+import { CustomObject, StockResponse, StringObject } from '../types/common'
+// const getPathSeparator = require('./get-path-separator')
 /**
  * 伪造随机IP进行接口访问
  * @param { String } url
@@ -9,11 +10,11 @@ const getPathSeparator = require('./get-path-separator')
  * @return { String } 一般以JSON字符串的形式返回数据
  * @template quest('http://xxxxx/xx?xxxx', { method: 'post' }) => '{"message":"success"}'
  */
-module.exports = function quest(url, params = {}) {
+export default function quest(url: string, params: { header?: StringObject }): Promise<StockResponse> {
   const { header = {} } = params
   header['X-Forwarded-For'] = randomIP()
   return new Promise(async (resolve, reject) => {
-    let response = {}
+    let response: StockResponse = {code: 500, data: '', message: ''}
     try {
       if (/event-stream/.test(header['Content-Type'])) {
         response = await eventEmitter(url, params)
@@ -31,7 +32,7 @@ module.exports = function quest(url, params = {}) {
   })
 }
 
-function jsonHandler (response) {
+function jsonHandler (response: CustomObject): string {
   let correctData = ''
   if (response.body) {
     if (assert.isObject(response.body) && !assert.isEmptyObject(response.body)) {
@@ -65,23 +66,11 @@ function jsonHandler (response) {
   return correctData
 }
 
-// function questType (url) {
-//   if (/\?/.test(url)) {
-//     url = url.split('?').shift()
-//   }
-//   const pathSeparator = getPathSeparator(url)
-//   if (url.split(pathSeparator).pop().includes('.')) {
-//     return 'file'
-//   } else {
-//     return 'json'
-//   }
-// }
-
-function jsonEmitter (url, { method = 'GET', data = {}, header = {} }) {
+function jsonEmitter (url: string, { method = 'GET', data = {}, header = {} }): Promise<StockResponse> {
   return new Promise((resolve, reject) => {
     try {
       if (method === 'POST') {
-        superagent.post(url).send(data).set(header).then((res) => {
+        superagent.post(url).send(data).set(header).then((res: CustomObject) => {
           resolve({
             code: res.status,
             data: jsonHandler(res),
@@ -89,7 +78,7 @@ function jsonEmitter (url, { method = 'GET', data = {}, header = {} }) {
           })
         })
       } else {
-        superagent.get(url).set(header).then((res) => {
+        superagent.get(url).set(header).then((res: CustomObject) => {
           resolve({
             code: res.status,
             data: jsonHandler(res),
@@ -97,7 +86,7 @@ function jsonEmitter (url, { method = 'GET', data = {}, header = {} }) {
           })
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       resolve({
         code: 500,
         data: '',
@@ -107,9 +96,9 @@ function jsonEmitter (url, { method = 'GET', data = {}, header = {} }) {
   })
 }
 
-function eventEmitter (url, params) {
+function eventEmitter (url: string, params: CustomObject): Promise<StockResponse> {
   return new Promise((resolve, reject) => {
-    http.get(url, params, (res) => {
+    http.get(url, params, (res: CustomObject) => {
       const finalData = {
         code: res.statusCode,
         data: '',
@@ -118,8 +107,8 @@ function eventEmitter (url, params) {
       if (finalData.code !== 200) {
        return resolve(finalData)
       }
-      res.on('data', (chunk) => {
-        const text = chunkToText(chunk)
+      res.on('data', (chunk: Buffer) => {
+        const text: string = chunkToText(chunk)
         if (params.eventTerminal && params.eventTerminal(text)) {
           res.emit('end')
         } else {
@@ -127,10 +116,10 @@ function eventEmitter (url, params) {
         }
       })
       res.on('end', () => {
-        resolve(finalData)
+        return resolve(finalData)
       })
-    }).on('error', (e) => {
-      resolve({
+    }).on('error', (e: Error) => {
+      return resolve({
         code: 500,
         data: '',
         message: e.message
@@ -139,13 +128,13 @@ function eventEmitter (url, params) {
   })
 }
 
-function randomIP () {
+function randomIP (): string {
   return 124 + "." + 23
   + "." + Math.round(Math.random() * 254)
   + "." + Math.round(Math.random() * 254)
 }
 
-function chunkToText (chunk) {
+function chunkToText (chunk: Buffer): string {
   let text = ''
   if (assert.isString(chunk)) {
     text += chunk

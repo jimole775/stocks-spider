@@ -1,11 +1,13 @@
-import MysqlInterface from '../interfaces/mysql.if'
-declare global {
-  var Mysql: typeof MysqlInterface
+import Mysql from '../db-utils/mysql/index'
+import { TreeObject } from './types/common.d'
+import { Util } from './types/util'
+export declare global {
+  var Mysql: typeof Mysql
   var $env: string
   var $module: string
 
-  var $utils: Object
-  var $urlModel: Object
+  var $utils: Util
+  var $urlModel: TreeObject
 
   var $sleepTimes: number
   var $bunchLimit: number
@@ -28,12 +30,12 @@ declare global {
     netstat: string
   }>
 
-  var $path: Object<{
+  var $path: TreeObject<{
     src: string
     root: string
     utils: string
     db_utils: string
-    db: Object<{
+    db: TreeObject<{
       api: string
       dict: string
       home: string
@@ -42,5 +44,3 @@ declare global {
     }>
   }>
 }
-
-export {}

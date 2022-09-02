@@ -2,20 +2,20 @@
  * 数字转金钱
  * @param { Number | String } number 输入数字
  * @param { Number } decimals 保留的小数位，默认 2
- * @param { Number } decPoint 小数点符号
- * @param { Number } thousandsSep 千分位符号
+ * @param { String } decPoint 小数点符号
+ * @param { String } thousandsSep 千分位符号
  * @return { String }
  * @template toMoney(1234) => '123,4.00'
  * @template toMoney(1234, 3) => '123,4.000'
  */
-module.exports = function toMoney (number, decimals, decPoint, thousandsSep) {
+ export default function toMoney (number: number|string, decimals: number = 2, decPoint: string, thousandsSep: string): string {
   number = (number + '').replace(/[^0-9+-Ee.]/g, '')
   var n = !isFinite(+number) ? 0 : +number
   var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals)
   var sep = (typeof thousandsSep === 'undefined') ? ',' : thousandsSep
   var dec = (typeof decPoint === 'undefined') ? '.' : decPoint
-  var s = ''
-  var toFixedFix = function (n, prec) {
+  var s: string | string[] = ''
+  var toFixedFix = function (n: number, prec: number) {
     var k = Math.pow(10, prec)
     return '' + Math.round(n * k) / k
   }

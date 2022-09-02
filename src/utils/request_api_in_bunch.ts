@@ -1,3 +1,4 @@
+import { StringObject } from "../types/common"
 const allStocks = require(global.$path.db.base_data).data
 const BunchThread = require('./bunch-thread')
 const LogTag = 'utils.requestApiInBunch => '
@@ -8,10 +9,10 @@ const LogTag = 'utils.requestApiInBunch => '
  * @param { Function } task
  * @return { Promise[Array<String>] }
  */
-module.exports = function requestApiInBunch (apikey, apis, task) {
+ export default function requestApiInBunch (apikey: string, apis: string[], task: Function): Promise<string[]> {
   return new Promise((resolve) => {
-    const unLinkStocks = []
-    allStocks.forEach((stockItem) => {
+    const unLinkStocks: object[] = []
+    allStocks.forEach((stockItem: StringObject) => {
       for (let i = 0; i < apis.length; i++) {
         const urlItem = apis[i]
         if (urlItem.includes(stockItem.code) && stockItem[apikey]) {
@@ -29,7 +30,7 @@ module.exports = function requestApiInBunch (apikey, apis, task) {
     // unLinkStocks.forEach((stockItem) => {
     //   bunch.taskCalling()
     // })
-    bunch.register(unLinkStocks, (stockItem) => {
+    bunch.register(unLinkStocks, (stockItem: StringObject): Promise<void> => {
       return new Promise(async (resolve, reject) => {
         try {
           await task(stockItem)

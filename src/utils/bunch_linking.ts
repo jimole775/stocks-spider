@@ -1,4 +1,5 @@
 import { Page } from 'puppeteer'
+import BunchThread from './bunch_thread'
 const initPage = require('./init-page')
 const LogTag = 'utils.BunchLinking => '
 
@@ -10,9 +11,9 @@ export interface BrowserPage extends Page {
  * 并发请求，html类型
  * 主要是访问一个主页，然后从页面上探测所有接口
  */
-export class BunchLinking {
+export default class BunchLinking {
   limitBunch: number
-  bunch: typeof BunchThread
+  bunch: BunchThread
   pages: BrowserPage[]
   urls: string[]
   request: Function

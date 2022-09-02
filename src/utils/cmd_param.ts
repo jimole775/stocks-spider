@@ -1,9 +1,12 @@
-export default function queryParam (getKey?: string) {
-  const res: { [key: string]: string } = {}
-  if (process.argv && process.argv.length) {
-    process.argv.forEach((item) => {
-      if (item && /^\-\-.+/.test(item)) {
-        const [key, value] = item.replace(/\-\-/, '').split('=')
+import { StringObject } from '../types/common';
+
+export default function cmdParam (getKey?: string): StringObject | string {
+  const res: StringObject = {}
+  const argv: string[] = process.argv
+  if (argv && argv.length) {
+    process.argv.forEach((arg: string) => {
+      if (arg && /^\-\-.+/.test(arg)) {
+        const [key, value] = arg.replace(/\-\-/, '').split('=')
         res[key] = value
       }
     })
