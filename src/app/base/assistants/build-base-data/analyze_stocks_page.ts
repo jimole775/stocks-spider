@@ -1,25 +1,24 @@
-
+import { Page } from "puppeteer"
+import { BaseData } from "../../../../types/stock";
 const urlPool = [
   global.$urlModel.page.SHStockList,
   global.$urlModel.page.SZStockList
 ]
 /**
  * 
- * @return [{ code: [String], name: [String], mCode: [String | Number]}]  
  */
-module.exports = function analyzeStocksPage(pageEnity) {
+export default function analyzeStocksPage(pageEnity: Page): Promise<BaseData> {
   return new Promise((resolve) => excutes([], pageEnity, resolve, 0))
 }
 
-async function excutes (allStocks, pageEnity, resolve, loopTimes) {
+async function excutes (allStocks: BaseData, pageEnity: Page, resolve: Function, loopTimes: number): Promise<BaseData> {
   const url = urlPool[loopTimes]
-  console.log('getMarketType', url)
   await pageEnity.goto(url)
   const content = await pageEnity.content().catch()
   if (content.length) {
     const rightContext = queryContent(content)
-    const stockList = spillStockList(rightContext, getMarketType(url))
-    allStocks = allStocks.concat(stockList)
+    const stockList: BaseData = spillStockList(rightContext, getMarketType(url))
+    allStocks = [ ...allStocks, ...stockList]
   }
   if (loopTimes === urlPool.length - 1) {
     await pageEnity.close()
@@ -28,14 +27,14 @@ async function excutes (allStocks, pageEnity, resolve, loopTimes) {
   return excutes(allStocks, pageEnity, resolve, ++loopTimes)
 }
 
-function getMarketType (url) {
+function getMarketType (url: string): string {
   // http://guba.eastmoney.com/remenba.aspx?type=1&tab=1
   // tab:1 上海
   // tab:2 深圳
-  return url.split('tab=').pop()
+  return url.split('tab=').pop() || '0'
 }
 
-function queryContent(htmlStr) {
+function queryContent(htmlStr: string): string[] {
   try {
     // 样例
     // .ngblistul2 <a href="*****600000.html">(600000)浦发银行</a>
@@ -60,12 +59,13 @@ function queryContent(htmlStr) {
     return ulContentSpill.split('</a></li>')
   } catch (error) {
     console.error(error)
+    return []
   }
 }
 
-function spillStockList(stocksTxt, tabType) {
+function spillStockList(stocksTxt: string[], tabType: string): BaseData  {
   let loop = stocksTxt.length
-  let stockModel = []
+  let stockModels: BaseData = []
   while (loop--) {
     let item = stocksTxt[loop]
     let [stockCode, stockName] = item.split(',')
@@ -74,11 +74,11 @@ function spillStockList(stocksTxt, tabType) {
     if (stockCode && stockName) {
       let model = {
         code: stockCode,
-        mCode: tabType,
+        mCode: Number(tabType),
         name: stockName
       }
-      stockModel.push(model)
+      stockModels.push(model)
     }
   }
-  return stockModel
+  return stockModels
 }

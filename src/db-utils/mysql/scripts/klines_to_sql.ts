@@ -1,3 +1,5 @@
+import Mysql from '..'
+import { TextKlineModel } from '../../../types/stock'
 require(`../../../global.config.js`)().then(() => {
   // const Mysql = require(`${global.db_utils}/mysql/index.js`)
   const db_config = require(`${global.$path.root}/db_config.json`)
@@ -9,12 +11,12 @@ require(`../../../global.config.js`)().then(() => {
   const connect_klines = new StockConnect('klines')
   const connect_frKlines = new StockConnect('fr-klines')
 
-  connect_klines.on('data', async (klineData, stock, date) => {
+  connect_klines.on('data', async (klineData: TextKlineModel, stock: string, date: string) => {
     await mysql_klines.create('daily_' + stock, ddl)
     dataHandler(mysql_klines, klineData, stock, date)
     return Promise.resolve()
   })
-  connect_frKlines.on('data', async (klineData, stock, date) => {
+  connect_frKlines.on('data', async (klineData: TextKlineModel, stock: string, date: string) => {
     await mysql_frKlines.create('daily_' + stock, ddl)
     dataHandler(mysql_frKlines, klineData, stock, date)
     return Promise.resolve()
@@ -24,7 +26,7 @@ require(`../../../global.config.js`)().then(() => {
   connect_frKlines.emit()
 })
 
-function dataHandler (mysql, klineData, stock, date) {
+function dataHandler (mysql: Mysql, klineData: TextKlineModel, stock: string, date: string) {
   // "code": "000001",
   // "market": 0,
   // "name": "paxh",
@@ -40,8 +42,8 @@ function dataHandler (mysql, klineData, stock, date) {
   klines.forEach((kline) => {
     // * "日期，开盘价，收盘价，最高价，最低价，量，价，振幅"
     const [ date, start_price, end_price, highest_price, lowest_price, volumn, amount, divid_rate ] = kline.split(',')
-    const record = { date, start_price, end_price, highest_price, lowest_price, volumn: volumn * 100, amount, divid_rate, market }
-    mysql.insert(tableName, record)
+    const record = { date, start_price, end_price, highest_price, lowest_price, volumn: Number(volumn) * 100, amount, divid_rate, market }
+    // mysql.insert(tableName, record)
   })
-  mysql.finish()
+  // mysql.finish()
 }

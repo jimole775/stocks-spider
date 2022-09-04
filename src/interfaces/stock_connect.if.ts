@@ -1,7 +1,6 @@
 import BunchThread from '../utils/bunch_thread'
 import StockConnect from '../utils/stock_connect'
-import { TextDealModel } from '../types/stock'
-export type DataEventReceiver = (dealData: TextDealModel, stock: string, date: string) => Promise<any>
+export type DataEventReceiver = (dealData: any, stock: string, date: string) => Promise<any>
 export type EndEventReceiver = () => Promise<any>
 export type OnEvent = (option:{ data: DataEventReceiver, end: EndEventReceiver }, callback: Function) => StockConnect
 export type EmitEvent = () => Promise<any>

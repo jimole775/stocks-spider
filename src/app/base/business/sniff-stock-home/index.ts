@@ -4,15 +4,36 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const querystring = require('querystring')
+// const querystring = require('querystring')
+
+import { RecordItem, KlineApiStore, DealApiStore, StockStoreModel, UrlModel } from "../../../../types/stock"
+
 const {
   BunchLinking, hasUnlinked,
   recordUsedApi, requestApiInBunch
 } = global.$utils
 
-const urlModel = global.$urlModel
+const urlModel: UrlModel = global.$urlModel
 
-const business = {
+enum ApiCategroy {
+  code = 'klineApi',
+  quote = 'quoteApi',
+  name = 'quoteApi',
+  klineApi = 'quoteApi',
+  dealApi = 'quoteApi'
+}
+
+type Test = ['code', 'mCode', 'name', 'klineApi', 'dealApi']
+
+type BusinessItem = {
+  reg: RegExp
+  api: keyof StockStoreModel
+  dataPath: string
+  record: Function
+  decompose: Function
+}
+
+const business: {[key: string]: BusinessItem} = {
   kline: {
     api: 'klineApi',
     decompose: require(`./klines/uri`).decompose,
@@ -34,35 +55,41 @@ const business = {
  * @param {String} chart klines|quote
  * @returns Promise
  */
-module.exports = function sniffStockHome(chart) {
+export default function sniffStockHome(chart: string): Promise<void> {
   return new Promise((resolve) => excution(resolve, chart)).catch(err => err)
 }
 
-async function excution(resolve, chart) {
-  let unlinkedUrls = hasUnlinked(business[chart]['dataPath'], chart)
+async function excution(resolve: Function, chart: string): Promise<void> {
+  let unlinkedUrls: string[] = hasUnlinked(business[chart]['dataPath'], chart)
   console.log(`${chart} unlinkedUrls:`, unlinkedUrls.length)
 
-  if (unlinkedUrls.length === 0) return resolve(0)
+  if (unlinkedUrls.length === 0) return resolve()
 
   // 首先从已存储的api中，直接拉取数据，剩下的再去指定的页面拿剩下的api
-  unlinkedUrls = await requestApiInBunch(business[chart]['api'], unlinkedUrls, async (stockItem) => {
-    try {
-      console.log(chart, stockItem.code)
-      await business[chart]['record'](stockItem[business[chart]['api']])
-      return Promise.resolve()
-    } catch (error) {
-      return Promise.reject()
+  unlinkedUrls = await requestApiInBunch(
+    business[chart]['api'],
+    unlinkedUrls,
+    async (stockItem: StockStoreModel) => {
+      try {
+        console.log(chart, stockItem.code)
+        const apiType: keyof StockStoreModel = business[chart]['api']
+        const recordItem = stockItem[apiType]
+        await business[chart]['record'](recordItem)
+        return Promise.resolve()
+      } catch (error) {
+        return Promise.reject()
+      }
     }
-  })
+  )
 
   console.log(`remain ${chart} unlinkedUrls:`, unlinkedUrls.length)
-  if (unlinkedUrls.length === 0) return resolve(0)
+  if (unlinkedUrls.length === 0) return resolve()
 
   // 如果 allStocks 中没有足够的link，就跑 sniffUrlFromWeb
   const doneApiMap = await sniffUrlFromWeb(unlinkedUrls, chart)
 
   // 把api存起来
-  await recordUsedApi(apiMap[chart], doneApiMap)
+  await recordUsedApi(chart, doneApiMap)
 
   return resolve()
 }

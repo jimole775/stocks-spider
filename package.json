@@ -31,6 +31,7 @@
     "@babel/register": "^7.8.6",
     "@babel/runtime": "^7.5.5",
     "@types/lodash": "^4.14.184",
+    "@types/moment": "^2.13.0",
     "@types/mysql": "^2.15.21",
     "@types/node": "^18.7.13",
     "@types/puppeteer": "^5.4.6",

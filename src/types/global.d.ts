@@ -1,5 +1,5 @@
 import Mysql from '../db-utils/mysql/index'
-import { TreeObject } from './types/common.d'
+import { UrlModel } from './types/stock'
 import { Util } from './types/util'
 export declare global {
   var Mysql: typeof Mysql
@@ -7,7 +7,7 @@ export declare global {
   var $module: string
 
   var $utils: Util
-  var $urlModel: TreeObject
+  var $urlModel: UrlModel
 
   var $sleepTimes: number
   var $bunchLimit: number

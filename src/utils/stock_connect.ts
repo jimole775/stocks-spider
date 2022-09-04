@@ -1,4 +1,3 @@
-import { StringObject } from '../types/common';
 import {
   StockConnectInterface,
   DataEventReceiver,
@@ -17,13 +16,13 @@ export {
   EventOption
 }
 
-import { TextDealModel } from '../types/stock'
+import { StringObject } from '../types/common';
+import BunchThread from './bunch_thread'
 const path = require('path')
 const readDirSync = require('./read-dir-sync')
 const readFileSync = require('./read-file-sync')
 const diffrence = require('./diffrence')
 const assert = require('./assert')
-const BunchThread = require('./bunch-thread')
 const dict_code_name: StringObject = require(path.join(global.$path.db.dict, 'code-name.json'))
 const dbPath:string = global.$path.db.stocks
 const LogTag:string = 'utils.StockConnect => '
@@ -31,13 +30,10 @@ const LogTag:string = 'utils.StockConnect => '
 /**
  * 读取指定存储目录的stock
  * 当前仅支持目录结构 `${global.path.db.stocks}/${stock}/${targetDir}/${date}`
- * @param { Array } dict
- * @param { Object } ignoreObject
- * @return { Promise }
  */
 export default class StockConnect implements StockConnectInterface {
-  bunch = new BunchThread(1)
-  targetDir = ''
+  bunch: BunchThread = new BunchThread(1)
+  targetDir: string = ''
   ignoreCodes: string[] = []
   ignoreDates: string[] = []
   stockCodes: string[] = []
@@ -99,8 +95,8 @@ async function emit (this: StockConnect): Promise<any> {
 
     for (let j = 0; j < dateFiles.length; j++) {
       const dateFile:string = dateFiles[j]
-      const fileData: TextDealModel = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
-      const params:[TextDealModel, string, string] = [fileData, code, dateFile.split('.').shift() as string]
+      const fileData: any = readFileSync(path.join(dbPath, code, this.targetDir, dateFile))
+      const params:[any, string, string] = [fileData, code, dateFile.split('.').shift() as string]
       await this.dataEventReceiver.apply(this, params)
     }
   }

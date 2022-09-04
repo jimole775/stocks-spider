@@ -4,30 +4,31 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:26
  */
-const puppeteer = require('puppeteer')
-const analyzeStocksPage = require('./analyze-stocks-page')
-const moment = require('moment')
+import moment from 'moment'
+import puppeteer, { Page } from 'puppeteer'
+import analyzeStocksPage from './analyze_stocks_page'
+import { BaseDataStructure, BaseData } from '../../../../types/stock'
 const { readFileSync, writeFileSync } = global.$utils
 
-module.exports = function buildBaseData () {
+export default function buildBaseData (): Promise<BaseDataStructure> {
   return new Promise(excutes)
 }
 
-async function excutes (resolve, reject) {
-  let alreadyData = readFileSync(global.$path.db.base_data, 'utf8')
-  const expired = hasExpired(alreadyData)
+async function excutes (resolve: Function, reject: Function) {
+  const alreadyData: BaseDataStructure = readFileSync(global.$path.db.base_data, 'utf8')
+  const expired: boolean = hasExpired(alreadyData)
   // 数据没过期，就使用已有的数据
   if (!expired) return resolve()
   // 数据过期了，就重新爬取
   try {
     const browser = await puppeteer.launch().catch()
-    const pageEnity = await browser.newPage().catch()
-    const allStocks = await analyzeStocksPage(pageEnity)
-    const baseData = {
+    const pageEnity: Page = await browser.newPage().catch()
+    const allStocks: BaseData = await analyzeStocksPage(pageEnity)
+    const baseData: BaseDataStructure = {
       date: new Date().getTime(),
       // 我们刷新数据，最多就是为了刷新name这个字段（很多股票ST后，名字会变）
       // 其他一些数据需要保留，类似“dealApi”之类的
-      data: alreadyData ? merge(alreadyData, allStocks) : JSON.stringify(allStocks)
+      data: alreadyData ? merge(alreadyData, allStocks) : allStocks
     }
     writeFileSync(global.$path.db.base_data, baseData)
     return resolve(baseData)
@@ -37,8 +38,8 @@ async function excutes (resolve, reject) {
   }
 }
 
-function merge (alreadyData, newItems) {
-  const res = []
+function merge (alreadyData: BaseDataStructure, newItems: BaseData): BaseData {
+  const res: BaseData = []
   alreadyData.data.forEach((oldItem) => {
     for (let j = 0; j < newItems.length; j++) {
       const newItem = newItems[j]
@@ -55,7 +56,7 @@ function merge (alreadyData, newItems) {
   return res.concat(newItems)
 }
 
-function hasExpired (alreadyData) {
+function hasExpired (alreadyData: BaseDataStructure): boolean {
   // 数据库没有原始数据，就当作过期处理
   if (!alreadyData) return true
   let expired = false
@@ -68,6 +69,6 @@ function hasExpired (alreadyData) {
   return expired
 }
 
-function isOverOneDay (alreadyDate) {
+function isOverOneDay (alreadyDate: number): boolean {
   return new Date().getTime() - new Date(alreadyDate).getTime() >= 24 * 60 * 60 * 1000
 }

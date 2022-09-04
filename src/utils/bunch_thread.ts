@@ -1,5 +1,5 @@
 import { BunchThreadInterface, Task, TaskEntity } from '../interfaces/bunch_thread.if'
-export { BunchThreadInterface, Task, TaskEntity } from '../interfaces/bunch_thread.if'
+export * from '../interfaces/bunch_thread.if'
 const bunch_log_prev: string = 'utils.BunchThread => '
 /**
  * 并发线程
