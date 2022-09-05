@@ -1,5 +1,5 @@
-const fs = require('fs')
-const path = require('path')
+import path from 'path'
+import { TextKlineModel } from '../../../types/stock';
 const dailyRoot = `fr-klines/daily`
 // const weekRoot = `klines/week`
 // const monthRoot = `klines/month`
@@ -7,17 +7,10 @@ const writeDir = `lowerpoint` // `/api/lowerpoint/${date}`
 // "2020-07-21,26.18,28.01,32.02,26.17,24354359,70439577904.00,22.38"
 // 日期，开盘价，收盘价，最高价，最低价，成交量（手），成交额（元），振幅
 const { rangeEqual, writeFileSync, readDirSync, StockConnect } = global.$utils
-module.exports = function lowerpoint() {
-  // connectStock(dailyRoot, (fileData, stock, date) => {
-  //   if (!fileData || !fileData.klines) return false
-  //   const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
-  //   if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
-  //     writeFileSync(path.join(global.path.db.api, writeDir, date, stock + '.json'), { avg01, avg05, avg10, avg20, avg30, avg60 })
-  //   }
-  // })
+export default function lowerpoint() {
   return new Promise((resolve, reject) => {
     const connect = new StockConnect(dailyRoot)
-    connect.on('data', (fileData, stock, date) => {
+    connect.on('data', (fileData: TextKlineModel, stock: string, date: string) => {
       if (!fileData || !fileData.klines) return false
       const [ avg01, avg05, avg10, avg20, avg30, avg60 ] = calculate(fileData)
       if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30 && avg30 < avg60) {
@@ -31,20 +24,10 @@ module.exports = function lowerpoint() {
   })
 }
 
-// test()
-// function test () {
-//   const fileData = fs.readFileSync('E:\\py_pro\\stocks-spider\\testdb\\603356\\fr-klines\\daily\\2020-07-23.json')
-//   if (!fileData) return
-//   const [avg01, avg05, avg10, avg20, avg30] = calculate(JSON.parse(fileData))
-//   console.log(avg01, avg05, avg10, avg20, avg30)
-//   if (avg01 < avg05 && avg05 < avg10 && avg10 < avg20 && avg20 < avg30) {
-//     fs.writeFileSync(path.join('123456.json'), JSON.stringify({ avg01, avg05, avg10, avg20, avg30 }))
-//   }
-// }
-
-function calculate({ klines }) {
+function calculate({ klines }: TextKlineModel) {
   let endIndex = klines.length - 1
-  let [x, xx, avg01] = klines[endIndex].split(',')
+  let [x, xx, endAvg] = klines[endIndex].split(',')
+  let avg01 = Number(endAvg)
   let avg05 = 0
   let avg10 = 0
   let avg20 = 0
@@ -70,7 +53,7 @@ function calculate({ klines }) {
     const [date, open, close] = klines[index].split(',')
     avg60 += Number.parseFloat(close)
   }
-  
+
   return [
     Number.parseFloat((avg01/1).toFixed(2)),
     Number.parseFloat((avg05/5).toFixed(2)),

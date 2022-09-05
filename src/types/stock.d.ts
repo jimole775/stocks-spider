@@ -3,6 +3,8 @@ export enum StockMarket {
   ShangHai = 1,
 }
 
+export type TextDealModelPeerRecord = { t: number, p: number, v: number, bs: number }
+
 /**
  * 以http/json类型的方式访问获取的数据类型
  */
@@ -10,11 +12,11 @@ export type TextDealModelFromJson = {
   c: string // code
   m: StockMarket // market 0: 1:
   n: string // name
-  dt: number // dt = 0
+  dt?: number // dt = 0
   ct: number
-  cp: number
   tc: number
-  data: { t: number, p: number, v: number, bs: number }[]
+  data: TextDealModelPeerRecord[]
+  cp: number // 开盘价
   hp: number // 当日最高价
   dp: number // 当日最低价
   ep: number // 当日收盘价
@@ -29,7 +31,8 @@ export type TextDealModelFromStream = {
   decimal: number
   prePrice: number
   details: string[]
-  dt: number // dt = 1
+  dt?: number // dt = 1
+  cp: number // 开盘价
   hp: number // 当日最高价
   dp: number // 当日最低价
   ep: number // 当日收盘价
@@ -51,37 +54,30 @@ export type SQLDealModel = {
 }
 
 export type TextKlineModel = {
-  code: string,
-  market: StockMarket,
-  name: string,
-  decimal: number,
-  dktotal: number,
+  code: string
+  market: StockMarket
+  name: string
+  decimal: number
+  dktotal: number
   klines: string[]
 }
 
-export type DealApiStore = {
-  _: string
-  cb: string
-  ut: string
-  secid: string
+export type ApiStore = {
+  _?: string
+  id?: string
+  secid?: string
+  code?: string
+  dt?: number
+  cb?: string
+  ut?: string
 }
-
-export type KlineApiStore = {
-  _: string
-  ut: string
-  cb: string
-  id: string
-  dt: number
-}
-
-export type RecordItem = DealApiStore | KlineApiStore
 
 export type StockStoreModel = {
-  code: string,
-  mCode: StockMarket,
-  name: string, 
-  klineApi?: KlineApiStore,
-  dealApi?: DealApiStore
+  code: string
+  name: string
+  mCode: StockMarket
+  dealApi?: ApiStore
+  klineApi?: ApiStore
 }
 
 export type BaseData = StockStoreModel[]

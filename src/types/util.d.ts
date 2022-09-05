@@ -2,8 +2,9 @@ import BunchLinking from '../utils/bunch_linking'
 import BunchThread from '../utils/bunch_thread'
 import StockConnect from '../utils/stock_connect'
 import Link from '../utils/link'
+import { QuestResponse } from '../utils/quest'
 import { RequestCallback, ResponseCallback } from '../utils/init_page'
-import { StringObject, StockResponse } from './common.d'
+import { StringObject } from './common.d'
 
 export type Util = {
   Link: Link
@@ -18,7 +19,7 @@ export type Util = {
   hasRefreshLinks: (links: string[], recordDir: string[]) => string[]
   hasUnlinked: (dataPath: string, chart: string) => string[]
   initPage: (requestCallback?: RequestCallback, responseCallback?: ResponseCallback) => Promise<Page>
-  quest: (url: string, params: { header?: StringObject }) => Promise<StockResponse>
+  quest: (url: string, params: { header?: StringObject }) => Promise<QuestResponse>
   readDirSync: (dir: fs.PathLike) => string[]
   readFileSync: (filePath: string) => any
   recordUsedApi: (apiKey: string, apiMap: StringObject) => Promise<void>

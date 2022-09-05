@@ -1,10 +1,10 @@
-import { DealApiStore, KlineApiStore } from '../../../../../types/stock';
+import { ApiStore } from '../../../../../types/stock';
 const path = require(`path`)
-const uri = require(`./uri`)
+import { spill } from './uri'
 const { quest, writeFileSync } = global.$utils
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const dataPath = `quotes/${global.$finalDealDate}.json`
-export default async function recordQuotes (recordItem: KlineApiStore | DealApiStore) {
+export default async function recordQuotes (recordItem: ApiStore) {
   return new Promise((resolve, reject) => executes(recordItem, resolve, reject, 0))
 }
 
@@ -16,7 +16,7 @@ export default async function recordQuotes (recordItem: KlineApiStore | DealApiS
  * @param {Number} loopTimes 递归次数
  * @returns Promise.resolve
  */
-async function executes (recordItem, resolve, reject, loopTimes) {
+async function executes (recordItem: ApiStore, resolve: Function, reject: Function, loopTimes: number): Promise<any> {
   try {
     await handleRecord(recordItem)
     return resolve()
@@ -27,9 +27,9 @@ async function executes (recordItem, resolve, reject, loopTimes) {
   }
 }
 
-async function handleRecord (recordItem) {
-  const { stock, api } = uri.spill({ ...recordItem })
-  const file = path.join(global.$path.db.stocks, stock, dataPath)
+async function handleRecord (recordItem: ApiStore) {
+  const { code, api } = spill({ ...recordItem })
+  const file = path.join(global.$path.db.stocks, code, dataPath)
   const dirtyData = await quest(api) // 'jquey_123456({"data":{"klines":[]}});'
   const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))
   writeFileSync(file, pureData.data ? pureData.data : {})

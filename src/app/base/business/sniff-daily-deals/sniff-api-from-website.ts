@@ -1,7 +1,9 @@
+import { ApiStore } from '../../../../types/stock';
+import { BunchLinkingResponse } from '../../../../utils/bunch_linking';
 
-const querystring = require('querystring')
-const recordDeals = require('./record-deals')
-const recordDeals1 = require('./record-deals1')
+import querystring from 'querystring'
+import recordDeals from './record-deals'
+import recordDeals1 from './record-deals1'
 const { BunchLinking, hasUnlinked } = global.$utils
 const urlModel = global.$urlModel
 const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
@@ -11,19 +13,19 @@ const dataPath = `deals/${global.$finalDealDate}.json`
  * 从交易详情主页中嗅探 api
  * @param { Array<String> } dealsURLs deals交易详情主页的地址
  */
-module.exports = async function sniffApiFromWebSite (dealsURLs) {
-  const doneApiMap = {}
+export default async function sniffApiFromWebSite (dealsURLs: string[]): Promise<any> {
+  const doneApiMap: {[key: string]: ApiStore } = {}
   const bunchLinking = new BunchLinking(dealsURLs)
   await bunchLinking.on({
-    response: async function (response) {
+    response: async function (response: BunchLinkingResponse) {
       const api = response.url()
       if (response.status() === 200) {
         if (peerDealReg.test(api)) {
-          const { code, ut, cb, id } = dealAnalyze(api)
+          const { code = '', ut, cb, id } = dealAnalyze(api)
           doneApiMap[code] = { ut, cb, id, dt: 0 }
           recordDeals({ ut, cb, id })
         } else if (peerDealReg1.test(api)) {
-          const { code, secid, id } = dealAnalyze(api)
+          const { code = '', secid, id } = dealAnalyze(api)
           doneApiMap[code] = { secid, dt: 1 }
           recordDeals1({ secid })
         }
@@ -38,15 +40,15 @@ module.exports = async function sniffApiFromWebSite (dealsURLs) {
   return Promise.resolve(doneApiMap)
 }
 
-function dealAnalyze (api) {
+function dealAnalyze (api: string): ApiStore {
   // ut:'7eea3edcaed734bea9cbfc24409ed989'
   // cb:'jQuery112308687412063259543_1592944461518'
   // id:6039991
   const [host, query] = api.split('?')
-  const queryObj = querystring.decode(query)
+  const queryObj: ApiStore = querystring.decode(query)
   const code = queryObj.code
   const code1 = queryObj.secid && queryObj.secid.split('.').pop()
-  const code2 = queryObj.id && queryObj.id.substring(0, id.length - 1)
+  const code2 = queryObj.id && queryObj.id.substring(0, queryObj.id.length - 1)
   return {
     ut: queryObj.ut,
     cb: queryObj.cb,

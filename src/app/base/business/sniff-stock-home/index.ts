@@ -6,28 +6,20 @@
  */
 // const querystring = require('querystring')
 
-import { RecordItem, KlineApiStore, DealApiStore, StockStoreModel, UrlModel } from "../../../../types/stock"
-
+import { StockStoreModel, UrlModel } from "../../../../types/stock"
+import { decompose as quotesDecompose } from './quotes/uri'
+import { decompose as klinesDecompose } from './klines/uri'
+import { StringObject } from '../../../../types/common';
 const {
-  BunchLinking, hasUnlinked,
+  BunchLinking, BunchLinkingResponse, hasUnlinked,
   recordUsedApi, requestApiInBunch
 } = global.$utils
 
 const urlModel: UrlModel = global.$urlModel
 
-enum ApiCategroy {
-  code = 'klineApi',
-  quote = 'quoteApi',
-  name = 'quoteApi',
-  klineApi = 'quoteApi',
-  dealApi = 'quoteApi'
-}
-
-type Test = ['code', 'mCode', 'name', 'klineApi', 'dealApi']
-
 type BusinessItem = {
   reg: RegExp
-  api: keyof StockStoreModel
+  api: string
   dataPath: string
   record: Function
   decompose: Function
@@ -36,14 +28,14 @@ type BusinessItem = {
 const business: {[key: string]: BusinessItem} = {
   kline: {
     api: 'klineApi',
-    decompose: require(`./klines/uri`).decompose,
+    decompose: klinesDecompose,
     dataPath: `fr-klines/daily/${global.$finalDealDate}.json`,
     record: require(`./klines/record`),
     reg: new RegExp(urlModel.api.dailyKlineReg, 'ig')
   },
   quote: {
     api: 'quoteApi',
-    decompose: require(`./quotes/uri`).decompose,
+    decompose: quotesDecompose,
     dataPath: `quotes/${global.$finalDealDate}.json`,
     record: require(`./quotes/record`),
     reg: new RegExp(urlModel.api.quoteReg, 'ig')
@@ -55,8 +47,8 @@ const business: {[key: string]: BusinessItem} = {
  * @param {String} chart klines|quote
  * @returns Promise
  */
-export default function sniffStockHome(chart: string): Promise<void> {
-  return new Promise((resolve) => excution(resolve, chart)).catch(err => err)
+export default function sniffStockHome(chart: string): Promise<any> {
+  return new Promise((resolve) => excution(resolve, chart)).catch((err: Error) => err)
 }
 
 async function excution(resolve: Function, chart: string): Promise<void> {
@@ -72,8 +64,8 @@ async function excution(resolve: Function, chart: string): Promise<void> {
     async (stockItem: StockStoreModel) => {
       try {
         console.log(chart, stockItem.code)
-        const apiType: keyof StockStoreModel = business[chart]['api']
-        const recordItem = stockItem[apiType]
+        const apiType = business[chart]['api']
+        const recordItem = stockItem[apiType as keyof StockStoreModel]
         await business[chart]['record'](recordItem)
         return Promise.resolve()
       } catch (error) {
@@ -94,21 +86,21 @@ async function excution(resolve: Function, chart: string): Promise<void> {
   return resolve()
 }
 
-async function sniffUrlFromWeb (unlinkedUrls, chart) {
-  const doneApiMap = {}
+async function sniffUrlFromWeb (unlinkedUrls: string[], chart: string) {
+  const doneApiMap: {[key: string]: any} = {}
   const bus = business[chart]
   const bunchLinking = new BunchLinking(unlinkedUrls)
   await bunchLinking.on({
-    response: async function (response) {
+    response: async function (response: typeof BunchLinkingResponse) {
       const api = response.url()
       if (response.status() === 200) {
         if (bus['reg'].test(api)) {
-          const stockItem = bus['decompose'](api)
-          const stock = stockItem.stock
+          const stockItem: StringObject = bus['decompose'](api)
+          const code = stockItem.code
           // 防止网页中的重复接口
-          if (!doneApiMap[stock]) {
-            console.log('record:', stock)
-            doneApiMap[stock] = stockItem
+          if (!doneApiMap[code]) {
+            console.log('record:', code)
+            doneApiMap[code] = stockItem
             return await bus['record'](stockItem)
           }
         }

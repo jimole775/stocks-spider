@@ -1,8 +1,10 @@
 const http = require('http')
 const assert = require('./assert')
-const superagent = require('superagent')
-import { CustomObject, StockResponse, StringObject } from '../types/common'
-// const getPathSeparator = require('./get-path-separator')
+import superagent,{ Response } from 'superagent'
+import { CustomObject, StringObject } from '../types/common'
+
+export type QuestResponse = {code: number, data: any, message: string}
+
 /**
  * 伪造随机IP进行接口访问
  * @param { String } url
@@ -10,11 +12,11 @@ import { CustomObject, StockResponse, StringObject } from '../types/common'
  * @return { String } 一般以JSON字符串的形式返回数据
  * @template quest('http://xxxxx/xx?xxxx', { method: 'post' }) => '{"message":"success"}'
  */
-export default function quest(url: string, params: { header?: StringObject }): Promise<StockResponse> {
+export default function quest(url: string, params: { header?: StringObject }): Promise<QuestResponse> {
   const { header = {} } = params
   header['X-Forwarded-For'] = randomIP()
   return new Promise(async (resolve, reject) => {
-    let response: StockResponse = {code: 500, data: '', message: ''}
+    let response: QuestResponse = {code: 500, data: '', message: ''}
     try {
       if (/event-stream/.test(header['Content-Type'])) {
         response = await eventEmitter(url, params)
@@ -32,7 +34,37 @@ export default function quest(url: string, params: { header?: StringObject }): P
   })
 }
 
-function jsonHandler (response: CustomObject): string {
+function jsonEmitter (url: string, { method = 'GET', data = {}, header = {} }): Promise<QuestResponse> {
+  return new Promise((resolve, reject) => {
+    try {
+      if (method === 'POST') {
+        superagent.post(url).send(data).set(header).then((res: Response) => {
+          resolve({
+            code: res.status,
+            data: jsonHandler(res),
+            message: 'SUCCESS'
+          })
+        })
+      } else {
+        superagent.get(url).set(header).then((res: Response) => {
+          resolve({
+            code: res.status,
+            data: jsonHandler(res),
+            message: 'SUCCESS'
+          })
+        })
+      }
+    } catch (error: any) {
+      resolve({
+        code: 500,
+        data: '',
+        message: error
+      })
+    }
+  })
+}
+
+function jsonHandler (response: Response): string {
   let correctData = ''
   if (response.body) {
     if (assert.isObject(response.body) && !assert.isEmptyObject(response.body)) {
@@ -66,37 +98,7 @@ function jsonHandler (response: CustomObject): string {
   return correctData
 }
 
-function jsonEmitter (url: string, { method = 'GET', data = {}, header = {} }): Promise<StockResponse> {
-  return new Promise((resolve, reject) => {
-    try {
-      if (method === 'POST') {
-        superagent.post(url).send(data).set(header).then((res: CustomObject) => {
-          resolve({
-            code: res.status,
-            data: jsonHandler(res),
-            message: res.info
-          })
-        })
-      } else {
-        superagent.get(url).set(header).then((res: CustomObject) => {
-          resolve({
-            code: res.status,
-            data: jsonHandler(res),
-            message: res.info
-          })
-        })
-      }
-    } catch (error: any) {
-      resolve({
-        code: 500,
-        data: '',
-        message: error
-      })
-    }
-  })
-}
-
-function eventEmitter (url: string, params: CustomObject): Promise<StockResponse> {
+function eventEmitter (url: string, params: CustomObject): Promise<QuestResponse> {
   return new Promise((resolve, reject) => {
     http.get(url, params, (res: CustomObject) => {
       const finalData = {

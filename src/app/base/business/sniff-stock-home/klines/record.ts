@@ -1,3 +1,4 @@
+import { ApiStore } from '../../../../../types/stock';
 /**
  * "2021-12-02, 17.62, 17.59, 17.81, 17.37, 994798, 1749164560.00, 2.49",
  * "日期，开盘价，收盘价，最高价，最低价，量，价，振幅"
@@ -14,7 +15,7 @@ const fr_dataPath = `/fr-klines/daily/${global.$finalDealDate}.json`
 const fr_dataPath_week = `/fr-klines/week/${global.$finalDealDate}.json`
 const fr_dataPath_month = `/fr-klines/month/${global.$finalDealDate}.json`
 
-module.exports = async function recordKlines ({ secid, cb, ut }) {
+export default async function recordKlines ({ secid, cb, ut }: ApiStore): Promise<void> {
   return new Promise((resolve, reject) => executes({ secid, cb, ut }, resolve, reject, 0))
 }
 
@@ -26,7 +27,7 @@ module.exports = async function recordKlines ({ secid, cb, ut }) {
  * @param {Number} loopTimes 递归次数
  * @returns Promise.resolve
  */
-async function executes (recordItem, resolve, reject, loopTimes) {
+async function executes (recordItem: ApiStore, resolve: Function, reject: Function, loopTimes: number): Promise<any> {
   try {
     await pickKline(recordItem)
     await pickFRKline(recordItem)
@@ -39,7 +40,7 @@ async function executes (recordItem, resolve, reject, loopTimes) {
 }
 
 // http://89.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112403637119003265299_1593112370285&secid=1.603999&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58&klt=101&fqt=0&end=20500101&lmt=120&_=1593112370347
-async function pickKline (recordItem) {
+async function pickKline (recordItem: ApiStore): Promise<void> {
   const { stock, klineApi_daily, klineApi_week, klineApi_month } = uri.spill({ fqt: 0, ...recordItem })
   const file = path.join(global.$path.db.stocks, stock, dataPath)
   // const file_week = path.join(global.$path.db.stocks, stock, dataPath_week)
@@ -50,7 +51,7 @@ async function pickKline (recordItem) {
   return Promise.resolve()
 }
 
-async function pickFRKline (recordItem) {
+async function pickFRKline (recordItem: ApiStore): Promise<void> {
   const { stock, klineApi_daily, klineApi_week, klineApi_month } = uri.spill({ fqt: 1, ...recordItem })
   const file = path.join(global.$path.db.stocks, stock, fr_dataPath)
   // const file_week = path.join(global.$path.db.stocks, stock, fr_dataPath_week)
@@ -61,7 +62,7 @@ async function pickFRKline (recordItem) {
   return Promise.resolve()
 }
 
-async function handleRecord (file, api) {
+async function handleRecord (file: string, api: string): Promise<void> {
   // 修改数据的请求数量
   const dirtyData = await quest(api) // 'jquey_123456({"data":{"klines":[]}});'
   const pureData = JSON.parse(dirtyData.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1'))

@@ -1,3 +1,6 @@
+import { ApiStore, TextDealModelFromJson } from '../../../../types/stock';
+import { QuestResponse } from '../../../../utils';
+
 /**
  * return:
  * [
@@ -14,22 +17,26 @@ const querystring = require('querystring')
 const { writeFileSync, quest } = global.$utils
 const fileModel = `deals/${global.$finalDealDate}.json`
 
-module.exports = async function recordDeals(recordItem) {
+export type DealResponseData = {
+  t: number, p: number, v: number, bs: number
+}
+
+export default async function recordDeals(recordItem: ApiStore): Promise<void> {
   return new Promise((resolve) => excutes(recordItem, resolve, 0))
 }
 
 // http://push2ex.eastmoney.com/getStockFenShi?pagesize=99999&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery112308687412063259543_1592944461518&pageindex=0&id=6039991&sort=1&ft=1&code=603999&market=1&_=1592944461519
-async function excutes (recordItem, resolve, loopTimes) {
+async function excutes (recordItem: ApiStore, resolve: Function, loopTimes: number): Promise<any> {
   const id = (recordItem.id || recordItem.secid) + '' // 保持id为字符串
   const stockCode = id.substring(0, id.length - 1)
   const api = dealApiFactory(recordItem)
   const savePath = path.join(global.$path.db.stocks, stockCode, fileModel)
   try {
-    const res = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
+    const res: QuestResponse = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
     if (res.code === 200) {
       const data = res.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1')
-      const entity = JSON.parse(data)
-      const coreData = createFields(entity.data || {})
+      const dataConstrutor = JSON.parse(data)
+      const coreData = createFields(dataConstrutor.data || {})
       await writeFileSync(savePath, coreData || {})
       console.log('交易详情-存入股票：', stockCode)
       resolve()
@@ -51,11 +58,12 @@ async function excutes (recordItem, resolve, loopTimes) {
 }
 
 // 拼装一些可简单计算的数据，以便调用，不用再通过浏览器爬取
-function createFields (data) {
+function createFields (data: TextDealModelFromJson) {
   let hp = 0 // 当日最高价
   let ep = 0 // 当日收盘价
   let dp = 9999999 // 当日最低价
-  data.data && data.data.forEach((deal) => {
+  const iterationData: DealResponseData [] = data.data || []
+  iterationData.forEach((deal) => {
     if (deal.p > hp) hp = deal.p
     if (deal.p < dp) dp = deal.p
     ep = deal.p
@@ -72,13 +80,13 @@ function createFields (data) {
  * @param {Object|Map} param get类型的参数，这些参数都是预存在base.json里的
  * @return {String}
  */
-function dealApiFactory ({ ut, cb, id }) {
+function dealApiFactory ({ ut, cb, id }: ApiStore): string {
   // id: 股票代码 + 股票市场 6000011
   // cb: jsonp的回调名
   // ut: 用户token
   // _: 时间戳
   id = id + ''
-  const id_market_dict = { 2: 0, 1: 1 }
+  const id_market_dict: {[key: string]: number} = { '2': 0, '1': 1 }
   const market = id_market_dict[id.substring(id.length - 1)]
   const code = id.substring(0, id.length - 1)
   const _ = new Date().getTime()

@@ -4,18 +4,19 @@
  * @Last Modified by: Rongxis
  * @Last Modified time: 2019-08-17 10:43:24
  */
-const recordDeals = require('./record-deals')
-const recordDeals1 = require('./record-deals1')
-const sniffApiFromWebsite = require('./sniff-api-from-website')
+import recordDeals from './record-deals'
+import recordDeals1 from './record-deals1'
+import sniffApiFromWebsite from './sniff-api-from-website'
+import { ApiStore, StockStoreModel } from '../../../../types/stock';
 const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
 
 const dataPath = `deals/${global.$finalDealDate}.json`
 
-module.exports = function sniffDailyDeals() {
+export default function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
 
-async function excution (resolve, reject) {
+async function excution (resolve: Function, reject: Function) {
   // 获取 deals 交易详情主页的地址
   let unlinkedURLs = hasUnlinked(dataPath, 'deal')
 
@@ -24,9 +25,9 @@ async function excution (resolve, reject) {
   console.log('unlink enmure: ', unlinkedURLs[0])
 
   // 从url中筛选出code，再从 baseData 中拿deals的api
-  const neverLinedURLs = await requestApiInBunch('dealApi', unlinkedURLs, async (stockItem) => {
+  const neverLinedURLs = await requestApiInBunch('dealApi', unlinkedURLs, async (stockItem: StockStoreModel) => {
     try {
-      const dealApi = stockItem['dealApi']
+      const dealApi: ApiStore = stockItem['dealApi'] as ApiStore
       if (dealApi && dealApi['dt'] === 0) {
         await recordDeals(dealApi)
       }
