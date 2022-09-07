@@ -11,7 +11,7 @@
  */
 import path from 'path'
 import querystring from 'querystring'
-import { ApiStore } from '../../../../types/stock'
+import { ApiStore } from '@/types/stock'
 const { writeFileSync, quest } = global.$utils
 const fileModel = `deals/${global.$finalDealDate}.json`
 

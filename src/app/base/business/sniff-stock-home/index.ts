@@ -6,14 +6,12 @@
  */
 // const querystring = require('querystring')
 
-import { StockStoreModel, UrlModel } from "../../../../types/stock"
+import { StockStoreModel, UrlModel } from "@/types/stock"
 import { decompose as quotesDecompose } from './quotes/uri'
 import { decompose as klinesDecompose } from './klines/uri'
-import { StringObject } from '../../../../types/common';
-const {
-  BunchLinking, BunchLinkingResponse, hasUnlinked,
-  recordUsedApi, requestApiInBunch
-} = global.$utils
+import { StringObject } from '@/types/common';
+import BunchLinking, { BunchLinkingResponse } from '@/utils/bunch_linking'
+const {hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
 
 const urlModel: UrlModel = global.$urlModel
 
@@ -91,7 +89,7 @@ async function sniffUrlFromWeb (unlinkedUrls: string[], chart: string) {
   const bus = business[chart]
   const bunchLinking = new BunchLinking(unlinkedUrls)
   await bunchLinking.on({
-    response: async function (response: typeof BunchLinkingResponse) {
+    response: async function (response: BunchLinkingResponse) {
       const api = response.url()
       if (response.status() === 200) {
         if (bus['reg'].test(api)) {

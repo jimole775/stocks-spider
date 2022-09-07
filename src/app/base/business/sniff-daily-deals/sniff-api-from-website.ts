@@ -1,5 +1,5 @@
-import { ApiStore } from '../../../../types/stock';
-import { BunchLinkingResponse } from '../../../../utils/bunch_linking';
+import { ApiStore } from '@/types/stock';
+import { BunchLinkingResponse } from '@/utils/bunch_linking';
 
 import querystring from 'querystring'
 import recordDeals from './record-deals'

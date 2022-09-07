@@ -1,10 +1,10 @@
-import { ApiStore } from '../../../../../types/stock';
-const path = require(`path`)
+import path from 'path'
 import { spill } from './uri'
+import { ApiStore } from '@/types/stock'
 const { quest, writeFileSync } = global.$utils
 // 前复权 K线，主要用于计算模型用，因为复权会导致股价巨幅下降，导致数据误差
 const dataPath = `quotes/${global.$finalDealDate}.json`
-export default async function recordQuotes (recordItem: ApiStore) {
+export default async function recordQuotes (recordItem: ApiStore): Promise<void> {
   return new Promise((resolve, reject) => executes(recordItem, resolve, reject, 0))
 }
 

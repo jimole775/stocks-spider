@@ -1,7 +1,7 @@
-const http = require('http')
-const assert = require('./assert')
+import http from 'http'
+import * as assert from './assert'
 import superagent,{ Response } from 'superagent'
-import { CustomObject, StringObject } from '../types/common'
+import { CustomObject } from '@/types/common'
 
 export type QuestResponse = {code: number, data: any, message: string}
 
@@ -12,16 +12,16 @@ export type QuestResponse = {code: number, data: any, message: string}
  * @return { String } 一般以JSON字符串的形式返回数据
  * @template quest('http://xxxxx/xx?xxxx', { method: 'post' }) => '{"message":"success"}'
  */
-export default function quest(url: string, params: { header?: StringObject }): Promise<QuestResponse> {
-  const { header = {} } = params
+export default function quest(url: string, params?: { header?: CustomObject }): Promise<QuestResponse> {
+  const { header = {} } = params || {}
   header['X-Forwarded-For'] = randomIP()
   return new Promise(async (resolve, reject) => {
     let response: QuestResponse = {code: 500, data: '', message: ''}
     try {
       if (/event-stream/.test(header['Content-Type'])) {
-        response = await eventEmitter(url, params)
+        response = await eventEmitter(url, params || {})
       } else {
-        response = await jsonEmitter(url, params)
+        response = await jsonEmitter(url, params || {})
       }
       if (response.code === 200) {
         return resolve(response)

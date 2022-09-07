@@ -11,33 +11,35 @@
 // import fs from 'fs'
 import path from 'path'
 // import moment from 'moment'
-import { TextKlineModel } from '../../../types/stock'
-import { StringObject } from '../../../types/common'
+import { TextKlineModel } from '@/types/stock'
+import { StringObject } from '@/types/common'
 const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.$utils
+const { readFileSync, writeFileSync, StockConnect } = global.$utils
 const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 export default function uline () {
   const connect = new StockConnect(read_dir)
-  connect.on('data', (fileData: TextKlineModel, stock: string, date: string) => {
-    if (global.$blackName.test(fileData.name)) return
-    let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
-    if (ulineLeftItems && ulineBottomItems) {
-      ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
-      ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
-      ulineRightItems = ulineRightItems ? ulineRightItems : []
-      writeFileSync(path.join(global.$path.db.api, save_dir, global.$finalDealDate, stock + '.json'), {
-        code: fileData.code,
-        name: fileData.name,
-        klines: [
-          ...ulineLeftItems,
-          ...ulineBottomItems,
-          ...ulineRightItems,
-        ]
-      })
+  connect.on({ data: (fileData: TextKlineModel, stock: string, date: string): Promise<any> => {
+      if (global.$blackName.test(fileData.name)) return Promise.resolve()
+      let [ulineLeftItems, ulineBottomItems, ulineRightItems] = excution(fileData)
+      if (ulineLeftItems && ulineBottomItems) {
+        ulineLeftItems = ulineLeftItems ? ulineLeftItems : []
+        ulineBottomItems = ulineBottomItems ? ulineBottomItems : []
+        ulineRightItems = ulineRightItems ? ulineRightItems : []
+        writeFileSync(path.join(global.$path.db.api, save_dir, global.$finalDealDate, stock + '.json'), {
+          code: fileData.code,
+          name: fileData.name,
+          klines: [
+            ...ulineLeftItems,
+            ...ulineBottomItems,
+            ...ulineRightItems,
+          ]
+        })
+      }
+      return Promise.resolve()
     }
   })
   connect.emit()

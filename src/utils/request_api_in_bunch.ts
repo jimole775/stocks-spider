@@ -1,4 +1,4 @@
-import { StringObject } from "../types/common"
+import { StringObject } from "@/types/common"
 const allStocks = require(global.$path.db.base_data).data
 const BunchThread = require('./bunch-thread')
 const LogTag = 'utils.requestApiInBunch => '
@@ -31,15 +31,15 @@ const LogTag = 'utils.requestApiInBunch => '
     //   bunch.taskCalling()
     // })
     bunch.register(unLinkStocks, (stockItem: StringObject): Promise<void> => {
-      return new Promise(async (resolve, reject) => {
+      return new Promise(async (bunchResolve, bunchReject) => {
         try {
           await task(stockItem)
-          return resolve()
+          return bunchResolve()
         } catch (error) {
           // 如果报错了就把失败的url重新推回 apis
           console.log(LogTag, error, stockItem['code'])
           apis.push(stockItem[apikey])
-          return reject()
+          return bunchReject()
         }
       })
     })

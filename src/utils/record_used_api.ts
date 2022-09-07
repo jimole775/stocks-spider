@@ -1,4 +1,4 @@
-import { StringObject } from "../types/common"
+import { StringObject } from "@/types/common"
 
 const writeFileSync = require('./write-file-sync')
 const allStocks: StringObject[] = require(global.$path.db.base_data).data

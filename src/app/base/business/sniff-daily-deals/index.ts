@@ -7,7 +7,7 @@
 import recordDeals from './record-deals'
 import recordDeals1 from './record-deals1'
 import sniffApiFromWebsite from './sniff-api-from-website'
-import { ApiStore, StockStoreModel } from '../../../../types/stock';
+import { ApiStore, StockStoreModel } from '@/types/stock';
 const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
 
 const dataPath = `deals/${global.$finalDealDate}.json`

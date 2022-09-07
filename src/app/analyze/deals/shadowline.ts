@@ -1,5 +1,5 @@
-import { NumberObject } from '../../../types/common';
-import { TextDealModel, TextDealModelFromJson, BaseData } from '../../../types/stock';
+import { NumberObject } from '@/types/common';
+import { TextDealModel, TextDealModelFromJson, StockStoreModel } from '@/types/stock';
 /** todo 增加一个维度，买入和卖出
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
@@ -35,38 +35,41 @@ import { TextDealModel, TextDealModelFromJson, BaseData } from '../../../types/s
 import path from 'path'
 const dirRoot = `deals`
 const targetRoot = `/analyze/deals/shadowline/`
-const { rangeEqual, writeFileSync, readDirSync, StockConnect } = global.$utils
+const { assert, writeFileSync, readDirSync, StockConnect } = global.$utils
 export default async function shadowline() {
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
   const connect = new StockConnect(dirRoot, ignoreDateFiles)
-  connect.on('data', (fileData: TextDealModel, stock: string, date: string) => {
-    if (fileData.dt === 0) {
-      const oldData = fileData as TextDealModelFromJson
-      if (!oldData || !oldData.data) return false
-      const analyzeData = calculate(oldData)
-      writeFileSync(path.join(global.$path.db.stocks, stock, targetRoot, date + '.json'), analyzeData)
+  connect.on({
+    data: (fileData: TextDealModel, stock: string, date: string): Promise<any> => {
+      if (fileData.dt === 0) {
+        const oldData = fileData as TextDealModelFromJson
+        if (!oldData || !oldData.data) return Promise.resolve()
+        const analyzeData = calculate(oldData)
+        writeFileSync(path.join(global.$path.db.stocks, stock, targetRoot, date + '.json'), analyzeData)
+      }
+      return Promise.resolve()
     }
   })
   connect.emit()
   return Promise.resolve(true)
 }
 
-function unrecordFiles (targetDir: string): { ignoreCodes: [], ignoreDates: [] } {
+function unrecordFiles (targetDir: string): { codes: [], dates: [] } {
   const dbPath = global.$path.db.stocks
-  const allStocks: BaseData = require(global.$path.db.base_data).data
+  const allStocks: StockStoreModel[] = require(global.$path.db.base_data).data
   const result: {[key: string]: any} = {
     // [stockCode]: [unRecoedDateFiles]
   }
 
-  allStocks.forEach(({ code }) => {
-    const dateFiles = readDirSync(path.join(dbPath, code, targetDir))
-    result[code] = dateFiles
+  allStocks.forEach((recordItem: StockStoreModel) => {
+    const dateFiles = readDirSync(path.join(dbPath, recordItem.code, targetDir))
+    result[recordItem.code] = dateFiles
   })
 
   return {
-    ignoreCodes: [],
-    ignoreDates: []
+    codes: [],
+    dates: []
   }
 }
 
@@ -171,7 +174,7 @@ function calculateUpShadow (opn_pice: number, end_pice: number, max_pice: number
 }
 
 function calculateCrosShadow(upShadowSize: string, downShadowSize: string): boolean {
-  return rangeEqual(upShadowSize, downShadowSize, 0.01)
+  return assert.rangeEqual(upShadowSize, downShadowSize, 0.01)
 }
 
 function recordPP(pp: NumberObject, v: number, p: number): NumberObject {

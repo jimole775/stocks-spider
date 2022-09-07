@@ -1,17 +1,19 @@
-import BunchLinking from '../utils/bunch_linking'
-import BunchThread from '../utils/bunch_thread'
-import StockConnect from '../utils/stock_connect'
-import Link from '../utils/link'
-import { QuestResponse } from '../utils/quest'
-import { RequestCallback, ResponseCallback } from '../utils/init_page'
-import { StringObject } from './common.d'
+import BunchLinking, { BunchLinkingResponse, BunchLinkingRequest } from '@/utils/bunch_linking'
+import BunchThread from '@/utils/bunch_thread'
+import StockConnect from '@/utils/stock_connect'
+import Link from '@/utils/link'
+import { QuestResponse } from '@/utils/quest'
+import { RequestCallback, ResponseCallback } from '@/utils/init_page'
+import { StringObject, CustomObject } from './common.d'
 
 export type Util = {
-  Link: Link
-  BunchLinking: BunchLinking
-  BunchThread: BunchThread
-  StockConnect: StockConnect
+  Link: typeof Link
+  BunchLinking: typeof BunchLinking
+  BunchThread: typeof BunchThread
+  StockConnect: typeof StockConnect
   assert: {[key: string]: Function<boolean>}
+  BunchLinkingRequest: BunchLinkingRequest
+  BunchLinkingResponse: BunchLinkingResponse
   buildPath: (asbFilePath: string) => string
   cmdParam: (getKey?: string) => StringObject | string
   diffrence: (src: any, eliminateItems: any) => any | null
@@ -19,7 +21,7 @@ export type Util = {
   hasRefreshLinks: (links: string[], recordDir: string[]) => string[]
   hasUnlinked: (dataPath: string, chart: string) => string[]
   initPage: (requestCallback?: RequestCallback, responseCallback?: ResponseCallback) => Promise<Page>
-  quest: (url: string, params: { header?: StringObject }) => Promise<QuestResponse>
+  quest: (url: string, params?: CustomObject) => Promise<QuestResponse>
   readDirSync: (dir: fs.PathLike) => string[]
   readFileSync: (filePath: string) => any
   recordUsedApi: (apiKey: string, apiMap: StringObject) => Promise<void>

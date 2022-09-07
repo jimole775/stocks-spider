@@ -5,7 +5,7 @@ import {
   OnEvent,
   EmitEvent,
   EventOption
-} from '../interfaces/stock_connect.if'
+} from '@/interfaces/stock_connect.if'
 
 export {
   StockConnectInterface,
@@ -16,13 +16,14 @@ export {
   EventOption
 }
 
-import { StringObject } from '../types/common';
+import { StringObject } from '@/types/common';
 import BunchThread from './bunch_thread'
-const path = require('path')
-const readDirSync = require('./read-dir-sync')
-const readFileSync = require('./read-file-sync')
-const diffrence = require('./diffrence')
-const assert = require('./assert')
+import path from 'path'
+import readDirSync from './read_dir_sync'
+import readFileSync from './read_file_sync'
+import diffrence from './diffrence'
+import * as assert from './assert'
+
 const dict_code_name: StringObject = require(path.join(global.$path.db.dict, 'code-name.json'))
 const dbPath:string = global.$path.db.stocks
 const LogTag:string = 'utils.StockConnect => '
@@ -41,11 +42,11 @@ export default class StockConnect implements StockConnectInterface {
   endEventReceiver: EndEventReceiver = () => Promise.resolve()
   on:OnEvent = on.bind(this)
   emit:EmitEvent = emit.bind(this)
-  constructor (targetDir: string, ignoreObject?: { codes: string[], dates: string[] } ) {
+  constructor (targetDir: string, ignoreObject?: { codes?: string[], dates?: string[] } ) {
     this.targetDir = targetDir
     if (ignoreObject) {
-      this.ignoreCodes = ignoreObject.codes
-      this.ignoreDates = ignoreObject.dates
+      this.ignoreCodes = ignoreObject.codes || []
+      this.ignoreDates = ignoreObject.dates || []
     }
     this.stockCodes = readDirSync(dbPath)
     if (!this.stockCodes || this.stockCodes.length === 0) {
@@ -59,7 +60,7 @@ export default class StockConnect implements StockConnectInterface {
   }
 }
 
-function on (this: StockConnect, option: EventOption | string, callback: Function): StockConnect {
+function on (this: StockConnect, option: EventOption | string, callback?: Function): StockConnect {
   if (assert.isObject(option)) {
     if (option.hasOwnProperty('data')) {
       this.dataEventReceiver = (option as EventOption).data as DataEventReceiver

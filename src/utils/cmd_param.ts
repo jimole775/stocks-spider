@@ -1,4 +1,4 @@
-import { StringObject } from '../types/common';
+import { StringObject } from '@/types/common';
 
 export default function cmdParam (getKey?: string): StringObject | string {
   const res: StringObject = {}

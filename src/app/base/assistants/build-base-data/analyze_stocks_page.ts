@@ -1,5 +1,5 @@
 import { Page } from "puppeteer"
-import { BaseData } from "../../../../types/stock";
+import { BaseData } from "@/types/stock";
 const urlPool = [
   global.$urlModel.page.SHStockList,
   global.$urlModel.page.SZStockList

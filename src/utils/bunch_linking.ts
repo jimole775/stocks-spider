@@ -29,7 +29,7 @@ export default class BunchLinking {
   request: BunchLinkingRequestEvent
   response: BunchLinkingResponseEvent
   end: Function
-  constructor (urls = [], limit = global.$bunchLimit) {
+  constructor (urls: string[] = [], limit: number = global.$bunchLimit) {
     this.limitBunch = limit
     this.urls = urls
     this.bunch = new BunchThread(limit)

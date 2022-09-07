@@ -7,13 +7,13 @@
 
 // import fs from 'fs'
 // import path from 'path'
-import { TextKlineModel } from '../../../types/stock';
-import { StringObject, NumberObject } from '../../../types/common';
+import { TextKlineModel } from '@/types/stock';
+import { StringObject, NumberObject } from '@/types/common';
 const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect, isEmptyObject } = global.$utils
+const { readFileSync, writeFileSync, StockConnect } = global.$utils
 const save_dir = `smoothline`
 const read_dir = `fr-klines/daily`
 var a = {
@@ -24,18 +24,19 @@ var a = {
 }
 module.exports = function smoothline () {
   const connect = new StockConnect(read_dir)
-  connect.on('data', (fileData: TextKlineModel, stock: string, date: string) => {
-    const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
-    console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
-    // if (ulineBeginDaily && ulineEndDaily) {
-    writeFileSync(path.join(global.$path.db.api, save_dir, stock + '.json'), {
-      code: fileData.code,
-      name: fileData.name,
-      ulineLeftItems,
-      ulineBottomItems,
-      ulineRihtItems,
-    })
-    // }
+  connect.on({
+    data: (fileData: TextKlineModel, stock: string, date: string): Promise<any> => {
+      const [ulineLeftItems, ulineBottomItems, ulineRihtItems] = excution(fileData)
+      console.log(ulineLeftItems, ulineBottomItems, ulineRihtItems)
+      writeFileSync(path.join(global.$path.db.api, save_dir, stock + '.json'), {
+        code: fileData.code,
+        name: fileData.name,
+        ulineLeftItems,
+        ulineBottomItems,
+        ulineRihtItems,
+      })
+      return Promise.resolve()
+    }
   })
   connect.emit()
 }

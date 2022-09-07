@@ -1,4 +1,4 @@
-import { StringObject, TreeObject, FunctionObject } from '../types/common';
+import { StringObject, TreeObject, FunctionObject } from '@/types/common';
 const fs = require('fs')
 const path = require('path')
 const urlModel: TreeObject = global.$urlModel

@@ -1,7 +1,7 @@
 
 import puppeteer, { Request, Response } from 'puppeteer'
 import { isCSSUrl, isImgUrl } from './assert'
-import { Page } from '../types/common'
+import { Page } from '@/types/common'
 export type RequestCallback = (option: Request) => void
 export type ResponseCallback = (option: Response) => void
 /**

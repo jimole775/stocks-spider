@@ -1,4 +1,4 @@
-import { TextDealModel, TextDealModelFromJson, TextDealModelPeerRecord } from '../../../types/stock';
+import { TextDealModel, TextDealModelFromJson, TextDealModelPeerRecord } from '@/types/stock';
 
 export type VlineRecord = {
   heavies: TextDealModelPeerRecord[] // 买入总额
@@ -30,7 +30,7 @@ export type VlineResponse = VlineRecord & {
  * 数据路径存储：
  */
 const path = require('path')
-const { writeFileSync, StockConnect, isEmptyObject, readDirSync } = global.$utils
+const { writeFileSync, StockConnect, assert, readDirSync } = global.$utils
 const save_vline_dir = `vline`
 const read_peerdeal_dir = `deals`
 const time_dvd = global.$vline.time_dvd || 15 * 60 * 1000 // 默认为15分钟间隔
@@ -39,12 +39,14 @@ const haevy_standard = global.$vline.haevy_standard || 10 * 10000 // 大单的�
 export default async function vline () {
   const ignoreObj = hasRecordedDates(save_vline_dir)
   const connect = new StockConnect(read_peerdeal_dir, ignoreObj)
-  connect.on('data', (dealData: TextDealModel, stock: string, date: string)=> {
+  connect.on({
+    data: (dealData: TextDealModel, stock: string, date: string): Promise<any> => {
     const result = calculateVline(date, stock, dealData)
-    if (!isEmptyObject(result)) {
+    if (!assert.isEmptyObject(result)) {
       writeFileSync(path.join(global.$path.db.api, save_vline_dir, date, stock + '.json'), result)
     }
-  })
+    return Promise.resolve()
+  }})
   connect.emit()
 }
 

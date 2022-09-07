@@ -1,5 +1,5 @@
 import initPage, { RequestCallback, ResponseCallback } from './init_page'
-import { Page } from "../types/common"
+import { Page } from "@/types/common"
 
 export interface LinkInterface {
 

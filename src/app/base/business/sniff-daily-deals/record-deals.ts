@@ -1,5 +1,5 @@
-import { ApiStore, TextDealModelFromJson } from '../../../../types/stock';
-import { QuestResponse } from '../../../../utils';
+import { ApiStore, TextDealModelFromJson } from '@/types/stock';
+import { QuestResponse } from '@/utils';
 
 /**
  * return:

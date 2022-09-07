@@ -1,5 +1,5 @@
 import Mysql from '..'
-import { TextKlineModel } from '../../../types/stock'
+import { TextKlineModel } from '@/types/stock'
 require(`../../../global.config.js`)().then(() => {
   // const Mysql = require(`${global.db_utils}/mysql/index.js`)
   const db_config = require(`${global.$path.root}/db_config.json`)
@@ -11,15 +11,25 @@ require(`../../../global.config.js`)().then(() => {
   const connect_klines = new StockConnect('klines')
   const connect_frKlines = new StockConnect('fr-klines')
 
-  connect_klines.on('data', async (klineData: TextKlineModel, stock: string, date: string) => {
-    await mysql_klines.create('daily_' + stock, ddl)
-    dataHandler(mysql_klines, klineData, stock, date)
-    return Promise.resolve()
+  connect_klines.on({
+    data: async (klineData: TextKlineModel, stock: string, date: string) => {
+      await mysql_klines.create('daily_' + stock, ddl)
+      dataHandler(mysql_klines, klineData, stock, date)
+      return Promise.resolve()
+    },
+    end: ():Promise<any> => {
+      return Promise.resolve()
+    }
   })
-  connect_frKlines.on('data', async (klineData: TextKlineModel, stock: string, date: string) => {
-    await mysql_frKlines.create('daily_' + stock, ddl)
-    dataHandler(mysql_frKlines, klineData, stock, date)
-    return Promise.resolve()
+  connect_frKlines.on({
+    data: async (klineData: TextKlineModel, stock: string, date: string) => {
+      await mysql_frKlines.create('daily_' + stock, ddl)
+      dataHandler(mysql_frKlines, klineData, stock, date)
+      return Promise.resolve()
+    },
+    end: ():Promise<any> => {
+      return Promise.resolve()
+    }
   })
 
   connect_klines.emit()
