@@ -2,7 +2,10 @@
   "name": "stocks",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/main.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "init": "npm install puppeteer@2.1.1 --ignore-scripts && npm --registry https://registry.npm.taobao.org install",
     "start": "node src/main.js --module=all",
