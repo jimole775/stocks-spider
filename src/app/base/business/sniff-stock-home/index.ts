@@ -9,9 +9,7 @@
 import { StockStoreModel, UrlModel } from "@/types/stock"
 import { decompose as quotesDecompose } from './quotes/uri'
 import { decompose as klinesDecompose } from './klines/uri'
-import { StringObject } from '@/types/common';
-import BunchLinking, { BunchLinkingResponse } from '@/utils/bunch_linking'
-const {hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
+import { StringObject } from '@/types/common'
 
 const urlModel: UrlModel = global.$urlModel
 
@@ -50,6 +48,8 @@ export default function sniffStockHome(chart: string): Promise<any> {
 }
 
 async function excution(resolve: Function, chart: string): Promise<void> {
+  import BunchLinking, { BunchLinkingResponse } from '@/utils/bunch_linking'
+  const {hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
   let unlinkedUrls: string[] = hasUnlinked(business[chart]['dataPath'], chart)
   console.log(`${chart} unlinkedUrls:`, unlinkedUrls.length)
 

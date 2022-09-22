@@ -1,9 +1,5 @@
 import { Page } from "puppeteer"
-import { BaseData } from "@/types/stock";
-const urlPool = [
-  global.$urlModel.page.SHStockList,
-  global.$urlModel.page.SZStockList
-]
+import { BaseData } from "@/types/stock"
 /**
  * 
  */
@@ -12,6 +8,10 @@ export default function analyzeStocksPage(pageEnity: Page): Promise<BaseData> {
 }
 
 async function excutes (allStocks: BaseData, pageEnity: Page, resolve: Function, loopTimes: number): Promise<BaseData> {
+  const urlPool = [
+    global.$urlModel.page.SHStockList,
+    global.$urlModel.page.SZStockList
+  ]
   const url = urlPool[loopTimes]
   await pageEnity.goto(url)
   const content = await pageEnity.content().catch()

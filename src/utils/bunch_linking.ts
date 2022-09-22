@@ -7,7 +7,6 @@ export interface BrowserPage extends Page {
   idl: boolean,
   id: string
 }
-
 export type BunchLinkingResponse = Response
 
 export type BunchLinkingRequest = Request

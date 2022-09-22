@@ -18,6 +18,27 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "ts-stock",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "runtimeArgs": [
+        "--nolazy",
+        "-r",
+        "ts-node/register"
+      ],
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "program": "${workspaceFolder}\\src\\main.ts",
+      "args":["--module=deal"]
+      // "program": "${workspaceFolder}\\test.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "test111",
       "skipFiles": [
         "<node_internals>/**"

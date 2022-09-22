@@ -6,8 +6,8 @@ const dailyRoot = `fr-klines/daily`
 const writeDir = `lowerpoint` // `/api/lowerpoint/${date}`
 // "2020-07-21,26.18,28.01,32.02,26.17,24354359,70439577904.00,22.38"
 // 日期，开盘价，收盘价，最高价，最低价，成交量（手），成交额（元），振幅
-const { writeFileSync, readDirSync, StockConnect } = global.$utils
 export default function lowerpoint() {
+  const { writeFileSync, readDirSync, StockConnect } = global.$utils
   return new Promise((resolve, reject) => {
     const connect = new StockConnect(dailyRoot)
     connect.on({

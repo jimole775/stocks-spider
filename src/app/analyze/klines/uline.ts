@@ -17,10 +17,10 @@ const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect } = global.$utils
 const save_dir = `uline`
 const read_dir = `fr-klines/daily`
 export default function uline () {
+  const { readFileSync, writeFileSync, StockConnect } = global.$utils
   const connect = new StockConnect(read_dir)
   connect.on({ data: (fileData: TextKlineModel, stock: string, date: string): Promise<any> => {
       if (global.$blackName.test(fileData.name)) return Promise.resolve()

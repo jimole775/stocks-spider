@@ -14,8 +14,6 @@ import { QuestResponse } from '@/utils';
  */
 const path = require('path')
 const querystring = require('querystring')
-const { writeFileSync, quest } = global.$utils
-const fileModel = `deals/${global.$finalDealDate}.json`
 
 export type DealResponseData = {
   t: number, p: number, v: number, bs: number
@@ -27,6 +25,8 @@ export default async function recordDeals(recordItem: ApiStore): Promise<void> {
 
 // http://push2ex.eastmoney.com/getStockFenShi?pagesize=99999&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&cb=jQuery112308687412063259543_1592944461518&pageindex=0&id=6039991&sort=1&ft=1&code=603999&market=1&_=1592944461519
 async function excutes (recordItem: ApiStore, resolve: Function, loopTimes: number): Promise<any> {
+  const { writeFileSync, quest } = global.$utils
+  const fileModel = `deals/${global.$finalDealDate}.json`
   const id = (recordItem.id || recordItem.secid) + '' // 保持id为字符串
   const stockCode = id.substring(0, id.length - 1)
   const api = dealApiFactory(recordItem)

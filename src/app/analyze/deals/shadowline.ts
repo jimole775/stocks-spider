@@ -1,5 +1,3 @@
-import { NumberObject } from '@/types/common';
-import { TextDealModel, TextDealModelFromJson, StockStoreModel } from '@/types/stock';
 /** todo 增加一个维度，买入和卖出
  * 1. 上/下影线的形态描述
  * 线的长度取决于当日最高和最低价, 宽度取决于开盘和收盘价
@@ -35,8 +33,10 @@ import { TextDealModel, TextDealModelFromJson, StockStoreModel } from '@/types/s
 import path from 'path'
 const dirRoot = `deals`
 const targetRoot = `/analyze/deals/shadowline/`
-const { assert, writeFileSync, readDirSync, StockConnect } = global.$utils
+import { NumberObject } from '@/types/common'
+import { TextDealModel, TextDealModelFromJson, StockStoreModel } from '@/types/stock'
 export default async function shadowline() {
+  const { assert, writeFileSync, readDirSync, StockConnect } = global.$utils
   // 花 1分钟 时间，把已经存过的过滤出来
   const ignoreDateFiles = unrecordFiles(targetRoot)
   const connect = new StockConnect(dirRoot, ignoreDateFiles)
@@ -56,6 +56,7 @@ export default async function shadowline() {
 }
 
 function unrecordFiles (targetDir: string): { codes: [], dates: [] } {
+  const { readDirSync } = global.$utils
   const dbPath = global.$path.db.stocks
   const allStocks: StockStoreModel[] = require(global.$path.db.base_data).data
   const result: {[key: string]: any} = {
@@ -174,6 +175,7 @@ function calculateUpShadow (opn_pice: number, end_pice: number, max_pice: number
 }
 
 function calculateCrosShadow(upShadowSize: string, downShadowSize: string): boolean {
+  const { assert } = global.$utils
   return assert.rangeEqual(upShadowSize, downShadowSize, 0.01)
 }
 

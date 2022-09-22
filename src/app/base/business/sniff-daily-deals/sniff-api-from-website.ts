@@ -1,19 +1,19 @@
-import { ApiStore } from '@/types/stock';
-import { BunchLinkingResponse } from '@/utils/bunch_linking';
+import { ApiStore } from '@/types/stock'
+import { BunchLinkingResponse } from '@/utils/bunch_linking'
 
 import querystring from 'querystring'
 import recordDeals from './record-deals'
 import recordDeals1 from './record-deals1'
-const { BunchLinking, hasUnlinked } = global.$utils
-const urlModel = global.$urlModel
-const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
-const peerDealReg1 = new RegExp(urlModel.api.peerDealReg1, 'g')
-const dataPath = `deals/${global.$finalDealDate}.json`
 /**
  * 从交易详情主页中嗅探 api
  * @param { Array<String> } dealsURLs deals交易详情主页的地址
  */
 export default async function sniffApiFromWebSite (dealsURLs: string[]): Promise<any> {
+  const { BunchLinking, hasUnlinked } = global.$utils
+  const urlModel = global.$urlModel
+  const peerDealReg = new RegExp(urlModel.api.peerDealReg, 'g')
+  const peerDealReg1 = new RegExp(urlModel.api.peerDealReg1, 'g')
+  const dataPath = `deals/${global.$finalDealDate}.json`
   const doneApiMap: {[key: string]: ApiStore } = {}
   const bunchLinking = new BunchLinking(dealsURLs)
   await bunchLinking.on({

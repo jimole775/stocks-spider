@@ -6,14 +6,13 @@
 // 边形必须超过振幅3个点以上，且开收盘超过2个点，两个边线向上, 持续3天以上，或者总体涨幅超过10 - 15%
 
 // import fs from 'fs'
-// import path from 'path'
-import { TextKlineModel } from '@/types/stock';
-import { StringObject, NumberObject } from '@/types/common';
+import path from 'path'
+import { TextKlineModel } from '@/types/stock'
+import { StringObject, NumberObject } from '@/types/common'
 const theBottomWave = 0.01
 const theLeftWave = 0.1
 const theRightWave = 0.5
 const seriesDaiesDvd = 4
-const { readFileSync, writeFileSync, StockConnect } = global.$utils
 const save_dir = `smoothline`
 const read_dir = `fr-klines/daily`
 var a = {
@@ -23,6 +22,7 @@ var a = {
   kline30: '',
 }
 module.exports = function smoothline () {
+  const { readFileSync, writeFileSync, StockConnect } = global.$utils
   const connect = new StockConnect(read_dir)
   connect.on({
     data: (fileData: TextKlineModel, stock: string, date: string): Promise<any> => {

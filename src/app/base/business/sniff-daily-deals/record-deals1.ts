@@ -12,8 +12,6 @@
 import path from 'path'
 import querystring from 'querystring'
 import { ApiStore } from '@/types/stock'
-const { writeFileSync, quest } = global.$utils
-const fileModel = `deals/${global.$finalDealDate}.json`
 
 export default async function recordDeals(dealApi: ApiStore) {
   return new Promise((resolve) => excutes(dealApi, resolve, 0))
@@ -21,6 +19,8 @@ export default async function recordDeals(dealApi: ApiStore) {
 
 // "http://27.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=2000&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-0&secid=1.603261&wbp2u=|0|0|0|web"
 async function excutes (dealApi: ApiStore, resolve: Function, loopTimes: number): Promise<any> {
+  const { writeFileSync, quest } = global.$utils
+  const fileModel = `deals/${global.$finalDealDate}.json`
   const api: string = dealApiFactory(dealApi)
   const code: string = (dealApi.secid || '').split('.').pop() || ''
   const savePath: string = path.join(global.$path.db.stocks, code, fileModel)

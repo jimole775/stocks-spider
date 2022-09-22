@@ -1,5 +1,5 @@
 import path from 'path'
-import { TextDealModel, TextDealModelFromJson, TextDealModelPeerRecord } from '@/types/stock';
+import { TextDealModel, TextDealModelFromJson, TextDealModelPeerRecord } from '@/types/stock'
 export type StrokeModel = {
   lineSize: string
   cost: string
@@ -23,13 +23,13 @@ export type StrokeModelResponse = {
  * 直上直下的分时形态判断
  * 初步肯定，这是有庄家的征兆
  */
-const { writeFileSync, StockConnect, assert } = global.$utils
 const strokeline_dir = `strokeline`
 const deals_dir = `deals`
 const price_range = 0.03 // 默认为3%价格间隔
 const time_range = 5
 const haevy_standard = global.$vline.haevy_standard || 10 * 10000 // 大单的标准
-module.exports = async function vline () {
+export default async function vline () {
+  const { writeFileSync, StockConnect, assert } = global.$utils
   const connect = new StockConnect(deals_dir)
   connect.on({
     data: (dealData: TextDealModel, stock: string, date: string): Promise<any> => {

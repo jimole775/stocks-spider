@@ -7,16 +7,16 @@
 import recordDeals from './record-deals'
 import recordDeals1 from './record-deals1'
 import sniffApiFromWebsite from './sniff-api-from-website'
-import { ApiStore, StockStoreModel } from '@/types/stock';
-const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
+import { ApiStore, StockStoreModel } from '@/types/stock'
 
-const dataPath = `deals/${global.$finalDealDate}.json`
 
 export default function sniffDailyDeals() {
   return new Promise(excution).catch(err => err)
 }
 
 async function excution (resolve: Function, reject: Function) {
+  const dataPath = `deals/${global.$finalDealDate}.json`
+  const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
   // 获取 deals 交易详情主页的地址
   let unlinkedURLs = hasUnlinked(dataPath, 'deal')
 

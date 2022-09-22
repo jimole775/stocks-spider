@@ -1,14 +1,15 @@
-;(async function () {
-  await require('./global.config')()
-  await require('./app/base/assistants/build-base-data')()
-  await require('./app/base/assistants/build-dict')()
-  console.log('Base info was loaded!')
-  const sniffStockHome: Function = require('./app/base/business/sniff-stock-home')
-  const sniffDailyDeals: Function = require('./app/base/business/sniff-daily-deals')
-  const analyzerDeals: { shadowline: Function, vline: Function, strokeline: Function } = require('./app/analyze/deals')
-  const analyzerKlines: { uline: Function, lowerpoint: Function } = require('./app/analyze/klines')
-  console.log('Main function was mounted!')
+import config from './global.config'
+import buildBaseData from './app/base/assistants/build-base-data'
+import buildDict from './app/base/assistants/build-dict'
+import sniffStockHome from './app/base/business/sniff-stock-home'
+import sniffDailyDeals from './app/base/business/sniff-daily-deals'
+import analyzerDeals from './app/analyze/deals'
+import analyzerKlines from './app/analyze/klines'
 
+;(async function () {
+  await config()
+  await buildBaseData()
+  await buildDict()
   if (['kline', 'quote', 'all'].includes(global.$module)) {
     console.log('Sniff stock home!')
     await sniffStockHome(global.$module)
@@ -66,3 +67,5 @@
   console.log('Process was end!')
   process.exit()
 })()
+
+export {}
