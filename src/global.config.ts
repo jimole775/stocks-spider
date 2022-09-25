@@ -3,8 +3,7 @@ import moment from 'moment'
 import quest from './utils/quest'
 import cmdParam from './utils/cmd_param'
 import readFileSync from './utils/read_file_sync'
-import GlobalType from './types/global.d'
-export default async function config(): Promise<typeof GlobalType> {
+export default async function config(): Promise<any> {
 
   global.$env = 'prod'
 
@@ -54,7 +53,7 @@ export default async function config(): Promise<typeof GlobalType> {
   }
 
   global.$utils = require(path.join(__dirname, 'utils\\index.js'))
-  return Promise.resolve(global)
+  return Promise.resolve()
 }
 
 function getDate(): Promise<string> {

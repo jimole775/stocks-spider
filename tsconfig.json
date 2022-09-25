@@ -1,7 +1,11 @@
 {
+  // "ts-node": {
+  //   "files": true // 增加这一条配置即可，其他同默认配置
+  // },
   "include": [
     "./src/**/*",
-    "./test.ts"
+    "./test.ts",
+    "./src/global.config.ts"
   ],
   "exclude": [
     "./built"
@@ -41,7 +45,7 @@
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
       "./node_modules/@types",                             /* 可下载的公共类型，用angular-cli新建的项目会自动下载 */
-      "./src/types/global.d.ts"                            /* 自己定义的类型 */
+      "./src/types"                            /* 自己定义的类型 */
     ],                                                   /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */

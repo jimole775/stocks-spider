@@ -1,12 +1,12 @@
-import config from './global.config'
-import buildBaseData from './app/base/assistants/build-base-data'
-import buildDict from './app/base/assistants/build-dict'
-import sniffStockHome from './app/base/business/sniff-stock-home'
-import sniffDailyDeals from './app/base/business/sniff-daily-deals'
-import analyzerDeals from './app/analyze/deals'
-import analyzerKlines from './app/analyze/klines'
 
 ;(async function () {
+  const config = require('./global.config')
+  const buildBaseData = require('./app/base/assistants/build-base-data')
+  const buildDict = require('./app/base/assistants/build-dict')
+  const sniffStockHome = require('./app/base/business/sniff-stock-home')
+  const sniffDailyDeals = require('./app/base/business/sniff-daily-deals')
+  const analyzerDeals = require('./app/analyze/deals')
+  const analyzerKlines = require('./app/analyze/klines')
   await config()
   await buildBaseData()
   await buildDict()

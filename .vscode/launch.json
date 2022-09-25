@@ -34,7 +34,6 @@
       "internalConsoleOptions": "neverOpen",
       "program": "${workspaceFolder}\\src\\main.ts",
       "args":["--module=deal"]
-      // "program": "${workspaceFolder}\\test.js"
     },
     {
       "type": "node",

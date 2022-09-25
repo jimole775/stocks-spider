@@ -1,7 +1,7 @@
 import Mysql from '@/db-utils/mysql/index'
 import { UrlModel } from '@/types/stock'
 import { Util } from '@/types/util'
-export declare global {
+declare global {
   var Mysql: typeof Mysql
   var $env: string
   var $module: string
@@ -44,3 +44,5 @@ export declare global {
     }>
   }>
 }
+
+export {}
