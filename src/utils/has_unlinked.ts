@@ -18,7 +18,7 @@ const spillMap: FunctionObject = {
  * @template hasUnlinked('deals/2021-06-25', 'deals') => ['http://quote.eastmoney.com/f1.html?code=xxxxxx&market=1', ...]
  * @template hasUnlinked('fr-klines/2021-06-25', 'klines') => ['http://quote.eastmoney.com/1xxxxxx.html', ...]
  */
-export default function hasUnlinked(dataPath: string, chart: string): string[] {
+export function hasUnlinked(dataPath: string, chart: string): string[] {
   const unlinks: string[] = []
   allStocks.forEach((stockItem: StringObject) => {
     if(!fs.existsSync(path.join(global.$path.db.stocks, stockItem.code, dataPath))) {

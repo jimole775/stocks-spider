@@ -1,6 +1,6 @@
 import mysql, { Connection } from 'mysql'
 import { isDate } from '@/utils/assert'
-import { MysqlPrototype, QueryMethod } from '@/interfaces/mysql.if'
+import { MysqlPrototype, QueryMethod } from 'src/interfaces/mysql'
 
 type Callback = (result: string) => any
 type Sqlmap = { [key: string]: number | string }

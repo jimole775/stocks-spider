@@ -2,7 +2,6 @@
   "name": "stocks",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "init": "npm install puppeteer@2.1.1 --ignore-scripts && npm --registry https://registry.npm.taobao.org install",
     "start": "ts-node src/main.ts --module=all",
@@ -30,6 +29,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/register": "^7.8.6",
     "@babel/runtime": "^7.5.5",
+    "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.184",
     "@types/moment": "^2.13.0",
     "@types/mysql": "^2.15.21",
@@ -70,6 +70,7 @@
     "telnet-client": "^1.0.4",
     "through2": "^3.0.1",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
     "typescript": "^4.8.2",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",

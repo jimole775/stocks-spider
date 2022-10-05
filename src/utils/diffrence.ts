@@ -9,7 +9,7 @@
  * @template diffrence([{ a: 1}, { b: 2 }, { c: 3 }], [{ a: 1 }, { b: 2 }]) => [{ c: 3 }]
  */
 import { isArray, isObject, isString, isNumber } from './assert'
-export default function diffrence (src: any, eliminateItems: any): any | null {
+export function diffrence (src: any, eliminateItems: any): any | null {
   if (isString(eliminateItems) || isNumber(eliminateItems)) eliminateItems = [eliminateItems]
   if (isArray(src) && isObject(eliminateItems)) eliminateItems = [eliminateItems]
 

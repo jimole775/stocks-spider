@@ -10,7 +10,8 @@ import { StockStoreModel, UrlModel } from "@/types/stock"
 import { decompose as quotesDecompose } from './quotes/uri'
 import { decompose as klinesDecompose } from './klines/uri'
 import { StringObject } from '@/types/common'
-import BunchLinking, { BunchLinkingResponse } from '@/utils/bunch_linking'
+import { BunchLinking, BunchLinkingResponse } from 'F:/my_pro/stocks/src/utils/bunch_linking'
+
 const { hasUnlinked, recordUsedApi, requestApiInBunch } = global.$utils
 
 const urlModel: UrlModel = global.$urlModel

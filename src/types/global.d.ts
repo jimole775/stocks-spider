@@ -1,6 +1,6 @@
 import Mysql from '@/db-utils/mysql/index'
 import { UrlModel } from '@/types/stock'
-import { Util } from '@/types/util'
+import { Util } from '@/types/util.d'
 declare global {
   var Mysql: typeof Mysql
   var $env: string

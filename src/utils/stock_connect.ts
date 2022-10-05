@@ -1,3 +1,11 @@
+
+import path from 'path'
+import { StringObject } from '@/types/common';
+import { BunchThread } from './bunch_thread'
+import { readDirSync } from './read_dir_sync'
+import { readFileSync } from './read_file_sync'
+import { diffrence } from './diffrence'
+import * as assert from './assert'
 import {
   StockConnectInterface,
   DataEventReceiver,
@@ -5,34 +13,20 @@ import {
   OnEvent,
   EmitEvent,
   EventOption
-} from '@/interfaces/stock_connect.if'
+} from 'src/interfaces/stock_connect'
 
-export {
-  StockConnectInterface,
-  DataEventReceiver,
-  EndEventReceiver,
-  OnEvent,
-  EmitEvent,
-  EventOption
-}
-
-import { StringObject } from '@/types/common';
-import BunchThread from './bunch_thread'
-import path from 'path'
-import readDirSync from './read_dir_sync'
-import readFileSync from './read_file_sync'
-import diffrence from './diffrence'
-import * as assert from './assert'
+export * from 'src/interfaces/stock_connect'
 
 const dict_code_name: StringObject = require(path.join(global.$path.db.dict, 'code-name.json'))
 const dbPath:string = global.$path.db.stocks
 const LogTag:string = 'utils.StockConnect => '
 
+
 /**
  * 读取指定存储目录的stock
  * 当前仅支持目录结构 `${global.path.db.stocks}/${stock}/${targetDir}/${date}`
  */
-export default class StockConnect implements StockConnectInterface {
+export class StockConnect implements StockConnectInterface {
   bunch: BunchThread = new BunchThread(1)
   targetDir: string = ''
   ignoreCodes: string[] = []

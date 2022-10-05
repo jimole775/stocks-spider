@@ -3,7 +3,7 @@ import * as assert from './assert'
 import superagent,{ Response } from 'superagent'
 import { CustomObject } from '@/types/common'
 
-export type QuestResponse = {code: number, data: any, message: string}
+export type QuestResponse = { code: number, data: any, message: string }
 
 /**
  * 伪造随机IP进行接口访问
@@ -12,7 +12,7 @@ export type QuestResponse = {code: number, data: any, message: string}
  * @return { String } 一般以JSON字符串的形式返回数据
  * @template quest('http://xxxxx/xx?xxxx', { method: 'post' }) => '{"message":"success"}'
  */
-export default function quest(url: string, params?: { header?: CustomObject }): Promise<QuestResponse> {
+export function quest(url: string, params?: { header?: CustomObject }): Promise<QuestResponse> {
   const { header = {} } = params || {}
   header['X-Forwarded-For'] = randomIP()
   return new Promise(async (resolve, reject) => {

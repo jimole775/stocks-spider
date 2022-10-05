@@ -1,13 +1,13 @@
-const fs = require('fs')
-const path = require('path')
-const removeDir = require('./remove-dir')
-const getPathSeparator = require('./get-path-separator')
+import fs from 'fs'
+import path from 'path'
+import { removeDir } from './remove_dir'
+import { getPathSeparator } from './get_path_separator'
 /**
  * 删除目录的相邻目录【慎用】
  * @param { String } asbFilePath 绝对路径
  * @return { undefined }
  */
- export default function removeSiblingDir (asbFilePath: string): void {
+ export function removeSiblingDir (asbFilePath: string): void {
   const pathMark = getPathSeparator(asbFilePath)
   const pathArrs = asbFilePath.split(pathMark)
   const targetFlodar = pathArrs.pop()

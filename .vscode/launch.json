@@ -25,7 +25,9 @@
       "runtimeArgs": [
         "--nolazy",
         "-r",
-        "ts-node/register"
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register"
       ],
       "sourceMaps": true,
       "cwd": "${workspaceFolder}",

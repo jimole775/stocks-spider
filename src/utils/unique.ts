@@ -6,7 +6,7 @@ const { isArray, isObject } = require('./assert')
  * @template unique([1, 2, 3, 3]) => [1, 2, 3]
  * @template unique([{a: 1}, {a: 1}, {b: 2}]) => [{a: 1}, {b: 2}]
  */
- export default function unique<T> (arrays: T[]): T[] {
+ export function unique<T> (arrays: T[]): T[] {
   if (!isArray(arrays)) return arrays
 
   let loopIndex = 0

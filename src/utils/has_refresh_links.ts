@@ -5,7 +5,7 @@ const fs = require('fs')
  * @param { String } recordDir 目录下的文件，必须确保能取到【股票代码】
  * @return { Array<String> } 
  */
-export default function hasRefreshLinks(links: string[], recordDir: string[]): string[] {
+export function hasRefreshLinks(links: string[], recordDir: string[]): string[] {
   const files = fs.readdirSync(recordDir)
   if (files.length === 0) return []
   if (links.length === 0) return []

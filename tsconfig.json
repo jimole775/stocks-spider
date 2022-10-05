@@ -1,7 +1,7 @@
 {
-  // "ts-node": {
-  //   "files": true // 增加这一条配置即可，其他同默认配置
-  // },
+  "ts-node": {
+    "files": true // 增加这一条配置即可，其他同默认配置
+  },
   "include": [
     "./src/**/*",
     "./test.ts",
@@ -38,14 +38,14 @@
     "module": "commonjs",                                /* Specify what module code is generated. */
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
     // "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
-    "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    "baseUrl": "./",                                     /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@/*": ["./src/*"]
-    },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+      "@/*": ["src/*"]
+    },                                                   /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
-      "./node_modules/@types",                             /* 可下载的公共类型，用angular-cli新建的项目会自动下载 */
-      "./src/types"                            /* 自己定义的类型 */
+      "./node_modules/@types",                           /* 可下载的公共类型，用angular-cli新建的项目会自动下载 */
+      "./src/types"                                      /* 自己定义的类型 */
     ],                                                   /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */

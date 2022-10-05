@@ -1,10 +1,10 @@
-import { BunchThreadInterface, Task, TaskEntity } from '@/interfaces/bunch_thread.if'
-export * from '@/interfaces/bunch_thread.if'
+import { BunchThreadInterface, Task, TaskEntity } from '@/interfaces/bunch_thread'
+export * from '@/interfaces/bunch_thread'
 const bunch_log_prev: string = 'utils.BunchThread => '
 /**
  * 并发线程
  */
-export default class BunchThread implements BunchThreadInterface {
+export class BunchThread implements BunchThreadInterface {
   limit: number
   paramList: any[]
   taskQueue: Task[]

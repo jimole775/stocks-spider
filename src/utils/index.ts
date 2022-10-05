@@ -24,7 +24,7 @@
 // function isFunction(likeFunction: Function): boolean {
 //   return Object.prototype.toString.call(likeFunction) === '[object Function]'            
 // }
-export * from '@/types/util.d'
+export { Util } from '@/types/util.d'
 export * from './assert'
 export * from './build_path'
 export * from './bunch_linking'

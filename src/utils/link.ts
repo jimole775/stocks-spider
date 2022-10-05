@@ -1,4 +1,4 @@
-import initPage, { RequestCallback, ResponseCallback } from './init_page'
+import { initPage, RequestCallback, ResponseCallback } from './init_page'
 import { Page } from "@/types/common"
 
 export interface LinkInterface {
@@ -7,7 +7,7 @@ export interface LinkInterface {
 /**
  * 单线程
  */
-export default class Link implements LinkInterface {
+export class Link implements LinkInterface {
   url: string
   page: Page
   request: RequestCallback

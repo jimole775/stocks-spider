@@ -1,6 +1,7 @@
 import { StringObject } from "@/types/common"
+import { BunchThread } from  './bunch_thread'
+
 const allStocks = require(global.$path.db.base_data).data
-const BunchThread = require('./bunch-thread')
 const LogTag = 'utils.requestApiInBunch => '
 /**
  * 并发请求，api类型，直接访问api接口
@@ -9,7 +10,7 @@ const LogTag = 'utils.requestApiInBunch => '
  * @param { Function } task
  * @return { Promise[Array<String>] }
  */
- export default function requestApiInBunch (apikey: string, apis: string[], task: Function): Promise<string[]> {
+ export function requestApiInBunch (apikey: string, apis: string[], task: Function): Promise<string[]> {
   return new Promise((resolve) => {
     const unLinkStocks: object[] = []
     allStocks.forEach((stockItem: StringObject) => {

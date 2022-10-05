@@ -8,7 +8,7 @@
  * @template toMoney(1234) => '123,4.00'
  * @template toMoney(1234, 3) => '123,4.000'
  */
- export default function toMoney (number: number|string, decimals: number = 2, decPoint: string, thousandsSep: string): string {
+ export function toMoney (number: number|string, decimals: number = 2, decPoint: string, thousandsSep: string): string {
   number = (number + '').replace(/[^0-9+-Ee.]/g, '')
   var n = !isFinite(+number) ? 0 : +number
   var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals)

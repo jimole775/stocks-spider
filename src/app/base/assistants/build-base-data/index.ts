@@ -9,12 +9,13 @@ import puppeteer, { Page } from 'puppeteer'
 import analyzeStocksPage from './analyze_stocks_page'
 import { BaseDataStructure, BaseData } from '@/types/stock'
 
+const { readFileSync, writeFileSync } = global.$utils
+
 export default function buildBaseData (): Promise<BaseDataStructure> {
   return new Promise(excutes)
 }
 
 async function excutes (resolve: Function, reject: Function) {
-  const { readFileSync, writeFileSync } = global.$utils
   const alreadyData: BaseDataStructure = readFileSync(global.$path.db.base_data)
   const expired: boolean = hasExpired(alreadyData)
   // 数据没过期，就使用已有的数据

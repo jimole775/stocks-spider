@@ -1,8 +1,8 @@
 import path from 'path'
 import moment from 'moment'
-import quest from './utils/quest'
-import cmdParam from './utils/cmd_param'
-import readFileSync from './utils/read_file_sync'
+import { quest } from './utils/quest'
+import { cmdParam } from './utils/cmd_param'
+import { readFileSync } from './utils/read_file_sync'
 export default async function config(): Promise<any> {
 
   global.$env = 'prod'
@@ -52,7 +52,7 @@ export default async function config(): Promise<any> {
     }
   }
 
-  global.$utils = require(path.join(__dirname, 'utils\\index.js'))
+  global.$utils = require(path.join(__dirname, 'utils\\index'))
   return Promise.resolve()
 }
 

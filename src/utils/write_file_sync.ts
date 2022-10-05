@@ -1,6 +1,6 @@
-const fs = require('fs')
-const buildPath = require('./build-path')
-const { isArray, isObject } = require('./assert')
+import fs from 'fs'
+import { buildPath } from './build_path'
+import { isArray, isObject } from './assert'
 /**
  * 
  * @param { String } asbFilePath
@@ -10,7 +10,7 @@ const { isArray, isObject } = require('./assert')
  * @template writeFileSync('xxx/xxx.xx', [...])
  * @template writeFileSync('xxx/xxx.xx', {...})
  */
- export default function writeFileSync (asbFilePath: string, data: any): void {
+ export function writeFileSync (asbFilePath: string, data: any): void {
   try {
     buildPath(asbFilePath)
     if (isArray(data) || isObject(data)) {

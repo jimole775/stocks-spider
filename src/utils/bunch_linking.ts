@@ -1,12 +1,13 @@
 import { Page, Request, Response } from 'puppeteer'
-import BunchThread from './bunch_thread'
-const initPage = require('./init-page')
+import { BunchThread } from './bunch_thread'
+import { initPage } from './init_page'
 const LogTag = 'utils.BunchLinking => '
 
 export interface BrowserPage extends Page {
   idl: boolean,
   id: string
 }
+
 export type BunchLinkingResponse = Response
 
 export type BunchLinkingRequest = Request
@@ -20,7 +21,7 @@ export type BunchLinkingRequestEvent = (e: Request, ...args: any[]) => void
  * 并发请求，html类型
  * 主要是访问一个主页，然后从页面上探测所有接口
  */
-export default class BunchLinking {
+export class BunchLinking {
   limitBunch: number
   bunch: BunchThread
   pages: BrowserPage[]
@@ -92,7 +93,7 @@ export default class BunchLinking {
   _buildPage (): Promise<void> {
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < this.limitBunch; i++) {
-        const idlPage: BrowserPage = await initPage(this.request, this.response)
+        const idlPage: BrowserPage = await initPage(this.request, this.response) as BrowserPage
         idlPage.id = '_id_' + i
         idlPage.idl = true
         this.pages.push(idlPage)

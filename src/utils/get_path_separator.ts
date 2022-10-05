@@ -1,3 +1,3 @@
-export default function getPathSeparator(path: string): string {
+export function getPathSeparator(path: string): string {
   return path.includes('\/') ? '\/' : path.includes('\\\\') ? '\\\\' : '\\'
 }

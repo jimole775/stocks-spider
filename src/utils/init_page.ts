@@ -10,7 +10,7 @@ export type ResponseCallback = (option: Response) => void
  * @param { Function } responseCallback 响应时的回调
  * @return { Promise[browser.Page] }
  */
-export default function initPage(requestCallback?: RequestCallback, responseCallback?: ResponseCallback): Promise<Page> {
+export function initPage(requestCallback?: RequestCallback, responseCallback?: ResponseCallback): Promise<Page> {
   return new Promise(async (resolve, reject) => {
     return loop(resolve, reject, requestCallback, responseCallback)
   })
