@@ -10,7 +10,7 @@ const LogTag = 'utils.requestApiInBunch => '
  * @param { Function } task
  * @return { Promise[Array<String>] }
  */
- export function requestApiInBunch (apikey: string, apis: string[], task: Function): Promise<string[]> {
+ export function requestApiInBunch (apikey: string, apis: string[], task: (stockItem: StringObject) => Promise<any>): Promise<string[]> {
   return new Promise((resolve) => {
     const unLinkStocks: object[] = []
     allStocks.forEach((stockItem: StringObject) => {
@@ -28,9 +28,6 @@ const LogTag = 'utils.requestApiInBunch => '
     if (unLinkStocks.length === 0) return resolve(apis)
 
     const bunch = new BunchThread()
-    // unLinkStocks.forEach((stockItem) => {
-    //   bunch.taskCalling()
-    // })
     bunch.register(unLinkStocks, (stockItem: StringObject): Promise<void> => {
       return new Promise(async (bunchResolve, bunchReject) => {
         try {

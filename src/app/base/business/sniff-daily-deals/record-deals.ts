@@ -37,7 +37,7 @@ async function excutes (recordItem: ApiStore, resolve: Function, loopTimes: numb
       const data = res.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1')
       const dataConstrutor = JSON.parse(data)
       const coreData = createFields(dataConstrutor.data || {})
-      await writeFileSync(savePath, coreData || {})
+      writeFileSync(savePath, coreData || {})
       console.log('交易详情-存入股票：', stockCode)
       resolve()
     } else {
@@ -50,7 +50,7 @@ async function excutes (recordItem: ApiStore, resolve: Function, loopTimes: numb
     } else {
       // 超过10次都不能成功quest，就直接跳过
       loopTimes = 0
-      await writeFileSync(savePath, {})
+      writeFileSync(savePath, {})
       console.log(stockCode, '无法获取，直接存入空数据！')
       resolve()
     }

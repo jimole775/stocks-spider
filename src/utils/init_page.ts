@@ -2,8 +2,8 @@
 import puppeteer, { Request, Response } from 'puppeteer'
 import { isCSSUrl, isImgUrl } from './assert'
 import { Page } from '@/types/common'
-export type RequestCallback = (option: Request) => void
-export type ResponseCallback = (option: Response) => void
+export type RequestCallback = (option: Request) => Promise<void> | void
+export type ResponseCallback = (option: Response) => Promise<void> | void
 /**
  * 打开一个目标页面，然后探测所有请求
  * @param { Function } requestCallback 请求时的回调
@@ -25,13 +25,16 @@ async function loop (
     const browser = await puppeteer.launch()
     const page: Page = await browser.newPage()
     await page.setRequestInterception(true)
-    page.on('request', (interceptedRequest: Request) => {
+    // todo 这里需要判断callback是否返回了正确的结果
+    page.on('request', async (interceptedRequest: Request) => {
       if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
         interceptedRequest.abort()
       } else {
         interceptedRequest.continue()
       }
-      requestCallback && requestCallback(interceptedRequest)
+      if (requestCallback) {
+        requestCallback(interceptedRequest)
+      }
     })
     if (responseCallback) {
       page.on('response', (response: Response) => {

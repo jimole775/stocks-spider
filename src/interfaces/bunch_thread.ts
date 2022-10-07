@@ -17,4 +17,4 @@ export type Task = {
   id: number
 }
 
-export type TaskEntity = (param: any, i: number) => Promise<any>
+export type TaskEntity = (param: any, i?: number) => Promise<any>

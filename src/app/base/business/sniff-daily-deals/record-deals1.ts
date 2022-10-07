@@ -37,7 +37,7 @@ async function excutes (dealApi: ApiStore, resolve: Function, loopTimes: number)
     if (res.code === 200) {
       const data: string = res.data.replace(/^data:\s?(\{.+?\})/ig, '$1')
       const dataConstrutor = JSON.parse(data) || {}
-      await writeFileSync(savePath, dataConstrutor.data || {})
+      writeFileSync(savePath, dataConstrutor.data || {})
       console.log('交易详情-存入股票：', code)
       resolve()
     } else {
@@ -50,14 +50,13 @@ async function excutes (dealApi: ApiStore, resolve: Function, loopTimes: number)
     } else {
       // 超过10次都不能成功quest，就直接跳过
       loopTimes = 0
-      await writeFileSync(savePath, {})
+      writeFileSync(savePath, {})
       console.log(code, '无法获取，直接存入空数据！')
       resolve()
     }
   }
 }
 
-// todo 2022/08/01 的数据，没有运行次方法
 // 拼装一些可简单计算的数据，以便调用，不用再通过浏览器爬取
 // function createFields (data) {
 //   let hp = 0 // 当日最高价

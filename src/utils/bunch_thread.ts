@@ -57,7 +57,7 @@ export class BunchThread implements BunchThreadInterface {
         if (this.taskLivingIds.length >= this.limit) {
           await this._waitConsumeUnderLimit()
         } else {
-          this._taskNormalConsume()
+          await this._taskNormalConsume()
         }
       }
     }
@@ -95,6 +95,7 @@ export class BunchThread implements BunchThreadInterface {
       await task()
       this._livingIdReduce(task)
     }
+    return Promise.resolve()
   }
 
   _livingIdReduce(task: Task) {

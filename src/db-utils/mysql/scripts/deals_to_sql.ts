@@ -76,7 +76,6 @@ require(`../../../global.config.js`)().then(async () => {
   connect.emit()
 })
 
-// todo 2022/08/01 的数据，没有运行次方法
 // 拼装一些可简单计算的数据，以便调用，不用再通过浏览器爬取
 function createFields (data: TextDealModelFromStream): TextDealModelFromStream {
   let hp = 0 // 当日最高价

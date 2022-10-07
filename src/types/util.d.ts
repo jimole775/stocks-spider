@@ -1,4 +1,4 @@
-import BunchLinking, { BunchLinkingResponse, BunchLinkingRequest } from '@/utils/bunch_linking'
+import { BunchLinking, BunchLinkingResponse, BunchLinkingRequest } from '@/utils/bunch_linking'
 import BunchThread from '@/utils/bunch_thread'
 import StockConnect from '@/utils/stock_connect'
 import Link from '@/utils/link'
