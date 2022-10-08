@@ -55,9 +55,11 @@ export class BunchThread implements BunchThreadInterface {
         this.taskLivingIds.push(i)
         console.log('并发剩余：', max - i)
         if (this.taskLivingIds.length >= this.limit) {
+          // 如果 this.taskLivingIds 溢出，就等待溢出部分消费完
           await this._waitConsumeUnderLimit()
         } else {
-          await this._taskNormalConsume()
+          // 正常消费，消费一条就删减 this.taskLivingIds 一次
+          this._taskNormalConsume()
         }
       }
     }
@@ -95,7 +97,6 @@ export class BunchThread implements BunchThreadInterface {
       await task()
       this._livingIdReduce(task)
     }
-    return Promise.resolve()
   }
 
   _livingIdReduce(task: Task) {

@@ -1,6 +1,9 @@
-import { initPage, RequestCallback, ResponseCallback } from './init_page'
-import { Page } from "@/types/common"
+import { Page, Request, Response } from 'puppeteer'
+import { isCSSUrl, isImgUrl } from './assert'
 
+
+export type RequestCallback = (option: Request) => Promise<boolean | void>
+export type ResponseCallback = (option: Response) => Promise<boolean | void> 
 export interface LinkInterface {
 
 }
@@ -16,8 +19,8 @@ export class Link implements LinkInterface {
   constructor (url: string) {
     this.url = url
     this.page = {} as Page
-    this.request = () => {}
-    this.response = () => {}
+    this.request = () => Promise.resolve()
+    this.response = () => Promise.resolve()
     this.end = () => {}
   }
 
@@ -29,7 +32,26 @@ export class Link implements LinkInterface {
   }
 
   async emit () {
-    this.page = await initPage(this.request, this.response)
+    this.page = await global.$browser.newPage()
+    await this.page.setRequestInterception(true)
+    this.page.on('request', async (interceptedRequest: Request) => {
+      if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
+        interceptedRequest.abort()
+      } else {
+        interceptedRequest.continue()
+      }
+      if (this.request) {
+        this.request(interceptedRequest)
+      }
+    })
+    if (this.response) {
+      this.page.on('response', async (response: Response) => {
+        const hasDone = await this.response(response)
+        if (hasDone) {
+          // do something
+        }
+      })
+    }
     return new Promise((resolve: Function, reject: Function) => {
       return this.emitHandler(this.url, resolve, reject)
     })

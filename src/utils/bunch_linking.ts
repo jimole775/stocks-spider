@@ -5,8 +5,7 @@ const LogTag = 'utils.BunchLinking => '
 
 export interface BrowserPage extends Page {
   idl: boolean,
-  id: string,
-  abort: boolean
+  id: string
 }
 
 export type BunchLinkingResponse = Response
@@ -75,36 +74,18 @@ export class BunchLinking {
 
   _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      const idlPage: BrowserPage = this._pickIdlPage()
+      const idlPage: BrowserPage = await this._pickIdlPage()
       if (idlPage.goto) {
         idlPage.idl = false
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
           console.log(LogTag, 'idlPage.goto:', err)
           return reject()
         })
-        // todo 需要根据idlPage的数量来判断要waiting时间
-        await this._waitingPageAborted(idlPage)
-        idlPage.idl = true
         return resolve()
       } else {
         return reject()
       }
     })
-  }
-
-  _waitingPageAborted (tar: BrowserPage) {
-    return new Promise((resolve: Function) => {
-      loop(tar, resolve)
-    })
-    function loop (tar: BrowserPage, end: Function) {
-      if (tar.abort === true) {
-        return end()
-      } else {
-        setTimeout(() => {
-          return loop(tar, end)
-        }, 15)
-      }
-    }
   }
 
   _buildPages (): Promise<void> {
@@ -113,7 +94,7 @@ export class BunchLinking {
         const idlPage: BrowserPage = await global.$browser.newPage() as BrowserPage
         await idlPage.setRequestInterception(true)
         idlPage.on('request', async (interceptedRequest: Request) => {
-          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || idlPage.abort === true) {
+          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || idlPage.idl === true) {
             interceptedRequest.abort()
           } else {
             interceptedRequest.continue()
@@ -126,13 +107,12 @@ export class BunchLinking {
           idlPage.on('response', async (response: Response) => {
             const hasDone = await this.responseCallback(response)
             if (hasDone === true) {
-              idlPage.abort = true
+              idlPage.idl = true
             }
           })
         }
         idlPage.id = '_id_' + i
         idlPage.idl = true
-        idlPage.abort = false
         this.pages.push(idlPage)
       }
       return resolve()
@@ -150,20 +130,19 @@ export class BunchLinking {
     })
   }
 
-  _pickIdlPage (): BrowserPage {
-    let idlPage: BrowserPage = {} as BrowserPage
-    for (const page of this.pages) {
-      if (page.idl === true) {
-        idlPage = this._resetPageState(page)
-        break
+  _pickIdlPage (): Promise<BrowserPage> {
+    return new Promise((resolve: Function) => {
+      const loop = (end: Function) => {
+        const idlPage: any = this.pages.find(i => i.idl) as BrowserPage
+        if (idlPage) {
+          return end(idlPage)
+        } else {
+          return setTimeout(() => {
+            loop(end)
+          }, 15)
+        }
       }
-    }
-    return idlPage
-  }
-
-  _resetPageState (page: BrowserPage) {
-    page.abort = false
-    page.idl = true
-    return page
+      loop(resolve)
+    })
   }
 }
