@@ -100,7 +100,8 @@ async function sniffUrlFromWeb (unlinkedUrls: string[], chart: string) {
           if (!doneApiMap[code]) {
             console.log('record:', code)
             doneApiMap[code] = stockItem
-            return await bus['record'](stockItem)
+            await bus['record'](stockItem)
+            return Promise.resolve(true)
           }
         }
       }

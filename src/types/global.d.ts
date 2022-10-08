@@ -1,4 +1,5 @@
 import Mysql from '@/db-utils/mysql/index'
+import { Browser } from 'puppeteer'
 import { UrlModel } from '@/types/stock'
 import { Util } from '@/types/util.d'
 declare global {
@@ -8,6 +9,7 @@ declare global {
 
   var $utils: Util
   var $urlModel: UrlModel
+  var $browser: Browser
 
   var $sleepTimes: number
   var $bunchLimit: number

@@ -1,5 +1,6 @@
 import path from 'path'
 import moment from 'moment'
+import puppeteer from 'puppeteer' 
 import { quest } from './utils/quest'
 import { cmdParam } from './utils/cmd_param'
 import { readFileSync } from './utils/read_file_sync'
@@ -51,6 +52,8 @@ export default async function config(): Promise<any> {
       base_data: `G:\\my_db\\stocks-spider\\base.json`
     }
   }
+
+  global.$browser = await puppeteer.launch()
 
   global.$utils = require(path.join(__dirname, 'utils\\index'))
   return Promise.resolve()

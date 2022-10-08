@@ -45,7 +45,6 @@ async function excution (resolve: Function, reject: Function) {
   console.log('neverLinedURLs enmure: ', neverLinedURLs[0])
 
   // 如果 baseData 中没有api，就跑 sniffApiFromWebsite，从deal的主页去嗅探api
-  // todo 这里会造成 `MaxListenersExceededWarning` 错误
   const doneApiMap = await sniffApiFromWebsite(neverLinedURLs)
 
   // 最后把api存起来

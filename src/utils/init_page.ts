@@ -25,7 +25,6 @@ async function loop (
     const browser = await puppeteer.launch()
     const page: Page = await browser.newPage()
     await page.setRequestInterception(true)
-    // todo 这里需要判断callback是否返回了正确的结果
     page.on('request', async (interceptedRequest: Request) => {
       if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
         interceptedRequest.abort()

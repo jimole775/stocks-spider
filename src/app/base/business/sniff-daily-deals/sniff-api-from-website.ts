@@ -23,11 +23,13 @@ export default async function sniffApiFromWebSite (dealsURLs: string[]): Promise
         if (peerDealReg.test(api)) {
           const { code = '', ut, cb, id } = dealAnalyze(api)
           doneApiMap[code] = { ut, cb, id, dt: 0 }
-          recordDeals({ ut, cb, id })
+          await recordDeals({ ut, cb, id })
+          return Promise.resolve(true)
         } else if (peerDealReg1.test(api)) {
           const { code = '', secid, id } = dealAnalyze(api)
           doneApiMap[code] = { secid, dt: 1 }
-          recordDeals1({ secid })
+          await recordDeals1({ secid })
+          return Promise.resolve(true)
         }
       }
     },

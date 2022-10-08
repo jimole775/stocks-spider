@@ -10,7 +10,6 @@ import { StockStoreModel } from "./types/stock"
     await require('./app/base/business/sniff-stock-home').default(global.$module)
   }
 
-
   if (['deal', 'all'].includes(global.$module)) {
     console.log('Sniff daily deals!')
     await require('./app/base/business/sniff-daily-deals').default()
@@ -62,7 +61,12 @@ import { StockStoreModel } from "./types/stock"
     // fs.writeFileSync(global.$path.db.base_data, JSON.stringify(base))
   }
 
+  await global.$browser.close()
+  console.log('Browser was closed!')
+
   console.log('Process was end!')
+  await global.$utils.sleep()
+
   process.exit()
 })()
 
