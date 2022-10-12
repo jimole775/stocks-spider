@@ -152,10 +152,18 @@ export class BunchThread implements BunchThreadInterface {
       return this._thread(<Task>this.taskQueue.shift())
     } else {
       if (this.taskLiving <= 0) {
-        this.taskLiving = 0
+        this.reset()
         return this.endCallback()
       }
     }
+  }
+
+  reset () {
+    this.paramList.length = 0
+    this.taskQueue.length = 0
+    this.taskLivingIds.length = 0
+    this.consumedIds.length = 0
+    this.taskLiving = 0
   }
 
   _sleep(time: number): Promise<any> {

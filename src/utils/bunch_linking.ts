@@ -48,42 +48,49 @@ export class BunchLinking {
 
   async emit () {
     await this._buildPages()
-    return new Promise((resolve, reject) => {
-      return this._consumeUrls(this.urls, resolve, reject)
-    })
+    await this._consumeUrls(this.urls)
+    return Promise.resolve()
   }
 
-  _consumeUrls (urls: string[], resolve: Function, reject: Function) {
-    this.bunch.register(urls, async (url: string): Promise<void> => {
-      await this._taskEntity(url)
-      return Promise.resolve()
+  _consumeUrls (urls: string[]): Promise<void> {
+    const loop = (_urls: string[], resolve: Function) => {
+      this.bunch.register(_urls, async (url: string): Promise<void> => {
+        await this._taskEntity(url)
+        return Promise.resolve()
+      })
+      .finally(async () => {
+        let remainUrls = this.end()
+        console.log('idl pages id when process end: ', this.pages.filter(i => i.idl).map(i => i.id))
+        if (remainUrls && remainUrls.length) {
+          console.log(LogTag, 'remainUrls: ', remainUrls.length)
+          return loop(remainUrls, resolve)
+        } else {
+          console.log(LogTag, 'loop end, shutting down pages!')
+          await this._shutdownPages(this.pages)
+          return resolve()
+        }
+      })
+      .emit()
+    }
+
+    return new Promise((resolve) => {
+      return loop(urls, resolve)
     })
-    .finally(async () => {
-      let remainUrls = this.end()
-      if (remainUrls && remainUrls.length) {
-        console.log(LogTag, 'remainUrls: ', remainUrls.length)
-        return this._consumeUrls(remainUrls, resolve, reject)
-      } else {
-        console.log(LogTag, 'loop end, shutting down pages!')
-        await this._shutdownPages()
-        return resolve()
-      }
-    })
-    .emit()
   }
 
   _taskEntity (url: string): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      const idlPage: BrowserPage = await this._pickIdlPage()
+    return new Promise(async (resolve) => {
+      const idlPage: BrowserPage = await this._pickIdlPage(this.pages)
       if (idlPage.goto) {
-        idlPage.idl = false
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
           console.log(LogTag, 'idlPage.goto:', err)
-          return reject()
+          return resolve()
         })
+        const idlPages = this.pages.filter(i => i.idl)
+        console.log('idl pages count when process running: ', idlPages.length)
         return resolve()
       } else {
-        return reject()
+        return resolve()
       }
     })
   }
@@ -119,30 +126,31 @@ export class BunchLinking {
     })
   }
 
-  _shutdownPages (): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < this.pages.length; i++) {
-        const page: Page = this.pages[i]
+  _shutdownPages (pages: BrowserPage[]): Promise<void> {
+    return new Promise(async (resolve) => {
+      for (let i = 0; i < pages.length; i++) {
+        const page: Page = pages[i]
         await page.close().catch(() => { i - 1 })
       }
-      this.pages = []
+      pages = []
       return resolve()
     })
   }
 
-  _pickIdlPage (): Promise<BrowserPage> {
+  _pickIdlPage (pages: BrowserPage[]): Promise<BrowserPage> {
     return new Promise((resolve: Function) => {
-      const loop = (end: Function) => {
-        const idlPage: any = this.pages.find(i => i.idl) as BrowserPage
+      return loop(pages, resolve)
+      function loop (srcs: BrowserPage[], end: Function) {
+        const idlPage: BrowserPage = srcs.find(i => i.idl) as BrowserPage
         if (idlPage) {
+          idlPage.idl = false
           return end(idlPage)
         } else {
-          return setTimeout(() => {
-            loop(end)
+          setTimeout(() => {
+            return loop(srcs, end)
           }, 15)
         }
       }
-      loop(resolve)
     })
   }
 }

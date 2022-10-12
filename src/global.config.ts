@@ -1,6 +1,7 @@
 import path from 'path'
 import moment from 'moment'
 import puppeteer from 'puppeteer' 
+import { EventEmitter } from 'node:events'
 import { quest } from './utils/quest'
 import { cmdParam } from './utils/cmd_param'
 import { readFileSync } from './utils/read_file_sync'
@@ -18,7 +19,7 @@ export default async function config(): Promise<any> {
   // 主要是在公用WIFI中，不造成网络的负担
   global.$onBusyNetwork = global.$crossEnv.netstat === 'busy'
   global.$sleepTimes = 3000 // 每一个访问的睡眠时长(ms)
-  global.$bunchLimit = global.$onBusyNetwork ? 1 : 50
+  global.$bunchLimit = global.$onBusyNetwork ? 1 : 7
 
   // 从站点上获取最后一天的交易日期
   global.$finalDealDate = await getDate()
