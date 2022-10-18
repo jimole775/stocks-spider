@@ -46,6 +46,7 @@ async function excution (resolve: Function, reject: Function) {
 
   // 如果 baseData 中没有api，就跑 sniffApiFromWebsite，从deal的主页去嗅探api
   const doneApiMap = await sniffApiFromWebsite(neverLinedURLs)
+  console.log('sniffApiFromWebsite end!')
 
   // 最后把api存起来
   await recordUsedApi('dealApi', doneApiMap)

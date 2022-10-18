@@ -22,7 +22,7 @@ export type BunchLinkingRequestEvent = (e: Request, ...args: any[]) => Promise<b
  */
 export class BunchLinking {
   limitBunch: number
-  bunch: BunchThread
+  bunchThread: BunchThread
   pages: BrowserPage[]
   urls: string[]
   requestCallback: BunchLinkingRequestEvent
@@ -31,7 +31,7 @@ export class BunchLinking {
   constructor (urls: string[] = [], limit: number = global.$bunchLimit) {
     this.limitBunch = limit
     this.urls = urls
-    this.bunch = new BunchThread(limit)
+    this.bunchThread = new BunchThread(limit)
     this.pages = []
     this.requestCallback = () => Promise.resolve()
     this.responseCallback = () => Promise.resolve()
@@ -54,8 +54,11 @@ export class BunchLinking {
 
   _consumeUrls (urls: string[]): Promise<void> {
     const loop = (_urls: string[], resolve: Function) => {
-      this.bunch.register(_urls, async (url: string): Promise<void> => {
+      this.bunchThread.register(_urls, async (url: string): Promise<void> => {
+        // todo 这里无法准确监听 每个 url 的采集情况
+        // todo 只能在response回调中去回收等待的任务id
         await this._taskEntity(url)
+        console.log('bunchThread item exec end: ', url)
         return Promise.resolve()
       })
       .finally(async () => {
@@ -83,11 +86,10 @@ export class BunchLinking {
       const idlPage: BrowserPage = await this._pickIdlPage(this.pages)
       if (idlPage.goto) {
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
-          console.log(LogTag, 'idlPage.goto:', err)
+          console.log(LogTag, 'idlPage.goto err:', url)
           return resolve()
         })
-        const idlPages = this.pages.filter(i => i.idl)
-        console.log('idl pages count when process running: ', idlPages.length)
+        console.log('idlPage.goto end: ', url)
         return resolve()
       } else {
         return resolve()
@@ -97,7 +99,7 @@ export class BunchLinking {
 
   _buildPages (): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < this.limitBunch; i++) {
+      for (let i = 0; i <= this.limitBunch; i++) {
         const idlPage: BrowserPage = await global.$browser.newPage() as BrowserPage
         await idlPage.setRequestInterception(true)
         idlPage.on('request', async (interceptedRequest: Request) => {

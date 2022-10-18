@@ -4,12 +4,12 @@
  * @return { BunchThread }
  */
 export interface BunchThreadInterface {
-  limit: number
   paramList: any[]
   taskQueue: Task[]
   taskLivingIds: number[]
   consumedIds: number[]
   taskLiving: number
+  taskLength: number
 }
 
 export type Task = {

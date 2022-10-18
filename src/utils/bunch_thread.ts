@@ -5,21 +5,23 @@ const bunch_log_prev: string = 'utils.BunchThread => '
  * 并发线程
  */
 export class BunchThread implements BunchThreadInterface {
-  limit: number
+  bunchLimit: number
+  taskLiving: number
+  taskLength: number
   paramList: any[]
   taskQueue: Task[]
   taskLivingIds: number[]
   consumedIds: number[]
-  taskLiving: number
   taskEntity: TaskEntity
   endCallback: Function
-  constructor(limit?: number) {
-    this.limit = limit ? limit : global.$bunchLimit
+  constructor(bunchLimit?: number) {
+    this.bunchLimit = bunchLimit ? bunchLimit : global.$bunchLimit
     this.paramList = []
     this.taskQueue = []
     this.taskLivingIds = []
     this.consumedIds = []
     this.taskLiving = 0
+    this.taskLength = 0
     this.taskEntity = () => Promise.resolve()
     this.endCallback = () => console.log('Bunch End!')
     return this
@@ -33,6 +35,7 @@ export class BunchThread implements BunchThreadInterface {
    */
   register(paramList: any[], taskEntity: TaskEntity): BunchThread {
     this.paramList = paramList
+    this.taskLength = paramList.length
     this.taskEntity = taskEntity
     return this
   }
@@ -43,27 +46,33 @@ export class BunchThread implements BunchThreadInterface {
    */
   async emit(): Promise<BunchThread> {
     if (this.paramList && this.paramList.length) {
-      const max = this.paramList.length
-      for (let i = 0; i < max; i++) {
+      for (let i = 0; i < this.taskLength; i++) {
         const param: any = this.paramList[i]
-        const task: Task = async () => {
-          await this.taskEntity(param, i)
-          return Promise.resolve()
-        }
+        const task: Task = () => this.taskEntity(param, i)
         task.id = i
         this.taskQueue.push(task)
         this.taskLivingIds.push(i)
-        console.log('并发剩余：', max - i)
-        if (this.taskLivingIds.length >= this.limit) {
+        if (this.taskLivingIds.length >= this.bunchLimit) {
           // 如果 this.taskLivingIds 溢出，就等待溢出部分消费完
           await this._waitConsumeUnderLimit()
+          console.log('任务状态1：', this.taskLivingIds.length)
         } else {
           // 正常消费，消费一条就删减 this.taskLivingIds 一次
-          this._taskNormalConsume()
+          if (this.isLastQueue(i)) {
+            await this._taskNormalConsume()
+          } else {
+            this._taskNormalConsume()
+          }
+          console.log('任务状态2：', this.taskLivingIds.length)
         }
       }
     }
+    console.log('BunchThread emit end!')
     return Promise.resolve(this)
+  }
+
+  isLastQueue (taskId: number) {
+    return this.taskLength - taskId <= this.bunchLimit
   }
 
   /**
@@ -72,7 +81,7 @@ export class BunchThread implements BunchThreadInterface {
    * @return { BunchThread }
    */
   taskCalling($$task: Task): BunchThread {
-    if (this.taskLiving >= this.limit) {
+    if (this.taskLiving >= this.bunchLimit) {
       this.taskQueue.push($$task)
     } else {
       this._thread($$task)
@@ -91,21 +100,25 @@ export class BunchThread implements BunchThreadInterface {
     return this
   }
 
-  async _taskNormalConsume() {
+  async _taskNormalConsume(): Promise<void> {
     if (this.taskQueue.length) {
       const task: Task = <Task>this.taskQueue.shift()
-      await task()
-      this._livingIdReduce(task)
+      await task() // 每个task在当前业务场景中，就是每个页面执行goto方法，然后监听每个请求的内容
+      console.log('bunch thread task finished on _taskNormalConsume:', task.id)
+      await this._livingIdReduce(task)
+      return Promise.resolve()
     }
   }
 
-  _livingIdReduce(task: Task) {
+  async _livingIdReduce(task: Task) {
     const idIndex = this.taskLivingIds.indexOf(task.id)
     this.taskLivingIds.splice(idIndex, 1)
     this.consumedIds.push(task.id)
     if (this.consumedIds.length === this.paramList.length) {
-      this.endCallback()
+      console.log('success to toggle endCallback by _livingIdReduce')
+      await this.endCallback()
     }
+    return Promise.resolve()
   }
 
   _waitConsumeUnderLimit(): Promise<any> {
@@ -115,12 +128,13 @@ export class BunchThread implements BunchThreadInterface {
   }
 
   async _consumeLoop(resolve: Function): Promise<any> {
-    if (this.taskLivingIds.length < this.limit) {
+    if (this.taskLivingIds.length < this.bunchLimit) {
       return resolve()
     } else {
       if (this.taskQueue.length) {
         const task: Task = <Task>this.taskQueue.shift()
         await task()
+        console.log('bunch thread task finished on _consumeLoop:', task.id)
         this._livingIdReduce(task)
         return this._consumeLoop(resolve)
       } else {
