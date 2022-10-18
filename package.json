@@ -86,7 +86,8 @@
     "mysql": "^2.18.1",
     "os-utils": "0.0.14",
     "puppeteer": "^2.1.1",
-    "superagent": "^5.3.1"
+    "superagent": "^5.3.1",
+    "trash": "^8.1.0"
   },
   "browserify": {
     "transform": "browserify-shim"
