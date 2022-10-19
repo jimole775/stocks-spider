@@ -5,15 +5,16 @@
  */
 export interface BunchThreadInterface {
   paramList: any[]
-  taskQueue: Task[]
+  paramQueue: TaskParam[]
+  taskLivingId: number
   taskLivingIds: number[]
   consumedIds: number[]
-  taskLiving: number
   taskLength: number
 }
 
-export type Task = {
-  (): Promise<any>;
+export type TaskParam = {
+  // (): Promise<any>;
+  param: any
   id: number
 }
 

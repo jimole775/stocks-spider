@@ -1,11 +1,13 @@
 import { Page, Request, Response } from 'puppeteer'
 import { BunchThread } from './bunch_thread'
 import { isCSSUrl, isImgUrl } from './assert'
+import { waitBy } from './wait_by'
 const LogTag = 'utils.BunchLinking => '
 
 export interface BrowserPage extends Page {
+  id: string,
   idl: boolean,
-  id: string
+  busying: boolean,
 }
 
 export type BunchLinkingResponse = Response
@@ -29,10 +31,10 @@ export class BunchLinking {
   responseCallback: BunchLinkingResponseEvent
   end: Function
   constructor (urls: string[] = [], limit: number = global.$bunchLimit) {
-    this.limitBunch = limit
-    this.urls = urls
-    this.bunchThread = new BunchThread(limit)
     this.pages = []
+    this.urls = urls
+    this.limitBunch = limit
+    this.bunchThread = new BunchThread(limit)
     this.requestCallback = () => Promise.resolve()
     this.responseCallback = () => Promise.resolve()
     this.end = () => { return [] }
@@ -48,28 +50,26 @@ export class BunchLinking {
 
   async emit () {
     await this._buildPages()
-    await this._consumeUrls(this.urls)
+    await this._consumeUrls()
     return Promise.resolve()
   }
 
-  _consumeUrls (urls: string[]): Promise<void> {
-    const loop = (_urls: string[], resolve: Function) => {
-      this.bunchThread.register(_urls, async (url: string): Promise<void> => {
-        // todo 这里无法准确监听 每个 url 的采集情况
-        // todo 只能在response回调中去回收等待的任务id
+  _consumeUrls (): Promise<void> {
+    const loop = (urls: string[], resolve: Function) => {
+      this.bunchThread.register(urls, async (url: string): Promise<void> => {
         await this._taskEntity(url)
         console.log('bunchThread item exec end: ', url)
         return Promise.resolve()
       })
       .finally(async () => {
-        let remainUrls = this.end()
-        console.log('idl pages id when process end: ', this.pages.filter(i => i.idl).map(i => i.id))
+        await this._waitingComsumesFinished()
+        const remainUrls = await this.end()
         if (remainUrls && remainUrls.length) {
           console.log(LogTag, 'remainUrls: ', remainUrls.length)
           return loop(remainUrls, resolve)
         } else {
           console.log(LogTag, 'loop end, shutting down pages!')
-          await this._shutdownPages(this.pages)
+          await this._shutdownPages()
           return resolve()
         }
       })
@@ -77,16 +77,48 @@ export class BunchLinking {
     }
 
     return new Promise((resolve) => {
-      return loop(urls, resolve)
+      return loop(this.urls, resolve)
+    })
+  }
+
+  _setPageWorking (page: BrowserPage) {
+    page.idl = false
+    page.busying = true
+  }
+
+  _setPageDiswork (page: BrowserPage) {
+    page.idl = true
+    page.busying = false
+  }
+
+  async _waitingComsumesFinished () {
+    // todo 这个函数有问题
+    // await waitBy(() => this.bunchThread.isDone && !this.pages.find(i => i.busying))
+    const loopEntity = async (loopResolve: Function): Promise<any> => {
+      if (this.bunchThread.isDone && !this.pages.find(i => i.busying)) {
+        // console.log('BunchThread emit end!')
+        // this.isDone = true
+        // await this.endCallback()
+        // this.reset()
+        return loopResolve()
+      } else {
+        return setTimeout(() => {
+          return loopEntity(loopResolve)
+        }, 500)
+      }
+    }
+    return new Promise((resolve: Function) => {
+      return loopEntity(resolve)
     })
   }
 
   _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve) => {
-      const idlPage: BrowserPage = await this._pickIdlPage(this.pages)
+      const idlPage: BrowserPage = await this._pickIdlPage()
       if (idlPage.goto) {
+        this._setPageWorking(idlPage)
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
-          console.log(LogTag, 'idlPage.goto err:', url)
+          console.log(LogTag, 'idlPage.goto err: ', err)
           return resolve()
         })
         console.log('idlPage.goto end: ', url)
@@ -98,12 +130,12 @@ export class BunchLinking {
   }
 
   _buildPages (): Promise<void> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       for (let i = 0; i <= this.limitBunch; i++) {
-        const idlPage: BrowserPage = await global.$browser.newPage() as BrowserPage
-        await idlPage.setRequestInterception(true)
-        idlPage.on('request', async (interceptedRequest: Request) => {
-          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || idlPage.idl === true) {
+        const page: BrowserPage = await global.$browser.newPage() as BrowserPage
+        await page.setRequestInterception(true)
+        page.on('request', async (interceptedRequest: Request) => {
+          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || page.idl === true) {
             interceptedRequest.abort()
           } else {
             interceptedRequest.continue()
@@ -113,46 +145,48 @@ export class BunchLinking {
           }
         })
         if (this.responseCallback) {
-          idlPage.on('response', async (response: Response) => {
+          page.on('response', async (response: Response) => {
             const hasDone = await this.responseCallback(response)
             if (hasDone === true) {
-              idlPage.idl = true
+              this._setPageDiswork(page)
             }
           })
         }
-        idlPage.id = '_id_' + i
-        idlPage.idl = true
-        this.pages.push(idlPage)
+        page.id = '_id_' + i
+        this._setPageDiswork(page)
+        this.pages.push(page)
       }
       return resolve()
     })
   }
 
-  _shutdownPages (pages: BrowserPage[]): Promise<void> {
+  _shutdownPages (): Promise<void> {
     return new Promise(async (resolve) => {
-      for (let i = 0; i < pages.length; i++) {
-        const page: Page = pages[i]
+      for (let i = 0; i < this.pages.length; i++) {
+        const page: Page = this.pages[i]
         await page.close().catch(() => { i - 1 })
       }
-      pages = []
+      this.pages = []
       return resolve()
     })
   }
 
-  _pickIdlPage (pages: BrowserPage[]): Promise<BrowserPage> {
-    return new Promise((resolve: Function) => {
-      return loop(pages, resolve)
-      function loop (srcs: BrowserPage[], end: Function) {
-        const idlPage: BrowserPage = srcs.find(i => i.idl) as BrowserPage
-        if (idlPage) {
-          idlPage.idl = false
-          return end(idlPage)
-        } else {
-          setTimeout(() => {
-            return loop(srcs, end)
-          }, 15)
-        }
+  async _pickIdlPage (): Promise<BrowserPage> {
+    // todo 这个函数设计有缺陷
+    // await waitBy(() => !!this.pages.find(i => i.idl))
+    const loopEntity = async (loopResolve: Function): Promise<any> => {
+      const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
+      if (idlPage) {
+        return loopResolve(idlPage)
+      } else {
+        return setTimeout(() => {
+          return loopEntity(loopResolve)
+        }, 15)
       }
+    }
+    return new Promise((resolve: Function) => {
+      return loopEntity(resolve)
     })
   }
+
 }
