@@ -58,7 +58,6 @@ export class BunchLinking {
     const loop = (urls: string[], resolve: Function) => {
       this.bunchThread.register(urls, async (url: string): Promise<void> => {
         await this._taskEntity(url)
-        console.log('bunchThread item exec end: ', url)
         return Promise.resolve()
       })
       .finally(async () => {
@@ -81,47 +80,45 @@ export class BunchLinking {
     })
   }
 
+  _setPageId (page: BrowserPage, i: number) {
+    page.id = '_id_' + i
+  }
+
   _setPageWorking (page: BrowserPage) {
     page.idl = false
     page.busying = true
   }
 
-  _setPageDiswork (page: BrowserPage) {
+  _setPageLiedown (page: BrowserPage) {
     page.idl = true
     page.busying = false
   }
 
   async _waitingComsumesFinished () {
-    // todo 这个函数有问题
-    // await waitBy(() => this.bunchThread.isDone && !this.pages.find(i => i.busying))
-    const loopEntity = async (loopResolve: Function): Promise<any> => {
-      if (this.bunchThread.isDone && !this.pages.find(i => i.busying)) {
-        // console.log('BunchThread emit end!')
-        // this.isDone = true
-        // await this.endCallback()
-        // this.reset()
-        return loopResolve()
-      } else {
-        return setTimeout(() => {
-          return loopEntity(loopResolve)
-        }, 500)
-      }
-    }
-    return new Promise((resolve: Function) => {
-      return loopEntity(resolve)
-    })
+    await waitBy(() => this.bunchThread.isDone && !this.pages.find(i => i.busying))
+    return Promise.resolve()
+    // const loopEntity = async (loopResolve: Function): Promise<any> => {
+    //   if (this.bunchThread.isDone && !this.pages.find(i => i.busying)) {
+    //     return loopResolve()
+    //   } else {
+    //     return setTimeout(() => {
+    //       return loopEntity(loopResolve)
+    //     }, 500)
+    //   }
+    // }
+    // return new Promise((resolve: Function) => {
+    //   return loopEntity(resolve)
+    // })
   }
 
   _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve) => {
       const idlPage: BrowserPage = await this._pickIdlPage()
       if (idlPage.goto) {
-        this._setPageWorking(idlPage)
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
           console.log(LogTag, 'idlPage.goto err: ', err)
           return resolve()
         })
-        console.log('idlPage.goto end: ', url)
         return resolve()
       } else {
         return resolve()
@@ -148,12 +145,12 @@ export class BunchLinking {
           page.on('response', async (response: Response) => {
             const hasDone = await this.responseCallback(response)
             if (hasDone === true) {
-              this._setPageDiswork(page)
+              this._setPageLiedown(page)
             }
           })
         }
-        page.id = '_id_' + i
-        this._setPageDiswork(page)
+        this._setPageId(page, i)
+        this._setPageLiedown(page)
         this.pages.push(page)
       }
       return resolve()
@@ -172,21 +169,25 @@ export class BunchLinking {
   }
 
   async _pickIdlPage (): Promise<BrowserPage> {
-    // todo 这个函数设计有缺陷
-    // await waitBy(() => !!this.pages.find(i => i.idl))
-    const loopEntity = async (loopResolve: Function): Promise<any> => {
-      const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
-      if (idlPage) {
-        return loopResolve(idlPage)
-      } else {
-        return setTimeout(() => {
-          return loopEntity(loopResolve)
-        }, 15)
-      }
-    }
-    return new Promise((resolve: Function) => {
-      return loopEntity(resolve)
-    })
+    await waitBy(() => !!this.pages.find(i => i.idl))
+    const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
+    this._setPageWorking(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
+    return Promise.resolve(idlPage)
+    // const loopEntity = async (loopResolve: Function): Promise<any> => {
+    //   const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
+    //   console.log('_pickIdlPage: ', idlPage.id)
+    //   if (idlPage) {
+    //     this._setPageWorking(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
+    //     return loopResolve(idlPage)
+    //   } else {
+    //     return setTimeout(() => {
+    //       return loopEntity(loopResolve)
+    //     }, 500)
+    //   }
+    // }
+    // return new Promise((resolve: Function) => {
+    //   return loopEntity(resolve)
+    // })
   }
 
 }

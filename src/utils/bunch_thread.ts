@@ -68,11 +68,9 @@ export class BunchThread implements BunchThreadInterface {
         if (this.taskLivingIds.length >= this.bunchLimit) {
           // 如果 this.taskLivingIds 溢出，就等待溢出部分消费完
           await this._waitConsumeUnderLimit()
-          console.log('任务状态1：', this.taskLivingIds.length)
         } else {
           // 正常消费，消费一条就删减 this.taskLivingIds 一次
           this._taskNormalConsume()
-          console.log('任务状态2：', this.taskLivingIds.length)
         }
       }
     }
@@ -128,7 +126,6 @@ export class BunchThread implements BunchThreadInterface {
     if (this.paramQueue.length) {
       const taskParam: TaskParam = <TaskParam>this.paramQueue.shift()
       await this.taskEntity(taskParam.param) // 每个task在当前业务场景中，就是每个页面执行goto方法，然后监听每个请求的内容
-      console.log('_taskNormalConsume runned!')
       this._livingIdReduce(taskParam.id)
       return Promise.resolve()
     }
