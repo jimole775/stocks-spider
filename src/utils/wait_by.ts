@@ -1,7 +1,8 @@
-export async function waitBy (condition: () => Promise<boolean> | boolean, delay?: number): Promise<any> {
+export async function waitBy (condition: () => Promise<any> | any, delay?: number): Promise<any> {
   const loopEntity = async (loopResolve: Function): Promise<any> => {
-    if (await condition()) {
-      return loopResolve()
+    const expection = await condition()
+    if (expection) {
+      return loopResolve(expection)
     } else {
       return setTimeout(() => {
         return loopEntity(loopResolve)

@@ -56,10 +56,7 @@ export class BunchLinking {
 
   _consumeUrls (): Promise<void> {
     const loop = (urls: string[], resolve: Function) => {
-      this.bunchThread.register(urls, async (url: string): Promise<void> => {
-        await this._taskEntity(url)
-        return Promise.resolve()
-      })
+      this.bunchThread.register(urls, this._taskEntity.bind(this))
       .finally(async () => {
         await this._waitingComsumesFinished()
         const remainUrls = await this.end()
@@ -84,12 +81,20 @@ export class BunchLinking {
     page.id = '_id_' + i
   }
 
-  _setPageWorking (page: BrowserPage) {
+  _isIdl (page: BrowserPage) {
+    return page.idl === true
+  }
+
+  _isBusying (page: BrowserPage) {
+    return page.busying === true
+  }
+
+  _setPageBusying (page: BrowserPage) {
     page.idl = false
     page.busying = true
   }
 
-  _setPageLiedown (page: BrowserPage) {
+  _setPageIdl (page: BrowserPage) {
     page.idl = true
     page.busying = false
   }
@@ -114,11 +119,14 @@ export class BunchLinking {
   _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve) => {
       const idlPage: BrowserPage = await this._pickIdlPage()
+      console.log('_taskEntity: ', idlPage.id, idlPage.idl)
       if (idlPage.goto) {
+        this._setPageBusying(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
         await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
-          console.log(LogTag, 'idlPage.goto err: ', err)
+          this._setPageIdl(idlPage)
           return resolve()
         })
+        this._setPageIdl(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
         return resolve()
       } else {
         return resolve()
@@ -128,11 +136,11 @@ export class BunchLinking {
 
   _buildPages (): Promise<void> {
     return new Promise(async (resolve) => {
-      for (let i = 0; i <= this.limitBunch; i++) {
+      for (let i = 0; i < this.limitBunch; i++) {
         const page: BrowserPage = await global.$browser.newPage() as BrowserPage
         await page.setRequestInterception(true)
         page.on('request', async (interceptedRequest: Request) => {
-          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || page.idl === true) {
+          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || this._isIdl(page)) {
             interceptedRequest.abort()
           } else {
             interceptedRequest.continue()
@@ -145,12 +153,14 @@ export class BunchLinking {
           page.on('response', async (response: Response) => {
             const hasDone = await this.responseCallback(response)
             if (hasDone === true) {
-              this._setPageLiedown(page)
+              console.log('page end: ', page.id)
+              this._setPageIdl(page)
             }
           })
         }
+        console.log('create page:', i)
         this._setPageId(page, i)
-        this._setPageLiedown(page)
+        this._setPageIdl(page)
         this.pages.push(page)
       }
       return resolve()
@@ -169,15 +179,21 @@ export class BunchLinking {
   }
 
   async _pickIdlPage (): Promise<BrowserPage> {
-    await waitBy(() => !!this.pages.find(i => i.idl))
-    const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
-    this._setPageWorking(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
+    // todo try fiexd!!!
+    const condition = () => {
+      console.log(this.pages.map(i => i.idl))
+      return this.pages.find(i => i.idl)
+    }
+    const idlPage = await waitBy(condition)
+    // console.log('_pickIdlPage this.pages: ', this.pages.map(i => i.idl))
+    // const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
+    console.log('_pickIdlPage idl page: ', idlPage.id, idlPage.idl)
     return Promise.resolve(idlPage)
     // const loopEntity = async (loopResolve: Function): Promise<any> => {
     //   const idlPage: BrowserPage = this.pages.find(i => i.idl) as BrowserPage
     //   console.log('_pickIdlPage: ', idlPage.id)
     //   if (idlPage) {
-    //     this._setPageWorking(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
+    //     this._setPageBusying(idlPage) // 因为当前处于并发状态，所以获取闲置页之后，需要马上转换页面状态
     //     return loopResolve(idlPage)
     //   } else {
     //     return setTimeout(() => {

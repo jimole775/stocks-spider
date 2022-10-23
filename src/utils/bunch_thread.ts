@@ -1,7 +1,6 @@
 import { waitBy } from './wait_by'
 import { BunchThreadInterface, TaskParam, TaskEntity } from '@/interfaces/bunch_thread'
 export * from '@/interfaces/bunch_thread'
-const bunch_log_prev: string = 'utils.BunchThread => '
 /**
  * 并发线程
  */
@@ -64,11 +63,13 @@ export class BunchThread implements BunchThreadInterface {
         this.taskLivingId = i
         this.taskLivingIds.push(i)
         this.paramQueue.push({ param, id: i })
-        console.log('任务剩余：', this.taskLength - this.taskLivingId)
+        // console.log('任务剩余：', this.taskLength - this.taskLivingId)
         if (this.taskLivingIds.length >= this.bunchLimit) {
           // 如果 this.taskLivingIds 溢出，就等待溢出部分消费完
+          console.log('consume1')
           await this._waitConsumeUnderLimit()
         } else {
+          console.log('consume2')
           // 正常消费，消费一条就删减 this.taskLivingIds 一次
           this._taskNormalConsume()
         }
@@ -78,23 +79,27 @@ export class BunchThread implements BunchThreadInterface {
   }
 
   async _waitingTaskFinished () {
-    // await waitBy(() => this.consumedIds.length === this.paramList.length)
-    const loopEntity = async (loopResolve: Function): Promise<any> => {
-      if (this.consumedIds.length === this.paramList.length) {
-        console.log('BunchThread emit end!')
-        this.isDone = true
-        await this.endCallback()
-        this.reset()
-        return loopResolve()
-      } else {
-        return setTimeout(() => {
-          return loopEntity(loopResolve)
-        }, 500)
-      }
-    }
-    return new Promise((resolve: Function) => {
-      return loopEntity(resolve)
-    })
+    await waitBy(() => this.consumedIds.length === this.paramList.length)
+    this.isDone = true
+    await this.endCallback()
+    this.reset()
+    return Promise.resolve()
+    // const loopEntity = async (loopResolve: Function): Promise<any> => {
+    //   if (this.consumedIds.length === this.paramList.length) {
+    //     console.log('BunchThread emit end!')
+    //     this.isDone = true
+    //     await this.endCallback()
+    //     this.reset()
+    //     return loopResolve()
+    //   } else {
+    //     return setTimeout(() => {
+    //       return loopEntity(loopResolve)
+    //     }, 500)
+    //   }
+    // }
+    // return new Promise((resolve: Function) => {
+    //   return loopEntity(resolve)
+    // })
   }
 
   /**
@@ -126,7 +131,7 @@ export class BunchThread implements BunchThreadInterface {
     if (this.paramQueue.length) {
       const taskParam: TaskParam = <TaskParam>this.paramQueue.shift()
       await this.taskEntity(taskParam.param) // 每个task在当前业务场景中，就是每个页面执行goto方法，然后监听每个请求的内容
-      this._livingIdReduce(taskParam.id)
+      await this._livingIdReduce(taskParam.id)
       return Promise.resolve()
     }
   }
@@ -135,12 +140,11 @@ export class BunchThread implements BunchThreadInterface {
     const idIndex = this.taskLivingIds.indexOf(id)
     this.taskLivingIds.splice(idIndex, 1)
     this.consumedIds.push(id)
+    return Promise.resolve()
   }
 
   _waitConsumeUnderLimit(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      return this._consumeLoop(resolve)
-    })
+    return new Promise(this._consumeLoop.bind(this))
   }
 
   async _consumeLoop(resolve: Function): Promise<any> {
@@ -150,10 +154,10 @@ export class BunchThread implements BunchThreadInterface {
       if (this.paramQueue.length) {
         const taskParam: TaskParam = <TaskParam>this.paramQueue.shift()
         await this.taskEntity(taskParam.param)
-        this._livingIdReduce(taskParam.id) // todo 需要判断这里是否会出现task消费的遗漏
-        return this._consumeLoop(resolve)
+        await this._livingIdReduce(taskParam.id) // todo 需要判断这里是否会出现task消费的遗漏
+        this._consumeLoop(resolve)
       } else {
-        resolve()
+        return resolve()
       }
     }
   }
