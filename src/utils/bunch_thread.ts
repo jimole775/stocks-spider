@@ -63,13 +63,11 @@ export class BunchThread implements BunchThreadInterface {
         this.taskLivingId = i
         this.taskLivingIds.push(i)
         this.paramQueue.push({ param, id: i })
-        // console.log('任务剩余：', this.taskLength - this.taskLivingId)
+        console.log('任务剩余：', this.taskLength - this.taskLivingId)
         if (this.taskLivingIds.length >= this.bunchLimit) {
           // 如果 this.taskLivingIds 溢出，就等待溢出部分消费完
-          console.log('consume1')
           await this._waitConsumeUnderLimit()
         } else {
-          console.log('consume2')
           // 正常消费，消费一条就删减 this.taskLivingIds 一次
           this._taskNormalConsume()
         }
@@ -84,22 +82,6 @@ export class BunchThread implements BunchThreadInterface {
     await this.endCallback()
     this.reset()
     return Promise.resolve()
-    // const loopEntity = async (loopResolve: Function): Promise<any> => {
-    //   if (this.consumedIds.length === this.paramList.length) {
-    //     console.log('BunchThread emit end!')
-    //     this.isDone = true
-    //     await this.endCallback()
-    //     this.reset()
-    //     return loopResolve()
-    //   } else {
-    //     return setTimeout(() => {
-    //       return loopEntity(loopResolve)
-    //     }, 500)
-    //   }
-    // }
-    // return new Promise((resolve: Function) => {
-    //   return loopEntity(resolve)
-    // })
   }
 
   /**
