@@ -25,7 +25,7 @@ async function excutes (dealApi: ApiStore, resolve: Function, loopTimes: number)
   const code: string = (dealApi.secid || '').split('.').pop() || ''
   const savePath: string = path.join(global.$path.db.stocks, code, fileModel)
   try {
-    console.log('正在探测：', code)
+    console.log('正在探测1：', code)
     // 'data: {"rc":0,"rt":12,"svr":182995883,"lt":1,"full":1,"dlmkts":"","data":{"code":"000667","market":0,"decimal":2,"prePrice":1.6,"details":[]}'
     const res = await quest(api, {
       header: { 'Content-Type': 'text\/event-stream' },

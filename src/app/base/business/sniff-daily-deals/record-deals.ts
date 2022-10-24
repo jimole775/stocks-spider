@@ -32,6 +32,7 @@ async function excutes (recordItem: ApiStore, resolve: Function, loopTimes: numb
   const api = dealApiFactory(recordItem)
   const savePath = path.join(global.$path.db.stocks, stockCode, fileModel)
   try {
+    console.log('正在探测：', id)
     const res: QuestResponse = await quest(api) || 'jquey_123456({"data":{"data":[]}});'
     if (res.code === 200) {
       const data = res.data.replace(/^[\w\d_]*?\((.+?)\);$/ig, '$1')

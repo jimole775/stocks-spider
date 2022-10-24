@@ -18,7 +18,7 @@ export default async function config(): Promise<any> {
   // 主要是在公用WIFI中，不造成网络的负担
   global.$onBusyNetwork = global.$crossEnv.netstat === 'busy'
   global.$sleepTimes = 3000 // 每一个访问的睡眠时长(ms)
-  global.$bunchLimit = global.$onBusyNetwork ? 1 : 5
+  global.$bunchLimit = global.$onBusyNetwork ? 1 : 50
 
   // 从站点上获取最后一天的交易日期
   global.$finalDealDate = await getDate()

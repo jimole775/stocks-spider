@@ -100,7 +100,11 @@ export class BunchLinking {
   }
 
   async _waitingComsumesFinished () {
-    await waitBy(() => this.bunchThread.isDone && !this.pages.find(i => i.busying))
+    const condition = () => {
+      console.log(this.bunchThread.isDone, this.pages.map(i => i.busying))
+      return this.bunchThread.isDone && !this.pages.find(i => i.busying)
+    }
+    await waitBy(condition)
     return Promise.resolve()
   }
 
@@ -174,3 +178,21 @@ export class BunchLinking {
   }
 
 }
+
+// 正在探测： 300062
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 300155
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 300233
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 002615
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 002840
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 002072
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 002458
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 002216
+// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
+// 正在探测： 600302
