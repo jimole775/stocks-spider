@@ -77,7 +77,10 @@ export class BunchThread implements BunchThreadInterface {
   }
 
   async _waitingTaskFinished () {
-    await waitBy(() => this.consumedIds.length === this.paramList.length)
+    const condition = function (this: BunchThread) {
+      return this.consumedIds.length === this.paramList.length
+    }
+    await waitBy(condition.bind(this))
     this.isDone = true
     await this.endCallback()
     this.reset()

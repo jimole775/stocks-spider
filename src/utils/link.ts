@@ -59,7 +59,7 @@ export class Link implements LinkInterface {
 
   async emitHandler (url: string, resolve: Function, reject: Function): Promise<void> {
     try {
-      await this.page.goto(url, { timeout: 0 })
+      await this.page.goto(url, { timeout: global.$questTimeout })
       await this.shutdownPage()
       return resolve()
     } catch (error) {

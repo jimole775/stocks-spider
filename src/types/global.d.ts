@@ -13,6 +13,7 @@ declare global {
 
   var $sleepTimes: number
   var $bunchLimit: number
+  var $questTimeout: number
   var $finalDealDate: string
   var $onBusyNetwork: boolean
   var $blackName: RegExp

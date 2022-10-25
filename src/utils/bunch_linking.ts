@@ -100,11 +100,10 @@ export class BunchLinking {
   }
 
   async _waitingComsumesFinished () {
-    const condition = () => {
-      console.log(this.bunchThread.isDone, this.pages.map(i => i.busying))
+    const condition = function (this: BunchLinking) {
       return this.bunchThread.isDone && !this.pages.find(i => i.busying)
     }
-    await waitBy(condition)
+    await waitBy(condition.bind(this))
     return Promise.resolve()
   }
 
@@ -113,7 +112,8 @@ export class BunchLinking {
       const idlPage: BrowserPage = await this._pickIdlPage()
       console.log('_taskEntity: ', idlPage.id, idlPage.idl)
       if (idlPage.goto) {
-        await idlPage.goto(url, { timeout: 0 }).catch((err: string) => {
+        await idlPage.goto(url, { timeout: global.$questTimeout }).catch((err: string) => {
+          console.log('bunch link failure:', url)
           this._setPageIdl(idlPage)
           return resolve()
         })
@@ -143,6 +143,7 @@ export class BunchLinking {
           page.on('response', async (response: Response) => {
             const hasDone = await this.responseCallback(response)
             if (hasDone === true) {
+              // todo 这里没有顺利设置到page状态
               console.log('page end: ', page.id)
               this._setPageIdl(page)
             }
@@ -162,7 +163,7 @@ export class BunchLinking {
         const page: Page = this.pages[i]
         await page.close().catch(() => { i - 1 })
       }
-      this.pages = []
+      this.pages.length = 0
       return resolve()
     })
   }
@@ -178,21 +179,3 @@ export class BunchLinking {
   }
 
 }
-
-// 正在探测： 300062
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 300155
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 300233
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 002615
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 002840
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 002072
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 002458
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 002216
-// src/app/base/business/sniff-daily-deals/record-deals1.ts:28
-// 正在探测： 600302

@@ -19,6 +19,7 @@ export default async function config(): Promise<any> {
   global.$onBusyNetwork = global.$crossEnv.netstat === 'busy'
   global.$sleepTimes = 3000 // 每一个访问的睡眠时长(ms)
   global.$bunchLimit = global.$onBusyNetwork ? 1 : 50
+  global.$questTimeout = 30000 // 请求超时的时间
 
   // 从站点上获取最后一天的交易日期
   global.$finalDealDate = await getDate()
