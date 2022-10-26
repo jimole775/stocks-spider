@@ -101,6 +101,7 @@ export class BunchLinking {
 
   async _waitingComsumesFinished () {
     const condition = function (this: BunchLinking) {
+      console.log(this.bunchThread.isDone, this.pages.map(i => i.busying))
       return this.bunchThread.isDone && !this.pages.find(i => i.busying)
     }
     await waitBy(condition.bind(this))
@@ -113,6 +114,7 @@ export class BunchLinking {
       console.log('_taskEntity: ', idlPage.id, idlPage.idl)
       if (idlPage.goto) {
         await idlPage.goto(url, { timeout: global.$questTimeout }).catch((err: string) => {
+          // todo 报错的用log存起来
           console.log('bunch link failure:', url)
           this._setPageIdl(idlPage)
           return resolve()

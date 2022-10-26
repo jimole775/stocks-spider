@@ -78,6 +78,7 @@ export class BunchThread implements BunchThreadInterface {
 
   async _waitingTaskFinished () {
     const condition = function (this: BunchThread) {
+      console.log(this.consumedIds.length, this.paramList.length)
       return this.consumedIds.length === this.paramList.length
     }
     await waitBy(condition.bind(this))
