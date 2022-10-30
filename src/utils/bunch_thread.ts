@@ -89,21 +89,6 @@ export class BunchThread implements BunchThreadInterface {
   }
 
   /**
-   * 单任务调用方式
-   * @param { Function } $$task
-   * @return { BunchThread }
-   */
-  // taskCalling($$task: Task): BunchThread {
-  //   if (this.taskLivingId >= this.bunchLimit) {
-  //     this.paramQueue.push($$task)
-  //   } else {
-  //     this._thread($$task)
-  //   }
-  //   this.taskLivingId++
-  //   return this
-  // }
-
-  /**
    * 注册并发结束的回调
    * @param { Function } callback
    * @return { BunchThread }
@@ -147,35 +132,6 @@ export class BunchThread implements BunchThreadInterface {
       }
     }
   }
-
-  /**
-   * 线程实例
-   * @param { Function } $$task
-   * @return { Undefined }
-   */
-  // async _thread($$task: Task): Promise<any> {
-  //   try {
-  //     await $$task()
-  //   } catch (error) {
-  //     // 报错了不处理，让每个任务注入前自己处理自己的异常
-  //     console.log(bunch_log_prev, '_thread error:', error)
-  //   }
-
-  //   // 如果是 busy 模式，每个任务执行后需要睡眠指定的时间
-  //   // 默认为 3 秒，可以在 global.config 里面进行配置
-  //   if (global.$onBusyNetwork) {
-  //     await this._sleep(global.$sleepTimes)
-  //   }
-  //   this.taskLivingId--
-  //   if (this.paramQueue.length) {
-  //     return this._thread(<Task>this.paramQueue.shift())
-  //   } else {
-  //     if (this.taskLivingId <= 0) {
-  //       this.reset()
-  //       return this.endCallback()
-  //     }
-  //   }
-  // }
 
   reset () {
     this.paramList.length = 0

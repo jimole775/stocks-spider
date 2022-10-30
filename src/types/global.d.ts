@@ -1,6 +1,7 @@
 import Mysql from '@/db-utils/mysql/index'
 import { Browser } from 'puppeteer'
 import { UrlModel } from '@/types/stock'
+import { SerialThread } from '@/interfaces/serial_thread'
 import { Util } from '@/types/util.d'
 declare global {
   var Mysql: typeof Mysql
@@ -17,6 +18,8 @@ declare global {
   var $finalDealDate: string
   var $onBusyNetwork: boolean
   var $blackName: RegExp
+  var $serialThread: SerialThread
+  var $log: Function
 
   var $vline: Object<{
     time_dvd: number, // v型k线的形成时间

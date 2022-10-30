@@ -90,11 +90,13 @@ export class BunchLinking {
   }
 
   _setPageBusying (page: BrowserPage) {
+    // global.$log('page open:', page.id)
     page.idl = false
     page.busying = true
   }
 
   _setPageIdl (page: BrowserPage) {
+    // global.$log('page end:', page.id)
     page.idl = true
     page.busying = false
   }
@@ -111,10 +113,9 @@ export class BunchLinking {
   _taskEntity (url: string): Promise<void> {
     return new Promise(async (resolve) => {
       const idlPage: BrowserPage = await this._pickIdlPage()
-      console.log('_taskEntity: ', idlPage.id, idlPage.idl)
       if (idlPage.goto) {
         await idlPage.goto(url, { timeout: global.$questTimeout }).catch((err: string) => {
-          // todo 报错的用log存起来
+          // todo 报错的用log存起来, 并且记录page使用的情况，哪几个使用的频率高，然后分析内存使用状况
           console.log('bunch link failure:', url)
           this._setPageIdl(idlPage)
           return resolve()
