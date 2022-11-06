@@ -162,9 +162,9 @@ function test () {
   bunch.emit()
 }
 
-if (!global.$env) {
-  global.$sleepTimes = 3000
-  global.$bunchLimit = 10
-  global.$onBusyNetwork = false
-  test()
-}
+// if (!global.$env) {
+//   global.$sleepTimes = 3000
+//   global.$bunchLimit = 10
+//   global.$onBusyNetwork = false
+//   test()
+// }

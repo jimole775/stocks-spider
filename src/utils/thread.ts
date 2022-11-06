@@ -84,7 +84,7 @@ export class Thread implements ThreadInterface {
 
   async _waitingTaskFinished () {
     const condition = function (this: Thread) {
-      return this.taskConsumedCount === this.paramList.length
+      return this.taskConsumedCount === this.taskLength
     }
     await waitBy(condition.bind(this))
     this.isDone = true
@@ -209,10 +209,10 @@ function test () {
   bunch.emit()
 }
 
-if (!global.$env) {
-  global.$sleepTimes = 3000
-  global.$bunchLimit = 10
-  global.$onBusyNetwork = false
-  console.log('thread test!')
-  test()
-}
+// if (!global.$env) {
+//   global.$sleepTimes = 3000
+//   global.$bunchLimit = 10
+//   global.$onBusyNetwork = false
+//   console.log('thread test!')
+//   test()
+// }

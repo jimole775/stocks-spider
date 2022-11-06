@@ -6,7 +6,7 @@ import { Thread } from './thread'
  * @param { String } msg
  */
 const basepath = path.resolve(__dirname + '../../../logs')
-const logThread = new Thread()
+const logThread = new Thread(1)
 export function log(...args: any[]): void {
   const file = path.join(basepath, global.$finalDealDate + '.log')
   const date = new Date()
