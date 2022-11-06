@@ -1,5 +1,5 @@
 import { Page, Request, Response } from 'puppeteer'
-import { BunchThread } from './bunch_thread'
+import { Thread } from './thread'
 import { isCSSUrl, isImgUrl } from './assert'
 import { waitBy } from './wait_by'
 const LogTag = 'utils.BunchLinking => '
@@ -24,7 +24,7 @@ export type BunchLinkingRequestEvent = (e: Request, ...args: any[]) => Promise<b
  */
 export class BunchLinking {
   limitBunch: number
-  bunchThread: BunchThread
+  bunchThread: Thread
   pages: BrowserPage[]
   urls: string[]
   requestCallback: BunchLinkingRequestEvent
@@ -34,7 +34,7 @@ export class BunchLinking {
     this.pages = []
     this.urls = urls
     this.limitBunch = limit
-    this.bunchThread = new BunchThread(limit)
+    this.bunchThread = new Thread(limit)
     this.requestCallback = () => Promise.resolve()
     this.responseCallback = () => Promise.resolve()
     this.end = () => { return [] }
@@ -90,13 +90,13 @@ export class BunchLinking {
   }
 
   _setPageBusying (page: BrowserPage) {
-    // global.$log('page open:', page.id)
+    global.$log('page open:', page.id, page.url())
     page.idl = false
     page.busying = true
   }
 
   _setPageIdl (page: BrowserPage) {
-    // global.$log('page end:', page.id)
+    global.$log('page end:', page.id, page.url())
     page.idl = true
     page.busying = false
   }

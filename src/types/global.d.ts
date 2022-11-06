@@ -2,6 +2,7 @@ import Mysql from '@/db-utils/mysql/index'
 import { Browser } from 'puppeteer'
 import { UrlModel } from '@/types/stock'
 import { SerialThread } from '@/interfaces/serial_thread'
+import { Thread } from '@/interfaces/thread'
 import { Util } from '@/types/util.d'
 declare global {
   var Mysql: typeof Mysql

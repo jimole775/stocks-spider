@@ -1,24 +1,29 @@
 import fs from 'fs'
 import path from 'path'
 import { buildPath } from './build_path'
+import { Thread } from './thread'
 /**
  * @param { String } msg
  */
 const basepath = path.resolve(__dirname + '../../../logs')
-export function log(msg: string): void {
+const logThread = new Thread()
+export function log(...args: any[]): void {
   const file = path.join(basepath, global.$finalDealDate + '.log')
   const date = new Date()
   const h = date.getHours()
   const m = date.getMinutes()
   const s = date.getSeconds()
+  const hh = h < 10 ? `0${h}` : h
+  const mm = m < 10 ? `0${m}` : m
+  const ss = s < 10 ? `0${s}` : s
   const ms = date.getMilliseconds()
-  const time = `@${h}:${m}:${s}::${ms}`
+  const time = `@${hh}:${mm}:${ss}::${ms}`
   buildPath(file)
-  global.$serialThread.call(() => {
+  logThread.call(() => {
     return new Promise((resolve: Function, reject: Function) => {
       try {
-        console.log('record: ', msg)
-        fs.writeFileSync(file, `${time}\n${msg}\n`)
+        const content = `${time}\n${args.join('')}\n` 
+        fs.appendFileSync(file, content)
         return resolve()
       } catch (error) {
         return reject()
@@ -28,10 +33,8 @@ export function log(msg: string): void {
 }
 
 function test () {
-  const { SerialThread } = require('./serial_thread')
-  global.$serialThread = new SerialThread()
   global.$finalDealDate = '2022-01-01'
-  log('log')
+  log('log', 11, 22)
   console.log('console')
 }
 

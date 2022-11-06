@@ -154,7 +154,7 @@ function test () {
   bunch.register(temps, (item, i) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        console.log(i)
+        console.log('b test:', i)
         return resolve('')
       }, Math.random() * 3000)
     })

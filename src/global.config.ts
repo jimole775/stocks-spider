@@ -3,7 +3,6 @@ import moment from 'moment'
 import puppeteer from 'puppeteer'
 import { quest } from './utils/quest'
 import { log } from './utils/log'
-import { SerialThread } from './utils/serial_thread'
 import { cmdParam } from './utils/cmd_param'
 import { readFileSync } from './utils/read_file_sync'
 export default async function config(): Promise<any> {
@@ -57,7 +56,6 @@ export default async function config(): Promise<any> {
   }
 
   global.$browser = await puppeteer.launch()
-  global.$serialThread = new SerialThread()
   global.$log = log
 
   global.$utils = require(path.join(__dirname, 'utils\\index'))
