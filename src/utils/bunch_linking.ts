@@ -30,11 +30,12 @@ export class BunchLinking {
   requestCallback: BunchLinkingRequestEvent
   responseCallback: BunchLinkingResponseEvent
   end: Function
-  constructor (urls: string[] = [], limit: number = global.$bunchLimit) {
+
+  constructor (urls: string[] = [], limit: number) {
     this.pages = []
     this.urls = urls
-    this.limitBunch = limit
-    this.bunchThread = new Thread(limit)
+    this.limitBunch = this._evalLimit(limit)
+    this.bunchThread = new Thread(this.limitBunch)
     this.requestCallback = () => Promise.resolve()
     this.responseCallback = () => Promise.resolve()
     this.end = () => { return [] }
@@ -52,6 +53,14 @@ export class BunchLinking {
     await this._buildPages()
     await this._consumeUrls()
     return Promise.resolve()
+  }
+
+  _evalLimit (limit: number): number {
+    let res = limit || global.$bunchLimit
+    if (this.urls && this.urls.length < res) {
+      res = this.urls.length
+    }
+    return res
   }
 
   _consumeUrls (): Promise<void> {
