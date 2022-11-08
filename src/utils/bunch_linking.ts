@@ -31,7 +31,7 @@ export class BunchLinking {
   responseCallback: BunchLinkingResponseEvent
   end: Function
 
-  constructor (urls: string[] = [], limit: number) {
+  constructor (urls: string[] = [], limit?: number) {
     this.pages = []
     this.urls = urls
     this.limitBunch = this._evalLimit(limit)
@@ -55,7 +55,7 @@ export class BunchLinking {
     return Promise.resolve()
   }
 
-  _evalLimit (limit: number): number {
+  _evalLimit (limit?: number): number {
     let res = limit || global.$bunchLimit
     if (this.urls && this.urls.length < res) {
       res = this.urls.length
