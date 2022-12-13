@@ -1,10 +1,10 @@
 import { waitBy } from './wait_by'
-import { ThreadInterface, TaskEntity, Task } from '@/interfaces/thread'
-export * from '@/interfaces/thread'
+import { BunchInterface, TaskEntity, Task } from '@/interfaces/bunch'
+export * from '@/interfaces/bunch'
 /**
  * 模拟线程
  */
-export class Thread implements ThreadInterface {
+export class Bunch implements BunchInterface {
   isDone: boolean
   bunchLimit: number
   taskLivingCount: number
@@ -38,9 +38,9 @@ export class Thread implements ThreadInterface {
    * 注册执行函数
    * @param { Array<any> } paramList
    * @param { Function } taskEntity
-   * @return { Thread }
+   * @return { Bunch }
    */
-  register(paramList: any[], taskEntity: TaskEntity): Thread {
+  register(paramList: any[], taskEntity: TaskEntity): Bunch {
     this.paramList = paramList
     this.taskLength = paramList.length
     this.taskEntity = taskEntity
@@ -49,9 +49,9 @@ export class Thread implements ThreadInterface {
 
   /**
    * 并发发起
-   * @return { Thread }
+   * @return { Bunch }
    */
-  async emit(): Promise<Thread> {
+  async emit(): Promise<Bunch> {
     await this._doTaskBunchComsuming()
     await this._waitingTaskFinished()
     return Promise.resolve(this)
@@ -83,7 +83,7 @@ export class Thread implements ThreadInterface {
 
 
   async _waitingTaskFinished () {
-    const condition = function (this: Thread) {
+    const condition = function (this: Bunch) {
       return this.taskConsumedCount === this.taskLength
     }
     await waitBy(condition.bind(this))
@@ -96,9 +96,9 @@ export class Thread implements ThreadInterface {
   /**
    * 注册并发结束的回调
    * @param { Function } callback
-   * @return { Thread }
+   * @return { Bunch }
    */
-  finally(callback: Function): Thread {
+  finally(callback: Function): Bunch {
     this.endCallback = callback
     return this
   }
@@ -196,7 +196,7 @@ export class Thread implements ThreadInterface {
 }
 
 function test () {
-  const bunch = new Thread(1)
+  const bunch = new Bunch(1)
   const temps: any[] = new Array(100).fill(1)
   bunch.register(temps, (item, i) => {
     return new Promise((resolve, reject) => {

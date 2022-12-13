@@ -1,4 +1,4 @@
-export interface ThreadInterface {
+export interface BunchInterface {
   isDone: boolean
   bunchLimit: number
   taskLivingCount: number

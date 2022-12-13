@@ -30,7 +30,11 @@ export default async function sniffApiFromWebSite (dealsURLs: string[]): Promise
           doneApiMap[code] = { secid, dt: 1 }
           await recordDeals1({ secid })
           return Promise.resolve(true)
+        } else {
+          return Promise.resolve(false)
         }
+      } else {
+        return Promise.resolve(false)
       }
     },
     end: function () {

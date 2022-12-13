@@ -1,5 +1,5 @@
 import { Page, Request, Response } from 'puppeteer'
-import { Thread } from './thread'
+import { Bunch } from './bunch'
 import { isCSSUrl, isImgUrl } from './assert'
 import { waitBy } from './wait_by'
 const LogTag = 'utils.BunchLinking => '
@@ -24,7 +24,7 @@ export type BunchLinkingRequestEvent = (e: Request, ...args: any[]) => Promise<b
  */
 export class BunchLinking {
   limitBunch: number
-  bunchThread: Thread
+  bunch: Bunch
   pages: BrowserPage[]
   urls: string[]
   requestCallback: BunchLinkingRequestEvent
@@ -35,7 +35,7 @@ export class BunchLinking {
     this.pages = []
     this.urls = urls
     this.limitBunch = this._evalLimit(limit)
-    this.bunchThread = new Thread(this.limitBunch)
+    this.bunch = new Bunch(this.limitBunch)
     this.requestCallback = () => Promise.resolve()
     this.responseCallback = () => Promise.resolve()
     this.end = () => { return [] }
@@ -65,7 +65,7 @@ export class BunchLinking {
 
   _consumeUrls (): Promise<void> {
     const loop = (urls: string[], resolve: Function) => {
-      this.bunchThread.register(urls, this._taskEntity.bind(this))
+      this.bunch.register(urls, this._taskEntity.bind(this))
       .finally(async () => {
         await this._waitingComsumesFinished()
         const remainUrls = await this.end()
@@ -112,8 +112,8 @@ export class BunchLinking {
 
   async _waitingComsumesFinished () {
     const condition = function (this: BunchLinking) {
-      console.log(this.bunchThread.isDone, this.pages.map(i => i.busying))
-      return this.bunchThread.isDone && !this.pages.find(i => i.busying)
+      console.log(this.bunch.isDone, this.pages.map(i => i.busying))
+      return this.bunch.isDone && !this.pages.find(i => i.busying)
     }
     await waitBy(condition.bind(this))
     return Promise.resolve()
@@ -142,7 +142,7 @@ export class BunchLinking {
         const page: BrowserPage = await global.$browser.newPage() as BrowserPage
         await page.setRequestInterception(true)
         page.on('request', async (interceptedRequest: Request) => {
-          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url()) || this._isIdl(page)) {
+          if (isImgUrl(interceptedRequest.url()) || isCSSUrl(interceptedRequest.url())) {
             interceptedRequest.abort()
           } else {
             interceptedRequest.continue()
